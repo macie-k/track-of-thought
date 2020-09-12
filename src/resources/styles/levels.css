@@ -1,0 +1,15 @@
+#pane {
+	-fx-background-color: #1F2227;
+	-fx-background-size: cover;
+}
+
+.container {
+	-fx-stroke: white;
+	-fx-stroke-width: 3;
+}
+
+.level-number {
+	-fx-font-family: "Poppins-Light";
+	-fx-font-size: 25;
+	-fx-fill: white;
+}
