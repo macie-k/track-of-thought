@@ -3,13 +3,18 @@
 	-fx-background-size: cover;
 }
 
+#title {
+	-fx-font-size: 100;
+	-fx-fill: #C7B59D;
+}
+
 .container {
-	-fx-stroke: white;
+	-fx-stroke: #C7B59D;
 	-fx-stroke-width: 3;
 }
 
 .level-number {
-	-fx-font-family: "Poppins-Light";
 	-fx-font-size: 25;
-	-fx-fill: white;
+	-fx-fill: #C7B59D;
 }
+

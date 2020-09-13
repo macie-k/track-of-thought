@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 import javafx.scene.text.Font;
 
 public class Setup {
-	
+		
 	static void runSetup() {
 		new File(Window.saveDirectory).mkdir();		// create main directory if doesn't exist
 		loadFonts();	// load all required fonts
@@ -22,7 +22,8 @@ public class Setup {
 	static void loadFonts() {
 		createDirectory("fonts");		// create directory if doesn't exist
 		String[] fontNames = {			// all fonts required
-				"Poppins-Light.ttf"
+				"Poppins-Light.ttf",
+				"HindGuntur-Bold.ttf"
 		};
 		
 		for(String font : fontNames) {	// download each font
@@ -30,11 +31,11 @@ public class Setup {
 				String encodedName = URLEncoder.encode(font, "UTF-8").replace("+", "%20%"); 
 				downloadFile(
 					"https://kazmierczyk.me/--trackOfThought/fonts/" + encodedName,	// dedicated hosting url
-					"fonts",													// directory
-					font														// fontname
+					"fonts",														// directory
+					font															// fontname
 				);
 				InputStream IS = new FileInputStream(Window.saveDirectory + "/fonts/" + font);
-				Font.loadFont(IS, 15); 
+				Font.loadFont(IS, 20); 
 			} catch (Exception e) {
 				Log.error(e.toString());
 			}
@@ -42,7 +43,7 @@ public class Setup {
 	}
 		
 	private static void createDirectory(String path) {
-		String finalPath = Window.saveDirectory + "/" + path;	// build final path
+		String finalPath = Window.saveDirectory + "/" + path;		// build final path
 		
 		if(!fileExists(finalPath)) {								// if directory doesn't exist
 			if(new File(finalPath).mkdir()) {						// try to create
