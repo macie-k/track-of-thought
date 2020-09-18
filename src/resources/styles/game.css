@@ -1,0 +1,31 @@
+#pane {
+    -fx-background-color: #1F2227;
+}
+
+.gridPane {
+	-fx-stroke-width: 1;
+	-fx-stroke: #BCAA94;
+}
+
+.clickable {
+	-fx-cursor: hand;
+}
+
+.clickable:hover > .bg {
+	-fx-fill: red;
+	-fx-fill: rgba(145, 139, 119, 0.4);
+}
+
+.clickable > .bg {
+	-fx-fill: rgba(145, 139, 119, 0.2);
+}
+
+.track {
+	-fx-fill: rgba(255, 255, 255, 0.2);
+}
+
+#fullTrack {
+	-fx-fill: rgba(255, 255, 255, 0);
+	-fx-stroke: white;
+	-fx-stroke-width: 2;
+}
