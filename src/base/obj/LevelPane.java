@@ -35,7 +35,7 @@ public class LevelPane extends StackPane {
 		setOnMouseEntered(event -> this.setHiglight(true));
 		setOnMouseExited(event -> this.setHiglight(false));
 //		setOnMouseClicked(event -> {Window.setScene(Scenes.game(getValue()));});
-		setOnMouseClicked(event -> {Window.setScene(Scenes.tutorial());});
+		setOnMouseClicked(event -> {Window.game(Scenes.tutorial());});
 	}
 	
 	public String getValue() {

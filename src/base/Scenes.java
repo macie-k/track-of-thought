@@ -1,11 +1,15 @@
 package base;
 
+import base.obj.FullTrack;
 import base.obj.GridSquare;
 import base.obj.LevelPane;
+import base.obj.Station;
 import base.obj.Track;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Path;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
@@ -38,60 +42,54 @@ public class Scenes {
 		return getSceneWithCSS(root, "levels.css");
 	}
 	
-	public static Scene tutorial() {
-		Pane root = getRootPane();
-		
-		GridSquare start = new GridSquare(3, 2);
-			start.setFill(Color.BLACK);
-		GridSquare redFinish = new GridSquare(9, 6);
-			redFinish.setFill(Color.RED);
-		GridSquare blueFinish = new GridSquare(3, 4);
-			blueFinish.setFill(Color.BLUE);
-		GridSquare greenFinish = new GridSquare(5, 4);
-			greenFinish.setFill(Color.GREEN);
+	public static FullTrack tutorial() {
+		Station start = new Station(2, 3, Color.BLACK);
+		Station redFinish = new Station(6, 9, Color.RED);
+		Station blueFinish = new Station(4, 3, Color.BLUE);
+		Station greenFinish = new Station(4, 5, Color.GREEN);
 			
-		GridSquare[] endStations = {start, redFinish, blueFinish, greenFinish};
-		root.getChildren().addAll(endStations);
-		
-//		for(int i=0; i<15; i++) {
-//			root.getChildren().addAll(GRID[i]);
-//		}
-		
+		Station[] stations = {start, redFinish, blueFinish, greenFinish};		
 		Track[] tracks = {
-//			[S=straight, C=curved]
-//			[0=top, 1=right, 2=bottom, 3=left]	
+				
+//			[S=straight, C=curved 0=top, 1=right, 2=bottom, 3=left]	
 //			(xy, type[S, C], origin[0,1,2,3], end1[0,1,2,3], end2[0,1,2,3])
 			
-			new Track(GRID[4][2].getXY(), S, 3, 1),
-			new Track(GRID[5][2].getXY(), S, 3, 1),
-			new Track(GRID[6][2].getXY(), S, 3, 1),
-			new Track(GRID[7][2].getXY(), S, 3, 1),
-			new Track(GRID[8][2].getXY(), S, 3, 1),
-			new Track(GRID[9][2].getXY(), S, 3, 1),
-			new Track(GRID[10][2].getXY(), S, 3, 1),
-			new Track(GRID[11][2].getXY(), C, 3, 2),
-			new Track(GRID[11][3].getXY(), S, 0, 2),
-			new Track(GRID[11][4].getXY(), C, 0, 3, 2),
-			new Track(GRID[11][5].getXY(), S, 3, 2), 	// #10
-			new Track(GRID[11][6].getXY(), C, 0, 3),
-			new Track(GRID[10][6].getXY(), S, 1, 3),
-			new Track(GRID[10][4].getXY(), S, 1, 3),
-			new Track(GRID[9][4].getXY(), S, 1, 3),
-			new Track(GRID[8][4].getXY(), S, 1, 3),
-			new Track(GRID[7][4].getXY(), C, 2, 1),
-			new Track(GRID[7][5].getXY(), S, 2, 1),
-			new Track(GRID[7][6].getXY(), C, 0, 3),
-			new Track(GRID[6][6].getXY(), S, 1, 3),
-			new Track(GRID[5][6].getXY(), S, 1, 3, 0),	// #20
-			new Track(GRID[5][5].getXY(), S, 2, 0),
-			new Track(GRID[4][6].getXY(), S, 1, 3),
-			new Track(GRID[3][6].getXY(), C, 1, 0),
-			new Track(GRID[3][5].getXY(), S, 2, 0),
+			new Track(GRID[2][4].getPos(), S, 3, 1),
+			new Track(GRID[2][5].getPos(), S, 3, 1),
+			new Track(GRID[2][6].getPos(), S, 3, 1),
+			new Track(GRID[2][7].getPos(), S, 3, 1),
+			new Track(GRID[2][8].getPos(), S, 3, 1),
+			new Track(GRID[2][9].getPos(), S, 3, 1),
+			new Track(GRID[2][10].getPos(), S, 3, 1),
+			new Track(GRID[2][11].getPos(), C, 3, 2),
+			new Track(GRID[3][11].getPos(), S, 0, 2),
+			new Track(GRID[4][11].getPos(), C, 0, 3, 2),
+			new Track(GRID[5][11].getPos(), S, 0, 2), 	// #10
+			new Track(GRID[6][11].getPos(), C, 0, 3),
+			new Track(GRID[6][10].getPos(), S, 1, 3),
+			new Track(GRID[4][10].getPos(), S, 1, 3),
+			new Track(GRID[4][9].getPos(), S, 1, 3),
+			new Track(GRID[4][8].getPos(), S, 1, 3),
+			new Track(GRID[4][7].getPos(), C, 2, 1),
+			new Track(GRID[5][7].getPos(), S, 0, 2),
+			new Track(GRID[6][7].getPos(), C, 0, 3),
+			new Track(GRID[6][6].getPos(), S, 1, 3),
+			new Track(GRID[6][5].getPos(), S, 1, 3, 0),	// #20
+			new Track(GRID[5][5].getPos(), S, 2, 0),
+			new Track(GRID[6][4].getPos(), S, 1, 3),
+			new Track(GRID[6][3].getPos(), C, 1, 0),
+			new Track(GRID[5][3].getPos(), S, 2, 0),
 		};
 		
-		
-		root.getChildren().addAll(tracks);
-		return getSceneWithCSS(root, "game.css");
+		return new FullTrack(stations, tracks);
+	}
+	
+	public static Path getFullPath(Track[] tracks) {
+		Path entireTrack = (Path) Path.union(tracks[0].getTrackAsShape(), tracks[1].getTrackAsShape());
+		for(Track track : tracks) {
+			entireTrack = (Path) Path.union(entireTrack, track.getTrackAsShape());
+		}
+		return entireTrack;
 	}
 	
 	public static Scene game(String level) {
@@ -119,9 +117,9 @@ public class Scenes {
 	}
 	
 	private static GridSquare[][] getGrid() {
-		GridSquare[][] grid = new GridSquare[15][9];
-		for(int i=0; i<15; i++) {
-			for(int j=0; j<9; j++) {
+		GridSquare[][] grid = new GridSquare[9][15];
+		for(int i=0; i<9; i++) {
+			for(int j=0; j<15; j++) {
 				grid[i][j] = new GridSquare(i, j);
 			}
 		}
@@ -129,7 +127,7 @@ public class Scenes {
 	}
 	
 	/* return root Pane with constant parameters */
-	private static Pane getRootPane() {
+	public static Pane getRootPane() {
 		Pane root = new Pane();
 		root.setPrefSize(850, 550);
 		root.setId("pane");

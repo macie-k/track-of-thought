@@ -1,5 +1,6 @@
 package base.obj;
 
+import base.Log;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -10,7 +11,7 @@ public class GridSquare extends Rectangle {
 	private int x;
 	private int y;
 		
-	public GridSquare(int column, int row) {
+	public GridSquare(int row, int column) {
 		x = (column + 1)*50;
 		y = (row + 1)*50;
 		
@@ -22,10 +23,12 @@ public class GridSquare extends Rectangle {
 			getStyleClass().add("gridPane");
 			setFill(Color.TRANSPARENT);
 			setOpacity(0.5);
+		} else {
+			Log.error("Value exceeding grid size");
 		}
 	}
 	
-	public int[] getXY() {
-		return new int[] {this.x, this.y};
+	public int[] getPos() {
+		return new int[] {this.y, this.x};
 	}
 }
