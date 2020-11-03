@@ -1,0 +1,12 @@
+.gridPane:hover {
+	-fx-fill: #D3EFAF;
+	-fx-stroke: #D3EFAF;
+	-fx-stroke-width: 3;
+	-fx-opacity: .5;
+}
+
+.gridPane {
+	-fx-fill: transparent;
+	-fx-stroke-width: 1;
+	-fx-stroke: #BCAA94;
+}

@@ -1,6 +1,5 @@
 package base.obj;
 
-import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -35,9 +34,12 @@ public class LevelPane extends StackPane {
 		
 		setOnMouseEntered(event -> this.setHiglight(true));
 		setOnMouseExited(event -> this.setHiglight(false));
-		setOnMouseClicked(event -> {
-			Window.window.setScene(new Scene(Scenes.game(this.value.getText())));
-		});
+//		setOnMouseClicked(event -> {Window.setScene(Scenes.game(getValue()));});
+		setOnMouseClicked(event -> {Window.game(Scenes.tutorial());});
+	}
+	
+	public String getValue() {
+		return this.value.getText();
 	}
 			
 	public void setHiglight(boolean highlight) {

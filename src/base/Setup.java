@@ -10,13 +10,16 @@ import java.nio.file.Paths;
 
 import javafx.scene.text.Font;
 
+import static base.Window.saveDirectory;
+
 public class Setup {
 		
 	static void runSetup() {
-		new File(Window.saveDirectory).mkdir();		// create main directory if doesn't exist
-		loadFonts();	// load all required fonts
+		new File(saveDirectory).mkdir();		// create main directory if doesn't exist
+		loadFonts();							// load all required fonts
 		
-		Selection.selectLevel();
+		Window.setScene(Scenes.levels());
+//		Window.setScene(Scenes.tutorial());
 	}
 	
 	static void loadFonts() {
@@ -34,7 +37,7 @@ public class Setup {
 					"fonts",														// directory
 					font															// fontname
 				);
-				InputStream IS = new FileInputStream(Window.saveDirectory + "/fonts/" + font);
+				InputStream IS = new FileInputStream(saveDirectory + "/fonts/" + font);
 				Font.loadFont(IS, 20); 
 			} catch (Exception e) {
 				Log.error(e.toString());
@@ -43,7 +46,7 @@ public class Setup {
 	}
 		
 	private static void createDirectory(String path) {
-		String finalPath = Window.saveDirectory + "/" + path;		// build final path
+		String finalPath = saveDirectory + "/" + path;		// build final path
 		
 		if(!fileExists(finalPath)) {								// if directory doesn't exist
 			if(new File(finalPath).mkdir()) {						// try to create
@@ -55,7 +58,7 @@ public class Setup {
 	}
 	
 	private static void downloadFile(String url, String dir, String filename) {
-		String finalPath = String.format("%s/%s/%s", Window.saveDirectory, dir, filename);
+		String finalPath = String.format("%s/%s/%s", saveDirectory, dir, filename);
 		
 		if(!fileExists(finalPath)) {
 			try {
