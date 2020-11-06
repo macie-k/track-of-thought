@@ -22,7 +22,6 @@ public class GridSquare extends Rectangle {
 			setTranslateY(y);
 			getStyleClass().add("gridPane");
 			setFill(Color.TRANSPARENT);
-			setOpacity(0.5);
 		} else {
 			Log.error("Value exceeding grid size");
 		}

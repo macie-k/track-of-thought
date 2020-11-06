@@ -19,6 +19,15 @@ public class FullTrack {
 		return null;
 	}
 	
+	public Station findStation(int col, int row) {
+		for(Station station : stations) {
+			if(station.getColumn() == col && station.getRow() == row) {
+				return station;
+			}
+		}
+		return null;
+	}
+	
 	public Station[] getStations() {
 		return this.stations;
 	}

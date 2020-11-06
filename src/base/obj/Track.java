@@ -15,7 +15,7 @@ import base.Log;
 
 public class Track extends StackPane {
 	
-	private final static Integer NULL = null;
+	public final static Integer NULL = null;
 	private final static double PI = Math.PI;
 	private final static double fi0 = PI/100;
 	
@@ -75,6 +75,129 @@ public class Track extends StackPane {
 		
 		getChildren().addAll(bg, track);
 	}
+	
+	
+	@Override
+	public String toString() {
+		return String.format(
+					"Track@[type=%s, x=%s, y=%s, origin=%s, end=%s]",
+					this.type,
+					this.column,
+					this.row,
+					getOriginEndToString(this.origin),
+					getOriginEndToString(this.currentEnd)
+				);
+	}
+	
+	public double[][] getPath() {
+		double[][] pathXY = new double[2][50];
+		final int originX = getOriginXY()[0];
+		final int originY = getOriginXY()[1];
+		
+		if(type == S) {
+			switch(origin + currentEnd) {
+				case 2:
+					for(int i=0; i<50; i++) {
+						double x = originX + 25;
+						double y = originY + i;
+						
+						pathXY[0][i] = x;
+						pathXY[1][i] = y;
+					}
+					if(origin == 2) {
+						reverseRow(pathXY, 1);
+					}
+					break;
+				case 4:
+					for(int i=0; i<50; i++) {
+						double x = originX + i;
+						double y = originY + 25;
+						
+						pathXY[0][i] = x;
+						pathXY[1][i] = y;
+					}
+
+					if(origin == 1) {						
+						reverseRow(pathXY, 0);
+					}
+					break;
+			}			
+		} else {			
+			double startFi = getAngles()[0];
+			double endFi = getAngles()[1];
+			
+			double fi = fi0;
+			if((endFi - startFi) < 0) {
+				fi *= -1;
+			}
+
+			for(int i=0; i<50; i++) {
+				double x = originX + 25*Math.cos(startFi + i*fi);
+				double y = originY - 25*Math.sin(startFi + i*fi);
+				
+				pathXY[0][i] = x;
+				pathXY[1][i] = y;
+			}
+		}	
+		return pathXY;
+	}
+	
+	public void debugDraw(Pane root) {
+		double[][] path = getPath();
+		for(int j=0; j<path[0].length; j++) {
+			Rectangle r = new Rectangle(1, 1);
+				r.setTranslateX(path[0][j]);
+				r.setTranslateY(path[1][j]);
+				r.setFill(Color.rgb(4*j, 3*j, 2*j));
+			root.getChildren().add(r);
+		}	
+	}
+	
+	public int getNextTrackColumn() {
+		switch(currentEnd) {
+			case 0:
+			case 2:
+				return column;
+			case 1:
+				return column+1;
+			case 3:
+				return column-1;
+			default:
+				return NULL;
+		}
+	}
+	
+	public int getNextTrackRow() {
+		switch(currentEnd) {
+			case 1:
+			case 3:
+				return row;
+			case 2:
+				return row+1;
+			case 0:
+				return row-1;
+			default:
+				return NULL;
+		}
+	}
+	
+	public int getColumn() {
+		return this.column;
+	}
+	
+	public int getRow() {
+		return this.row;
+	}
+	
+	public String getType() {
+		return this.type;
+	}
+
+	public Shape getTrackAsShape() {
+		return track;
+	}
+
+//	------------------------------------------------
 	
 	private int calcQuarter() {
 		if(type == S) {
@@ -164,65 +287,12 @@ public class Track extends StackPane {
 				}
 				break;
 			default:
-				Log.error("@getStartAngle: Wrong parameters");
+				Log.error("@getAngles: Wrong parameters");
 				break;
 		}
 		return new double[] {startAngle, endAngle};
 	}
 		
-	public double[][] getPath() {
-		double[][] pathXY = new double[2][50];
-		final int originX = getOriginXY()[0];
-		final int originY = getOriginXY()[1];
-		
-		if(type == S) {
-			switch(origin + currentEnd) {
-				case 2:
-					for(int i=0; i<50; i++) {
-						double x = originX + 25;
-						double y = originY + i;
-						
-						pathXY[0][i] = x;
-						pathXY[1][i] = y;
-					}
-					if(origin == 2) {
-						reverseRow(pathXY, 1);
-					}
-					break;
-				case 4:
-					for(int i=0; i<50; i++) {
-						double x = originX + i;
-						double y = originY + 25;
-						
-						pathXY[0][i] = x;
-						pathXY[1][i] = y;
-					}
-
-					if(origin == 1) {						
-						reverseRow(pathXY, 0);
-					}
-					break;
-			}			
-		} else {			
-			double startFi = getAngles()[0];
-			double endFi = getAngles()[1];
-			
-			double fi = fi0;
-			if((endFi - startFi) < 0) {
-				fi *= -1;
-			}
-
-			for(int i=0; i<50; i++) {
-				double x = originX + 25*Math.cos(startFi + i*fi);
-				double y = originY - 25*Math.sin(startFi + i*fi);
-				
-				pathXY[0][i] = x;
-				pathXY[1][i] = y;
-			}
-		}	
-		return pathXY;
-	}
-	
 	private double[][] reverseRow(double[][] pathXY, int row) {
 		int rowlen = pathXY[row].length;
 		for(int i=0; i<rowlen/2; i++) {
@@ -233,69 +303,6 @@ public class Track extends StackPane {
 		}
 		
 		return pathXY;
-	}
-	
-	public Shape getTrackAsShape() {
-		return track;
-	}
-	
-	public void debugDraw(Pane root) {
-		double[][] path = getPath();
-		for(int j=0; j<path[0].length; j++) {
-			Rectangle r = new Rectangle(1, 1);
-				r.setTranslateX(path[0][j]);
-				r.setTranslateY(path[1][j]);
-				r.setFill(Color.rgb(4*j, 3*j, 2*j));
-			root.getChildren().add(r);
-		}	
-	}
-		
-	public int getColumn() {
-		return this.column;
-	}
-	
-	public int getRow() {
-		return this.row;
-	}
-		
-	@Override
-	public String toString() {
-		return String.format(
-					"Track@[type=%s, x=%s, y=%s, origin=%s, end=%s]",
-					this.type,
-					this.column,
-					this.row,
-					getOriginEndToString(this.origin),
-					getOriginEndToString(this.currentEnd)
-				);
-	}
-	
-	public int getNextTrackColumn() {
-		switch(currentEnd) {
-			case 0:
-			case 2:
-				return column;
-			case 1:
-				return column+1;
-			case 3:
-				return column-1;
-			default:
-				return NULL;
-		}
-	}
-	
-	public int getNextTrackRow() {
-		switch(currentEnd) {
-			case 1:
-			case 3:
-				return row;
-			case 2:
-				return row+1;
-			case 0:
-				return row-1;
-			default:
-				return NULL;
-		}
 	}
 	
 	private String getOriginEndToString(int originOrEnd) {
@@ -338,18 +345,17 @@ public class Track extends StackPane {
 			default: return NULL;	
 		}
 	}
-	
-	public String getType() {
-		return this.type;
-	}
-			
+		
 	private void changeType() {
 		type = (type == S) ? C : S;		
+		
 		getChildren().remove(1);
 		getChildren().add(getTrackShape());
 		setRotate(calcRotation(origin, endToSwitch));
+		
 		endToSwitch = (endToSwitch == end1) ? end2 : end1;
 		currentEnd = (currentEnd == end1) ? end2 : end1;
+		quarter = calcQuarter();
 	}
 		
 	private Shape getTrackShape() {
@@ -358,12 +364,12 @@ public class Track extends StackPane {
 				track.getStyleClass().add("track");
 			return track;
 		} else {
-			Rectangle square = new Rectangle(50, 50, Color.GREEN);
+			Rectangle square = new Rectangle(50, 50, Color.TRANSPARENT);
 			
-			Circle small = new Circle(50, 0, 15, Color.RED);
+			Circle small = new Circle(50, 0, 15, Color.TRANSPARENT);
 			Shape topRight = Path.intersect(square, small);
 			
-			Circle big = new Circle(50, 0, 35, Color.RED);
+			Circle big = new Circle(50, 0, 35, Color.TRANSPARENT);
 			Shape mid = Path.intersect(square, big);
 			
 			Shape track = Path.subtract(mid, topRight);

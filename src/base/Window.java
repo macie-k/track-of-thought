@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import base.obj.Ball;
@@ -12,35 +12,33 @@ import base.obj.FullTrack;
 import base.obj.Station;
 import base.obj.Track;
 import javafx.animation.AnimationTimer;
-import javafx.animation.ParallelTransition;
-import javafx.animation.PathTransition;
-import javafx.animation.PathTransition.OrientationType;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.util.Duration;
+
+import static base.Scenes.RED;
+import static base.Scenes.BLACK;
+import static base.Scenes.GREEN;
+import static base.Scenes.BLUE;
 
 public class Window extends Application{
 	
 	public static Stage window;
+	public static int points=0;
 	public static final String OS = System.getProperty("os.name").toLowerCase();
 
 	static String saveDirectory;	// directory to save score and fonts
 	
 	private static AnimationTimer gameTimer;
-	private static boolean animated = false;
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
-		saveDirectory = System.getenv(OS.equals("linux") ? "HOME" : "APPDATA") + "/trackOfThought";
+		saveDirectory = System.getenv(OS.equals("linux") ? "HOME" : "APPDATA") + "/Track of thought";
 		
 		window = primaryStage;
 		window.setTitle("Track of thought");
@@ -56,36 +54,53 @@ public class Window extends Application{
 		
 		final Track[] tracks = allNodes.getTracks();
 		final Station[] stations = allNodes.getStations();
-		final Ball ball = new Ball(stations[0].getPos(), 10, Color.WHITE);
+		double[] startCoords = {stations[0].getTranslateX(), stations[0].getTranslateY()};
+		
+		List<Ball> balls = new ArrayList<Ball>();
+			balls.add(new Ball(startCoords, 10, RED));
+		
+		final StackPane pointsStack = new StackPane();
+			pointsStack.setTranslateX(0);
+			pointsStack.setTranslateY(30);
+			pointsStack.setPrefSize(850, 30);
+		final Text pointsText = new Text("0");
+			pointsText.setFill(Scenes.COLOR_ACCENT);
+			pointsText.setFont(Font.font("Poppins Light", 20));
 		
 //		for(int i=0; i<9; i++) { root.getChildren().addAll(Scenes.GRID[i]);}	// draw the grid
 		
 		root.getChildren().addAll(tracks);
+		root.getChildren().addAll(balls);
 		root.getChildren().addAll(stations);
-		root.getChildren().addAll(ball);
-				
+		pointsStack.getChildren().add(pointsText);
+		root.getChildren().add(pointsStack);
+		
 		setScene(scene);
+//		Scenes.drawPath(tracks, root);
 					
 		gameTimer = new AnimationTimer() {
-			
 			private long lastUpdate = 0;
 
 			@Override
 			public void handle(long now) {		
-				
-				if(now - lastUpdate >= 2_000_000) {	
+				if(now - lastUpdate >= 15_000_000) {	
 					lastUpdate = now;
-//					path = track.getPath();
-//					for(int j=0; j<50; j++) {
-//						Rectangle r = new Rectangle(1, 1);
-//							r.setTranslateX(path[0][j]);
-//							r.setTranslateY(path[1][j]);
-//							r.setFill(Color.rgb(4*j, 3*j, 2*j));
-//						root.getChildren().add(r);
-//					}	
-					ball.update(allNodes);
+					List<Ball> toRemove = new ArrayList<Ball>();
+					for(Ball ball : balls) {
+						ball.update(allNodes);
+						
+						if(ball.getCounter() == 25) {
+							Station finalStation = allNodes.findStation(ball.getColumn(), ball.getRow());
+							if(finalStation.getColor().equals(ball.getColor())) {
+								pointsText.setText(String.valueOf(++points));
+							}
+							pointsText.setText(String.valueOf(points));
+							root.getChildren().remove(ball);
+							toRemove.add(ball);
+						}
+					}
+					balls.removeAll(toRemove);
 				}
-				
 			}
 		}; gameTimer.start();
 	}

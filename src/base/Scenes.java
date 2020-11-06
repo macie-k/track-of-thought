@@ -7,9 +7,8 @@ import base.obj.Station;
 import base.obj.Track;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Path;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
@@ -23,6 +22,11 @@ public class Scenes {
 	
 	public final static String S = "straight";
 	public final static String C = "curved";
+	
+	final static Color RED = Color.web("#8F1114");
+	final static Color BLACK = Color.web("#101114");
+	final static Color GREEN = Color.web("#105114");
+	final static Color BLUE = Color.web("#101193");
 	
 	public static Scene levels() {
 		Pane root = getRootPane();
@@ -42,11 +46,24 @@ public class Scenes {
 		return getSceneWithCSS(root, "levels.css");
 	}
 	
-	public static FullTrack tutorial() {
-		Station start = new Station(2, 3, Color.BLACK);
-		Station redFinish = new Station(6, 9, Color.RED);
-		Station blueFinish = new Station(4, 3, Color.BLUE);
-		Station greenFinish = new Station(4, 5, Color.GREEN);
+	public static void drawPath(Track[] tracks, Pane root) {
+		for(Track track : tracks) {
+			double[][] path = track.getPath();
+			for(int j=0; j<50; j++) {
+				Rectangle r = new Rectangle(1, 1);
+					r.setTranslateX(path[0][j]);
+					r.setTranslateY(path[1][j]);
+					r.setFill(Color.rgb(4*j, 3*j, 2*j));
+				root.getChildren().add(r);
+			}
+		}
+	}
+	
+	public static FullTrack game(String level) {
+		Station start = new Station(2, 3, BLACK, 1);
+		Station redFinish = new Station(6, 9, RED);
+		Station blueFinish = new Station(4, 3, BLUE);
+		Station greenFinish = new Station(4, 5, GREEN);
 			
 		Station[] stations = {start, redFinish, blueFinish, greenFinish};		
 		Track[] tracks = {
@@ -86,28 +103,19 @@ public class Scenes {
 		return new FullTrack(stations, tracks);
 	}
 		
-	public static Scene game(String level) {
-		
-		Pane root = new Pane();
-			root.setPrefSize(800, 500);
-			root.setStyle("-fx-background-color: rgb(14, 14, 14)");
-			
-		Text lvl = new Text(level);
-			lvl.setFont(Font.font("Hind Guntur Bold", 50));
-			lvl.setFill(Color.WHITE);
-			lvl.setTranslateX((800 - lvl.getLayoutBounds().getWidth())/2);
-			lvl.setTranslateY(250);
-			
-		root.getChildren().add(lvl);
-		
-		Scene scene = new Scene(root);
-		return scene;
-	}
-	
 	public static Scene getSceneWithCSS(Pane root, String cssFile) {
 		Scene scene = new Scene(root);
 		scene.getStylesheets().addAll(Window.class.getResource("/resources/styles/" + cssFile).toExternalForm());
 		return scene;
+	}
+		
+	/* return root Pane with constant parameters */
+	public static Pane getRootPane() {
+		Pane root = new Pane();
+		root.setPrefSize(850, 550);
+		root.setId("pane");
+		
+		return root;
 	}
 	
 	private static GridSquare[][] getGrid() {
@@ -118,14 +126,5 @@ public class Scenes {
 			}
 		}
 		return grid;
-	}
-	
-	/* return root Pane with constant parameters */
-	public static Pane getRootPane() {
-		Pane root = new Pane();
-		root.setPrefSize(850, 550);
-		root.setId("pane");
-		
-		return root;
 	}
 }
