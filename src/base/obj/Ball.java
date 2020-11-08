@@ -1,6 +1,7 @@
 package base.obj;
 
 import base.Log;
+import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -10,29 +11,54 @@ public class Ball extends Circle {
 	private int row;
 	private String color;
 	private int index = 0;
+	private Track[] tracks;
+	private final static Track NULL_TRACK = null;
 	
 	private int finalCounter = 0;
 	private int finalDirection;
 	private boolean finalStation = false;
-
+	private Track currentTrack;
 	
-	public Ball(double[] xy, int radius, Color fill) {
-		this((int)xy[0], (int)xy[1], radius, fill);
+	
+	public Ball(double[] xy, int radius, Color fill, Track[] tracks) {
+		this((int)xy[0], (int)xy[1], radius, fill, tracks);
 	}
 	
-	public Ball(int x, int y, int radius, Color color) {
+	public Ball(int x, int y, int radius, Color color, Track[] tracks) {
 		super(radius);
 		
 		this.column = x/50-1;
 		this.row = y/50-1;
 		this.color = color.toString();
+		this.tracks = tracks;
 		
 		setCenterX(x + 15);
 		setCenterY(y + 25);
-		
 		setFill(color);
-	}
 		
+		setOnMouseEntered(e -> { modifyTrackOnHover(); });
+		setOnMouseMoved(e -> { modifyTrackOnHover(); });
+		setOnMouseClicked(e -> {
+			if(currentTrack != null && currentTrack.isClickable()) {
+				currentTrack.changeType();
+			}
+		});
+		setOnMouseExited(e -> {
+			setCursor(Cursor.DEFAULT);
+			currentTrack.setId("");
+			this.currentTrack = null;
+		});
+	}
+	
+	private void modifyTrackOnHover() {
+		Track currentTrack = getCurrentTrack();
+		this.currentTrack = currentTrack;
+		if(currentTrack != null && currentTrack.isClickable()) {
+			setCursor(Cursor.HAND);
+			currentTrack.setId("ball-hovered");
+		}
+	}
+				
 	public void update(FullTrack nodes) {
 		Track track = nodes.findTrack(column, row);
 				
@@ -90,6 +116,15 @@ public class Ball extends Circle {
 	
 	public int getRow() {
 		return (int)(getCenterY()/50-1);
+	}
+	
+	/* Check if ball is currently on clickable track */
+	private Track getCurrentTrack() {
+		for(Track track : tracks) {
+			if(track.getColumn() == getColumn() && track.getRow() == getRow()) {
+				return track;
+			}
+		} return NULL_TRACK;
 	}
 	
 	private void moveNextDirection(int direction) {

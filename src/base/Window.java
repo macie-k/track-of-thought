@@ -34,6 +34,7 @@ public class Window extends Application{
 	static String saveDirectory;	// directory to save score and fonts
 	
 	private static AnimationTimer gameTimer;
+	public static Track[] activeTracks;
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -57,7 +58,7 @@ public class Window extends Application{
 		double[] startCoords = {stations[0].getTranslateX(), stations[0].getTranslateY()};
 		
 		List<Ball> balls = new ArrayList<Ball>();
-			balls.add(new Ball(startCoords, 10, RED));
+			balls.add(new Ball(startCoords, 10, RED, tracks));
 		
 		final StackPane pointsStack = new StackPane();
 			pointsStack.setTranslateX(0);

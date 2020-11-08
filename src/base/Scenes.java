@@ -7,6 +7,7 @@ import base.obj.Station;
 import base.obj.Track;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -31,18 +32,21 @@ public class Scenes {
 	public static Scene levels() {
 		Pane root = getRootPane();
 			
+		StackPane titleContainer = new StackPane();
+			titleContainer.setPrefWidth(850);
+			titleContainer.setTranslateX(0);
+			titleContainer.setTranslateY(60);
 		Text title = new Text("SELECT LEVEL");
 			title.setId("title");
 			title.setFont(Font.font("Hind Guntur Bold"));
-			title.setTranslateX(97);
-			title.setTranslateY(150);
 			
-		root.getChildren().add(title);
+		titleContainer.getChildren().add(title);
 			
 		for(int i=0; i<12; i++) {
-			root.getChildren().add(new LevelPane(i<=5 ? 55+i*120: 55+(i-6)*120, i<=5 ? 250 : 350, i+3));
+			root.getChildren().add(new LevelPane(i<=5 ? 75+i*120: 75+(i-6)*120, i<=5 ? 270 : 370, i+3));
 		}
 		
+		root.getChildren().add(titleContainer);
 		return getSceneWithCSS(root, "levels.css");
 	}
 	

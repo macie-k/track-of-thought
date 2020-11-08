@@ -11,8 +11,11 @@
 	-fx-cursor: hand;
 }
 
+#ball-hovered > .bg {
+	-fx-fill: rgba(145, 139, 119, 0.4);
+}
+
 .clickable:hover > .bg {
-	-fx-fill: red;
 	-fx-fill: rgba(145, 139, 119, 0.4);
 }
 

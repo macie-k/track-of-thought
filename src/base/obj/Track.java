@@ -30,6 +30,7 @@ public class Track extends StackPane {
 	private int column;
 	private int row;
 	private int quarter;
+	private boolean clickable;
 		
 	/* doesn't require endSwitch parameter if not clickable */
 	public Track(int [] xy, String type, int origin, int end) {
@@ -51,6 +52,7 @@ public class Track extends StackPane {
 		this.column = x/50-1;
 		this.row = y/50-1;
 		this.quarter = calcQuarter();
+		this.clickable = clickable;
 		
 		setWidth(50);
 		setHeight(50);
@@ -179,6 +181,10 @@ public class Track extends StackPane {
 			default:
 				return NULL;
 		}
+	}
+	
+	public boolean isClickable() {
+		return clickable;
 	}
 	
 	public int getColumn() {
@@ -346,7 +352,7 @@ public class Track extends StackPane {
 		}
 	}
 		
-	private void changeType() {
+	public void changeType() {
 		type = (type == S) ? C : S;		
 		
 		getChildren().remove(1);
