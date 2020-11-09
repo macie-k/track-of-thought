@@ -7,30 +7,33 @@ import javafx.scene.shape.Circle;
 
 public class Ball extends Circle {
 	
+	private final static Track NULL_TRACK = null;
+	
+	private int index = 0;
 	private int column;
 	private int row;
+	private int delay;
 	private String color;
-	private int index = 0;
 	private Track[] tracks;
-	private final static Track NULL_TRACK = null;
+	private Track currentTrack;
 	
 	private int finalCounter = 0;
 	private int finalDirection;
 	private boolean finalStation = false;
-	private Track currentTrack;
 	
 	
-	public Ball(double[] xy, int radius, Color fill, Track[] tracks) {
-		this((int)xy[0], (int)xy[1], radius, fill, tracks);
+	public Ball(double[] xy, Color fill, Track[] tracks, int delay) {
+		this((int)xy[0], (int)xy[1], 10, fill, tracks, delay);
 	}
 	
-	public Ball(int x, int y, int radius, Color color, Track[] tracks) {
+	public Ball(int x, int y, int radius, Color color, Track[] tracks, int delay) {
 		super(radius);
 		
 		this.column = x/50-1;
 		this.row = y/50-1;
 		this.color = color.toString();
 		this.tracks = tracks;
+		this.delay = delay;
 		
 		setCenterX(x + 15);
 		setCenterY(y + 25);
@@ -45,20 +48,13 @@ public class Ball extends Circle {
 		});
 		setOnMouseExited(e -> {
 			setCursor(Cursor.DEFAULT);
-			currentTrack.setId("");
+			if(currentTrack != null) {
+				currentTrack.setId("");
+			}
 			this.currentTrack = null;
 		});
 	}
-	
-	private void modifyTrackOnHover() {
-		Track currentTrack = getCurrentTrack();
-		this.currentTrack = currentTrack;
-		if(currentTrack != null && currentTrack.isClickable()) {
-			setCursor(Cursor.HAND);
-			currentTrack.setId("ball-hovered");
-		}
-	}
-				
+						
 	public void update(FullTrack nodes) {
 		Track track = nodes.findTrack(column, row);
 				
@@ -118,6 +114,10 @@ public class Ball extends Circle {
 		return (int)(getCenterY()/50-1);
 	}
 	
+	public int getDelay() {
+		return delay;
+	}
+	
 	/* Check if ball is currently on clickable track */
 	private Track getCurrentTrack() {
 		for(Track track : tracks) {
@@ -162,5 +162,14 @@ public class Ball extends Circle {
 			return 0;
 		}
 		return -1;
+	}
+	
+	private void modifyTrackOnHover() {
+		Track currentTrack = getCurrentTrack();
+		this.currentTrack = currentTrack;
+		if(currentTrack != null && currentTrack.isClickable()) {
+			setCursor(Cursor.HAND);
+			currentTrack.setId("ball-hovered");
+		}
 	}
 }
