@@ -73,7 +73,8 @@ public class Scenes {
 	}
 	
 	public static FullTrack game(String level) {
-		InputStream stream = Scenes.class.getResourceAsStream("../resources/levels/tutorial.json");
+		InputStream stream = Scenes.class.getResourceAsStream("/resources/levels/tutorial.json");
+		
 		JSONObject json = new JSONObject(new JSONTokener(stream));
 		
 		JSONArray stationsJson = json.getJSONArray("stations");
