@@ -39,7 +39,7 @@ public class Track extends StackPane {
 	
 	/* translates xy array if endSwitch provided -> is clickable */
 	public Track(int[] xy, String type, int origin, int end1, int end2) {
-		this(xy[0], xy[1], type, origin, end1, end2, true);
+		this(xy[0], xy[1], type, origin, end1, (end2 != -1) ? end2 : end1, end2 != -1);
 	}
 	
 	public Track(int y, int x, String type, int origin, int end1, int end2, boolean clickable) {
@@ -72,7 +72,7 @@ public class Track extends StackPane {
 		}
 
 		track = getTrackShape();		
-		Circle bg = new Circle(25, Color.TRANSPARENT);
+		Circle bg = new Circle(24, Color.TRANSPARENT);
 			bg.getStyleClass().add("bg");
 		
 		getChildren().addAll(bg, track);
@@ -96,7 +96,7 @@ public class Track extends StackPane {
 		final int originX = getOriginXY()[0];
 		final int originY = getOriginXY()[1];
 		
-		if(type == S) {
+		if(type.equals(S)) {
 			switch(origin + currentEnd) {
 				case 2:
 					for(int i=0; i<50; i++) {
@@ -206,7 +206,7 @@ public class Track extends StackPane {
 //	------------------------------------------------
 	
 	private int calcQuarter() {
-		if(type == S) {
+		if(type.equals(S)) {
 			return 0;
 		} else {
 			int quarter = 0;
@@ -221,8 +221,6 @@ public class Track extends StackPane {
 					Log.error("@calcQuarter: Wrong parameters");	// [ERROR]
 					break;
 			}
-//			System.out.println(String.format("Curved@[%d, %d]\n\t- Quarter: %d",
-//					column, row, quarter));
 			return quarter;
 		}
 	}
@@ -353,7 +351,7 @@ public class Track extends StackPane {
 	}
 		
 	public void changeType() {
-		type = (type == S) ? C : S;		
+		type = (type.equals(S)) ? C : S;		
 		
 		getChildren().remove(1);
 		getChildren().add(getTrackShape());
@@ -365,7 +363,7 @@ public class Track extends StackPane {
 	}
 		
 	private Shape getTrackShape() {
-		if(type == S) {
+		if(type.equals(S)) {
 			Rectangle track =  new Rectangle(15, 0, 20, 50);
 				track.getStyleClass().add("track");
 			return track;

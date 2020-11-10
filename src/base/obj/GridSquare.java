@@ -11,7 +11,7 @@ public class GridSquare extends Rectangle {
 	private int x;
 	private int y;
 		
-	public GridSquare(int row, int column) {
+	public GridSquare(int column, int row) {
 		x = (column + 1)*50;
 		y = (row + 1)*50;
 		

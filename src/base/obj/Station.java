@@ -10,16 +10,16 @@ public class Station extends GridSquare {
 	private int exit;
 	private String color;
 	
-	public Station(int row, int column, Color fill) {
-		this(row, column, fill, false, -1);
+	public Station(int column, int row, Color fill) {
+		this(column, row, fill, false, -1);
 	}
 	
-	public Station(int row, int column, Color fill, int exit) {
-		this(row, column, fill, true, exit);
+	public Station(int column, int row, Color fill, int exit) {
+		this(column, row, fill, exit != -1, exit);
 	}
 	
-	public Station(int row, int column, Color fill, boolean start, int exit) {
-		super(row, column);
+	public Station(int column, int row, Color fill, boolean start, int exit) {
+		super(column, row);
 		
 		this.column = column;
 		this.row = row;
@@ -36,6 +36,10 @@ public class Station extends GridSquare {
 	
 	public String getColor() {
 		return color;
+	}
+	
+	public double[] getXY() {
+		return new double[] {getTranslateX(), getTranslateY()};
 	}
 	
 	public int[] getPos() {

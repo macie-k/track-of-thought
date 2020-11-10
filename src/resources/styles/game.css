@@ -11,20 +11,33 @@
 	-fx-cursor: hand;
 }
 
-#ball-hovered > .bg {
-	-fx-fill: rgba(145, 139, 119, 0.4);
+.bg {
+	-fx-stroke: rgba(145, 139, 119, 0);
+	-fx-stroke-width: 2;
 }
 
-.clickable:hover > .bg {
-	-fx-fill: rgba(145, 139, 119, 0.4);
+#ball-hovered > .bg, .clickable:hover > .bg, .clickable > .bg {
+	-fx-fill: rgba(145, 139, 119, 0.5);
+	-fx-stroke: rgba(145, 139, 119, 0.7);
+	-fx-stroke-width: 2;
 }
 
 .clickable > .bg {
-	-fx-fill: rgba(145, 139, 119, 0.2);
+	-fx-fill: rgba(145, 139, 119, 0.3);
+	-fx-stroke: rgba(145, 139, 119, 0.5);
 }
 
 .track {
 	-fx-fill: rgba(255, 255, 255, 0.2);
+}
+
+.clickable > .track {
+	-fx-fill: rgba(255, 255, 255, 0.25);
+}
+
+.ball {
+	-fx-stroke: rgba(145, 139, 119, 0.5);
+	-fx-stroke-width: 2;
 }
 
 #fullTrack {

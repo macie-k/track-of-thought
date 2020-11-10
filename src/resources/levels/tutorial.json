@@ -1,0 +1,254 @@
+{
+	"title": "tutorial",
+	"tracks": [
+		{
+			"column": 4,
+			"row": 2,
+			"type": "straight",
+			"origin": 3,
+			"end-1": 1
+		},
+		{
+			"column": 5,
+			"row": 2,
+			"type": "straight",
+			"origin": 3,
+			"end-1": 1
+		},
+		{
+			"column": 6,
+			"row": 2,
+			"type": "straight",
+			"origin": 3,
+			"end-1": 1
+		},
+		{
+			"column": 7,
+			"row": 2,
+			"type": "straight",
+			"origin": 3,
+			"end-1": 1
+		},
+		{
+			"column": 8,
+			"row": 2,
+			"type": "straight",
+			"origin": 3,
+			"end-1": 1
+		},
+		{
+			"column": 9,
+			"row": 2,
+			"type": "straight",
+			"origin": 3,
+			"end-1": 1
+		},
+		{
+			"column": 10,
+			"row": 2,
+			"type": "straight",
+			"origin": 3,
+			"end-1": 1
+		},
+		{
+			"column": 11,
+			"row": 2,
+			"type": "curved",
+			"origin": 3,
+			"end-1": 2
+		},
+		{
+			"column": 11,
+			"row": 3,
+			"type": "straight",
+			"origin": 0,
+			"end-1": 2
+		},
+		{
+			"column": 11,
+			"row": 4,
+			"type": "curved",
+			"origin": 0,
+			"end-1": 3,
+			"end-2": 2
+		},
+		{
+			"column": 11,
+			"row": 5,
+			"type": "straight",
+			"origin": 0,
+			"end-1": 2
+		},
+		{
+			"column": 11,
+			"row": 6,
+			"type": "curved",
+			"origin": 0,
+			"end-1": 3
+		},
+		{
+			"column": 10,
+			"row": 6,
+			"type": "straight",
+			"origin": 1,
+			"end-1": 3
+		},
+		{
+			"column": 10,
+			"row": 4,
+			"type": "straight",
+			"origin": 1,
+			"end-1": 3
+		},
+		{
+			"column": 9,
+			"row": 4,
+			"type": "straight",
+			"origin": 1,
+			"end-1": 3
+		},
+		{
+			"column": 8,
+			"row": 4,
+			"type": "straight",
+			"origin": 1,
+			"end-1": 3
+		},
+		{
+			"column": 7,
+			"row": 4,
+			"type": "curved",
+			"origin": 1,
+			"end-1": 2
+		},
+		{
+			"column": 7,
+			"row": 5,
+			"type": "straight",
+			"origin": 0,
+			"end-1": 2
+		},
+		{
+			"column": 7,
+			"row": 6,
+			"type": "curved",
+			"origin": 0,
+			"end-1": 3
+		},
+		{
+			"column": 6,
+			"row": 6,
+			"type": "straight",
+			"origin": 1,
+			"end-1": 3
+		},
+		{
+			"column": 5,
+			"row": 6,
+			"type": "straight",
+			"origin": 1,
+			"end-1": 3,
+			"end-2": 0
+		},
+		{
+			"column": 5,
+			"row": 5,
+			"type": "straight",
+			"origin": 2,
+			"end-1": 0
+		},
+		{
+			"column": 4,
+			"row": 6,
+			"type": "straight",
+			"origin": 1,
+			"end-1": 3
+		},
+		{
+			"column": 3,
+			"row": 6,
+			"type": "curved",
+			"origin": 1,
+			"end-1": 0
+		},
+		{
+			"column": 3,
+			"row": 5,
+			"type": "straight",
+			"origin": 2,
+			"end-1": 0
+		}
+	],
+	
+	"stations": [
+		{
+			"column": 3,
+			"row": 2,
+			"color": "BLACK",
+			"exit": 1
+		},
+		{
+			"column": 9,
+			"row": 6,
+			"color": "RED"
+		},
+		{
+			"column": 3,
+			"row": 4,
+			"color": "BLUE"
+		},
+		{
+			"column": 5,
+			"row": 4,
+			"color": "GREEN"
+		}
+	],
+	
+	"balls": [
+		{
+			"color": "RED",
+			"delay": 1
+		},
+		{
+			"color": "GREEN",
+			"delay": 8
+		},
+		{
+			"color": "RED",
+			"delay": 12
+		},
+		{
+			"color": "BLUE",
+			"delay": 15
+		},
+		{
+			"color": "GREEN",
+			"delay": 20
+		},
+		{
+			"color": "RED",
+			"delay": 24
+		},
+		{
+			"color": "BLUE",
+			"delay": 29
+		},
+		{
+			"color": "RED",
+			"delay": 32
+		},
+		{
+			"color": "GREEN",
+			"delay": 35
+		},
+		{
+			"color": "BLUE",
+			"delay": 38
+		}
+	]
+}
+
+
+
+
+

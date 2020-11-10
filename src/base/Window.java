@@ -20,20 +20,15 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import static base.Scenes.RED;
-import static base.Scenes.BLACK;
-import static base.Scenes.GREEN;
-import static base.Scenes.BLUE;
-
 public class Window extends Application {
 	
 	public static Stage window;
-	public static int points=0;
+	public static int points = 0;
 	public static final String OS = System.getProperty("os.name").toLowerCase();
 
 	static String saveDirectory;	// directory to save score and fonts
 	
-	private static AnimationTimer gameTimer, secondsCounter;
+	private static AnimationTimer gameTimer;
 	private static int seconds = 0;
 
 	@Override
@@ -53,22 +48,10 @@ public class Window extends Application {
 		final Pane root = Scenes.getRootPane();
 		final Scene scene = Scenes.getSceneWithCSS(root, "game.css");
 		
-		final Track[] tracks = allNodes.getTracks();
-		final Station[] stations = allNodes.getStations();
-		double[] startCoords = {stations[0].getTranslateX(), stations[0].getTranslateY()};
+		final List<Track> tracks = allNodes.getTracks();
+		final List<Station> stations = allNodes.getStations();
+		final List<Ball> balls = allNodes.getBalls();
 		
-		List<Ball> balls = new ArrayList<Ball>();
-			balls.add(new Ball(startCoords, RED, tracks, 1));
-			balls.add(new Ball(startCoords, GREEN, tracks, 5));
-			balls.add(new Ball(startCoords, RED, tracks, 7));
-			balls.add(new Ball(startCoords, BLUE, tracks, 9));
-			balls.add(new Ball(startCoords, RED, tracks, 13));
-			balls.add(new Ball(startCoords, GREEN, tracks, 15));
-			balls.add(new Ball(startCoords, BLUE, tracks, 18));
-			balls.add(new Ball(startCoords, RED, tracks, 21));
-			balls.add(new Ball(startCoords, GREEN, tracks, 24));
-			balls.add(new Ball(startCoords, BLUE, tracks, 26));
-			
 		final String totalBalls = String.valueOf(balls.size());
 		
 		final StackPane pointsStack = new StackPane();
@@ -95,7 +78,7 @@ public class Window extends Application {
 
 			@Override
 			public void handle(long now) {		
-				if(now - lastUpdate >= 15_000_000) {
+				if(now - lastUpdate >= 16_000_000) {
 					List<Ball> toRemove = new ArrayList<Ball>();
 					for(Ball ball : balls) {
 						if(seconds >= ball.getDelay()) {
@@ -115,6 +98,7 @@ public class Window extends Application {
 					lastUpdate = now;
 				}
 				
+				/* timer for counting seconds */
 				if(now - secondsUpdate >= 1_000_000_000) {
 					secondsUpdate = now;
 					seconds++;

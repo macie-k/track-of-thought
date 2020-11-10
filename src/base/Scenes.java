@@ -1,5 +1,10 @@
 package base;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import base.obj.Ball;
 import base.obj.FullTrack;
 import base.obj.GridSquare;
 import base.obj.LevelPane;
@@ -12,6 +17,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class Scenes {
 	
@@ -64,47 +73,62 @@ public class Scenes {
 	}
 	
 	public static FullTrack game(String level) {
-		Station start = new Station(2, 3, BLACK, 1);
-		Station redFinish = new Station(6, 9, RED);
-		Station blueFinish = new Station(4, 3, BLUE);
-		Station greenFinish = new Station(4, 5, GREEN);
-			
-		Station[] stations = {start, redFinish, blueFinish, greenFinish};		
-		Track[] tracks = {
-				
-//			[S=straight, C=curved 0=top, 1=right, 2=bottom, 3=left]	
-//			(xy, type[S, C], origin[0,1,2,3], end1[0,1,2,3], end2[0,1,2,3])
-			
-			new Track(GRID[2][4].getPos(), S, 3, 1),
-			new Track(GRID[2][5].getPos(), S, 3, 1),
-			new Track(GRID[2][6].getPos(), S, 3, 1),
-			new Track(GRID[2][7].getPos(), S, 3, 1),
-			new Track(GRID[2][8].getPos(), S, 3, 1),
-			new Track(GRID[2][9].getPos(), S, 3, 1),
-			new Track(GRID[2][10].getPos(), S, 3, 1),
-			new Track(GRID[2][11].getPos(), C, 3, 2),
-			new Track(GRID[3][11].getPos(), S, 0, 2),
-			new Track(GRID[4][11].getPos(), C, 0, 3, 2),
-			new Track(GRID[5][11].getPos(), S, 0, 2), 	// #10
-			new Track(GRID[6][11].getPos(), C, 0, 3),
-			new Track(GRID[6][10].getPos(), S, 1, 3),
-			new Track(GRID[4][10].getPos(), S, 1, 3),
-			new Track(GRID[4][9].getPos(), S, 1, 3),
-			new Track(GRID[4][8].getPos(), S, 1, 3),
-			new Track(GRID[4][7].getPos(), C, 1, 2),
-			new Track(GRID[5][7].getPos(), S, 0, 2),
-			new Track(GRID[6][7].getPos(), C, 0, 3),
-			new Track(GRID[6][6].getPos(), S, 1, 3),
-			new Track(GRID[6][5].getPos(), S, 1, 3, 0),	// #20
-			new Track(GRID[5][5].getPos(), S, 2, 0),
-			new Track(GRID[6][4].getPos(), S, 1, 3),
-			new Track(GRID[6][3].getPos(), C, 1, 0),
-			new Track(GRID[5][3].getPos(), S, 2, 0),
-			
-			
-		};
+		InputStream stream = Scenes.class.getResourceAsStream("../resources/levels/tutorial.json");
+		JSONObject json = new JSONObject(new JSONTokener(stream));
 		
-		return new FullTrack(stations, tracks);
+		JSONArray stationsJson = json.getJSONArray("stations");
+		JSONArray tracksJson = json.getJSONArray("tracks");
+		JSONArray ballsJson = json.getJSONArray("balls");
+		
+		List<Station> stations = new ArrayList<Station>();
+		List<Track> tracks = new ArrayList<Track>();
+		List<Ball> balls = new ArrayList<Ball>();
+		
+		Station startStation = null;
+		for(Object station : stationsJson) {
+			JSONObject obj = (JSONObject) station;
+			
+			Color color = parseColorName(obj.getString("color"));
+			int column = obj.getInt("column");
+			int row = obj.getInt("row");
+			int exit;
+			
+			if(obj.has("exit")) {
+				exit = obj.getInt("exit");
+				startStation = new Station(column, row, color, exit);
+			} else {
+				exit = -1;
+			}
+			
+			stations.add(new Station(column, row, color, exit));
+		}
+
+		for(Object track : tracksJson) {
+			JSONObject obj = (JSONObject) track;
+			
+			String type = obj.getString("type");
+			int column = obj.getInt("column");
+			int row = obj.getInt("row");
+			int origin = obj.getInt("origin");
+			int end1 = obj.getInt("end-1");
+			int end2 = obj.has("end-2") ? obj.getInt("end-2") : -1;
+			
+			tracks.add(new Track(GRID[column][row].getPos(), type, origin, end1, end2));							
+		}
+		
+		double[] startCoords = startStation.getXY();
+		for(Object ball : ballsJson) {
+			JSONObject obj = (JSONObject) ball;
+			
+			int delay = obj.getInt("delay");
+			Color color = parseColorName(obj.getString("color"));
+			
+			balls.add(new Ball(startCoords, color, tracks, delay));
+		}
+
+//			new Track(GRID[3][5].getPos(), S, 2, 0),
+		
+		return new FullTrack(stations, tracks, balls);
 	}
 		
 	public static Scene getSceneWithCSS(Pane root, String cssFile) {
@@ -123,12 +147,26 @@ public class Scenes {
 	}
 	
 	private static GridSquare[][] getGrid() {
-		GridSquare[][] grid = new GridSquare[9][15];
-		for(int i=0; i<9; i++) {
-			for(int j=0; j<15; j++) {
+		GridSquare[][] grid = new GridSquare[15][9];
+		for(int i=0; i<15; i++) {
+			for(int j=0; j<9; j++) {
 				grid[i][j] = new GridSquare(i, j);
 			}
 		}
 		return grid;
+	}
+	
+	private static Color parseColorName(String colorName) {
+		switch(colorName) {
+			case "BLACK":
+				return BLACK;
+			case "RED":
+				return RED;
+			case "GREEN":
+				return GREEN;
+			case "BLUE":
+				return BLUE;
+		}
+		return Color.CHARTREUSE;
 	}
 }

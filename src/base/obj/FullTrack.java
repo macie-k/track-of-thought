@@ -1,13 +1,17 @@
 package base.obj;
 
+import java.util.List;
+
 public class FullTrack {
 	
-	private Station[] stations;
-	private Track[] tracks;
+	private List<Station> stations;
+	private List<Track> tracks;
+	private List<Ball> balls;
 	
-	public FullTrack(Station[] stations, Track[] tracks) {
+	public FullTrack(List<Station> stations, List<Track> tracks, List<Ball> balls) {
 		this.stations = stations;
 		this.tracks = tracks;
+		this.balls = balls;
 	}
 	
 	public Track findTrack(int col, int row) {
@@ -28,11 +32,15 @@ public class FullTrack {
 		return null;
 	}
 	
-	public Station[] getStations() {
+	public List<Ball> getBalls() {
+		return this.balls;
+	}
+	
+	public List<Station> getStations() {
 		return this.stations;
 	}
 	
-	public Track[] getTracks() {
+	public List<Track> getTracks() {
 		return this.tracks;
 	}
 }
