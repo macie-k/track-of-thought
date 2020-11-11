@@ -30,8 +30,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import com.sun.media.jfxmedia.events.NewFrameEvent;
-
 public class Scenes {
 	
 	public final static Color COLOR_CONTAINER = Color.web("#282d33");
@@ -125,12 +123,11 @@ public class Scenes {
 			OK.setTranslateY(-10);
 			OK.setId("OK");
 			OK.setOnMouseClicked(e -> {
-				currentProperties.put("x", String.valueOf(createX));
-				currentProperties.put("y", String.valueOf(createY));
+				currentProperties.put("column", String.valueOf((int)(createX/50-1)));
+				currentProperties.put("row", String.valueOf((int)(createY/50-1)));
 					
 				addNewObject(root, new HashMap<String, String>(currentProperties));
-				System.out.println("Full:" + listMap);
-
+				
 				menuStack.toFront();
 			});	
 			StackPane.setAlignment(OK, Pos.BOTTOM_CENTER);
@@ -229,10 +226,11 @@ public class Scenes {
 					try {
 						Track t = new Track(xy, type, start, end1, end2);
 						t.setOnMouseClicked(e -> {
-							t.changeType();
 							if(e.getButton() == MouseButton.MIDDLE) {
 								t.setVisible(false);
 								listMap.remove(obj);
+							} else {
+								t.changeType();
 							}
 						});
 						root.getChildren().add(t);
@@ -275,26 +273,23 @@ public class Scenes {
 		try {
 			PrintWriter saver = new PrintWriter(Window.saveDirectory + "/tmp.json");
 			JSONObject obj = new JSONObject();
-			JSONArray array = new JSONArray();
-			
-			obj.put("tracks", array);
-			obj.put("stations", array);
-			
+
+			obj.put("tracks", new JSONArray());
+			obj.put("stations", new JSONArray());
+
 			for(Map<String, String> m : listMap) {
 				String name = m.get("object");
 				
 				List<String> keys = new ArrayList<String>();
 				m.entrySet().forEach(entry -> keys.add(entry.getKey()));
-				keys.removeIf(el -> el.equals(name));
-						
-				JSONArray currArray = obj.getJSONArray(name+"s");
+				keys.removeIf(el -> el.equals(name) || el.equals("object"));
 
 				JSONObject currObj = new JSONObject();
 				for(String key : keys) {
 					currObj.put(key, m.get(key));
-				} currArray.put(currObj);
+				}
+				obj.getJSONArray(name+"s").put(currObj);
 			}
-			System.out.println(obj);
 			saver.println(obj);
 			saver.close();
 		} catch (FileNotFoundException e1) {
@@ -374,6 +369,7 @@ public class Scenes {
 		
 		return new FullTrack(stations, tracks, balls);
 	}
+	
 		
 	public static Scene getSceneWithCSS(Pane root, String cssFile) {
 		Scene scene = new Scene(root);
@@ -463,6 +459,7 @@ public class Scenes {
 			y++;
 		}	
 	}
+	
 		
 	private static GridSquare[][] getGrid() {
 		GridSquare[][] grid = new GridSquare[15][9];
@@ -490,10 +487,10 @@ public class Scenes {
 	
 	
 	
+	
 	private static List<Object> getAllValues(JSONObject json, String key) {
 		return json.getJSONArray(key).toList();
 	}
-	
 	
 	private static Color parseColorName(String colorName) {
 		switch(colorName.toUpperCase()) {
