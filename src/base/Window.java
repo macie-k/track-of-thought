@@ -43,6 +43,10 @@ public class Window extends Application {
 		window.show();
 	}
 	
+	public static void createLevel(Scene scene) {
+		setScene(scene);
+	}
+	
 	public static void game(FullTrack allNodes) {
 		
 		final Pane root = Scenes.getRootPane();
@@ -62,7 +66,7 @@ public class Window extends Application {
 			pointsText.setFill(Scenes.COLOR_ACCENT);
 			pointsText.setFont(Font.font("Hind Guntur Bold", 23));
 		
-//		for(int i=0; i<9; i++) { root.getChildren().addAll(Scenes.GRID[i]);}	// draw the grid
+		for(int i=0; i<15; i++) { root.getChildren().addAll(Scenes.GRID[i]);}	// draw the grid
 		
 		root.getChildren().addAll(tracks);
 		root.getChildren().addAll(balls);

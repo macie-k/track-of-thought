@@ -10,6 +10,10 @@ public class Station extends GridSquare {
 	private int exit;
 	private String color;
 	
+	public Station(int[] xy, Color fill, int exit) {
+		this(xy[0]/50-1, xy[1]/50-1, fill, exit);
+	}
+	
 	public Station(int column, int row, Color fill) {
 		this(column, row, fill, false, -1);
 	}

@@ -42,7 +42,7 @@ public class Track extends StackPane {
 		this(xy[0], xy[1], type, origin, end1, (end2 != -1) ? end2 : end1, end2 != -1);
 	}
 	
-	public Track(int y, int x, String type, int origin, int end1, int end2, boolean clickable) {
+	public Track(int x, int y, String type, int origin, int end1, int end2, boolean clickable) {
 		this.type = type;
 		this.origin = origin;
 		this.end1 = end1;

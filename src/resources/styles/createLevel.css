@@ -1,12 +1,70 @@
-.gridPane:hover {
+#pane {
+	-fx-background-color: #1F2227;
+}
+
+.grid:hover, #current {
+	-fx-cursor: hand;
 	-fx-fill: #D3EFAF;
-	-fx-stroke: #D3EFAF;
 	-fx-stroke-width: 3;
 	-fx-opacity: .5;
 }
 
-.gridPane {
+.grid {
 	-fx-fill: transparent;
 	-fx-stroke-width: 1;
 	-fx-stroke: #BCAA94;
+}
+
+
+.arrow, .menuText, .menuValue, #OK {
+	-fx-font-family: "Hind Guntur Bold";
+	-fx-font-size: 15;
+	-fx-cursor: hand;
+	-fx-fill: white;
+}
+
+#OK {
+	-fx-fill: "#c4ffd4";
+}
+
+.menuValue {
+	-fx-font-size: 13;
+	-fx-cursor: normal;
+}
+
+.menuText {
+	-fx-cursor: normal;
+	-fx-fill: #c4ebff;
+}
+
+.clickable {
+	-fx-cursor: hand;
+}
+
+.clickable:hover > .bg, .clickable > .bg {
+	-fx-fill: rgba(145, 139, 119, 0.5);
+	-fx-stroke: rgba(145, 139, 119, 0.7);
+	-fx-stroke-width: 2;
+}
+
+.clickable > .bg {
+	-fx-fill: rgba(145, 139, 119, 0.3);
+	-fx-stroke: rgba(145, 139, 119, 0.5);
+}
+
+.track {
+	-fx-fill: rgba(255, 255, 255, 0.2);
+}
+
+.track:hover {
+	-fx-cursor: CROSSHAIR;
+}
+
+.clickable > .track {
+	-fx-fill: rgba(255, 255, 255, 0.25);
+}
+
+.ball {
+	-fx-stroke: rgba(145, 139, 119, 0.5);
+	-fx-stroke-width: 2;
 }

@@ -1,10 +1,8 @@
 package base;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -19,34 +17,24 @@ public class Setup {
 		loadFonts();							// load all required fonts
 		
 		Window.setScene(Scenes.levels());
-//		Window.setScene(Scenes.tutorial());
 	}
 	
 	static void loadFonts() {
-		createDirectory("fonts");		// create directory if doesn't exist
-		String[] fontNames = {			// all fonts required
+		/* list of required font names */
+		String[] fontNames = {
 				"Poppins-Light.ttf",
 				"HindGuntur-Bold.ttf"
 		};
 		
-		for(String font : fontNames) {	// download each font
-			try {
-				String encodedName = URLEncoder.encode(font, "UTF-8").replace("+", "%20%"); 
-				downloadFile(
-					"https://kazmierczyk.me/--trackOfThought/fonts/" + encodedName,	// dedicated hosting url
-					"fonts",														// directory
-					font															// fontname
-				);
-				InputStream IS = new FileInputStream(saveDirectory + "/fonts/" + font);
-				Font.loadFont(IS, 20); 
-			} catch (Exception e) {
-				Log.error(e.toString());
-			}
+		/* load each font */
+		for(String font : fontNames) {
+			Font.loadFont(Setup.class.getResourceAsStream("/resources/fonts/" + font), 20);
 		}		
 	}
 		
+	@SuppressWarnings("unused")
 	private static void createDirectory(String path) {
-		String finalPath = saveDirectory + "/" + path;		// build final path
+		String finalPath = saveDirectory + "/" + path;				// build final path
 		
 		if(!fileExists(finalPath)) {								// if directory doesn't exist
 			if(new File(finalPath).mkdir()) {						// try to create
@@ -57,6 +45,7 @@ public class Setup {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private static void downloadFile(String url, String dir, String filename) {
 		String finalPath = String.format("%s/%s/%s", saveDirectory, dir, filename);
 		
