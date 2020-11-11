@@ -31,6 +31,7 @@ public class Station extends GridSquare {
 		this.start = start;
 		this.exit = exit;
 		
+		getStyleClass().add("station");
 		setFill(fill);
 	}
 	

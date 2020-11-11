@@ -35,8 +35,8 @@ public class LevelPane extends StackPane {
 		
 		setOnMouseEntered(event -> setHiglight(true));
 		setOnMouseExited(event -> setHiglight(false));
-//		setOnMouseClicked(event -> {Window.game(Scenes.game(level));});
-		setOnMouseClicked(event -> {Window.createLevel(Scenes.createLevel());});
+		setOnMouseClicked(event -> {Window.game(Scenes.game(level));});
+//		setOnMouseClicked(event -> {Window.createLevel(Scenes.createLevel());});
 
 	}
 	

@@ -127,8 +127,8 @@ public class Scenes {
 				currentProperties.put("row", String.valueOf((int)(createY/50-1)));
 					
 				addNewObject(root, new HashMap<String, String>(currentProperties));
-				
 				menuStack.toFront();
+				menuStack.setVisible(false);
 			});	
 			StackPane.setAlignment(OK, Pos.BOTTOM_CENTER);
 			
@@ -193,7 +193,7 @@ public class Scenes {
 					
 					grid.forEach(gridSqare -> gridSqare.setId(""));
 					gridSq.setId("current");
-					updateMenu(menuObjectText, menuObject, menuObjectArrowLeft, menuObjectArrowRight, menuStack, menuBg, OK);
+//					updateMenu(menuObjectText, menuObject, menuObjectArrowLeft, menuObjectArrowRight, menuStack, menuBg, OK);
 				});
 				
 				grid.add(gridSq);
@@ -220,9 +220,9 @@ public class Scenes {
 				{
 					String type = obj.get("type");
 					boolean switchable = obj.get("switch").equals("true");
-					int start = getDirectionToInt(obj.get("start"));
-					int end1 = getDirectionToInt(obj.get("end1"));
-					int end2 = switchable ? getDirectionToInt(obj.get("end2")) : -1;
+					int start = parseDirection(obj.get("start"));
+					int end1 = parseDirection(obj.get("end1"));
+					int end2 = switchable ? parseDirection(obj.get("end2")) : -1;
 					try {
 						Track t = new Track(xy, type, start, end1, end2);
 						t.setOnMouseClicked(e -> {
@@ -246,7 +246,7 @@ public class Scenes {
 					String type = obj.get("type");
 					boolean start = type.equals("start");
 					Color color = start ? parseColorName("black") : parseColorName(obj.get("color"));
-					int exit = start ? getDirectionToInt(obj.get("exit")) : -1; 
+					int exit = start ? parseDirection(obj.get("exit")) : -1; 
 					
 					try {
 						Station s = new Station(xy, color, exit);
@@ -297,24 +297,8 @@ public class Scenes {
 		}
 	}
 	
-	private static int getDirectionToInt(String dir) {
-		switch(dir) {
-			case "top":
-				return 0;
-			case "right":
-				return 1;
-			case "bottom":
-				return 2;
-			case "left":
-				return 3;
-			default:
-				Log.error("Wrong direction @getDirectionToInt");
-				return -1;
-		}
-	}
-	
 	public static FullTrack game(String level) {
-		InputStream stream = Scenes.class.getResourceAsStream("/resources/levels/tutorial.json");
+		InputStream stream = Scenes.class.getResourceAsStream("/resources/levels/sample.json");
 		
 		JSONObject json = new JSONObject(new JSONTokener(stream));
 		JSONArray stationsJson = json.getJSONArray("stations");
@@ -334,25 +318,25 @@ public class Scenes {
 			int row = obj.getInt("row");
 			int exit;
 			
-			if(obj.has("exit")) {
-				exit = obj.getInt("exit");
+			if(obj.get("type").equals("start")) {
+				exit = parseDirection(obj.getString("exit"));
 				startStation = new Station(column, row, color, exit);
 			} else {
 				exit = -1;
 			}
-			
 			stations.add(new Station(column, row, color, exit));
 		}
 
 		for(Object track : tracksJson) {
 			JSONObject obj = (JSONObject) track;
 			
+			boolean switchable = obj.getBoolean("switch");
 			String type = obj.getString("type");
 			int column = obj.getInt("column");
 			int row = obj.getInt("row");
-			int origin = obj.getInt("origin");
-			int end1 = obj.getInt("end-1");
-			int end2 = obj.has("end-2") ? obj.getInt("end-2") : -1;
+			int origin = parseDirection(obj.getString("start"));
+			int end1 = parseDirection(obj.getString("end1"));
+			int end2 = switchable ? parseDirection(obj.getString("end2")) : -1;
 			
 			tracks.add(new Track(GRID[column][row].getPos(), type, origin, end1, end2));							
 		}
@@ -492,6 +476,22 @@ public class Scenes {
 		return json.getJSONArray(key).toList();
 	}
 	
+	private static int parseDirection(String dir) {
+		switch(dir) {
+			case "top":
+				return 0;
+			case "right":
+				return 1;
+			case "bottom":
+				return 2;
+			case "left":
+				return 3;
+			default:
+				Log.error("Wrong direction @getDirectionToInt");
+				return -1;
+		}
+	}
+	
 	private static Color parseColorName(String colorName) {
 		switch(colorName.toUpperCase()) {
 			case "BLACK":
@@ -502,7 +502,8 @@ public class Scenes {
 				return GREEN;
 			case "BLUE":
 				return BLUE;
+			default:
+				return Color.FUCHSIA;
 		}
-		return Color.CHARTREUSE;
 	}
 }
