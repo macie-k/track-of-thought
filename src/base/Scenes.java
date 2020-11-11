@@ -1,6 +1,8 @@
 package base;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +16,7 @@ import base.obj.LevelPane;
 import base.obj.Station;
 import base.obj.Track;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
@@ -26,6 +29,8 @@ import javafx.scene.text.Text;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import com.sun.media.jfxmedia.events.NewFrameEvent;
 
 public class Scenes {
 	
@@ -48,7 +53,7 @@ public class Scenes {
 	private static JSONObject createObject;
 	private static List<String> allProperties;
 	private static Map<String, String> currentProperties = new HashMap<String, String>();
-	private static List<Map<String, String>> listMap = new ArrayList<Map<String, String>>();
+	private static ArrayList<Map<String, String>> listMap = new ArrayList<>();
 	private static int objectIndex = 0;
 	private static Text menuObjectArrowRight, menuObjectArrowLeft;
 	
@@ -111,7 +116,7 @@ public class Scenes {
 			menuObjectText.getStyleClass().add("menuText");
 						
 		Text menuObject = new Text(createObjectStr.toUpperCase());
-			menuObject.setTranslateX(100);
+			menuObject.setTranslateX(110);
 			menuObject.setTranslateY(5);
 			menuObject.getStyleClass().add("menuValue");
 			
@@ -120,14 +125,33 @@ public class Scenes {
 			OK.setTranslateY(-10);
 			OK.setId("OK");
 			OK.setOnMouseClicked(e -> {
-				listMap.add(currentProperties);
-				addNewObject(root, currentProperties);
+				currentProperties.put("x", String.valueOf(createX));
+				currentProperties.put("y", String.valueOf(createY));
+					
+				addNewObject(root, new HashMap<String, String>(currentProperties));
+				System.out.println("Full:" + listMap);
+
 				menuStack.toFront();
 			});	
 			StackPane.setAlignment(OK, Pos.BOTTOM_CENTER);
 			
+		StackPane SAVE = new StackPane();
+			SAVE.setTranslateX(375);
+			SAVE.setTranslateY(505);
+			SAVE.setPrefSize(100, 40);
+			SAVE.setCursor(Cursor.HAND);
+			SAVE.setOnMouseClicked(e -> {
+				 saveToJSON();
+			});
+		Rectangle SAVEbg = new Rectangle(100, 40, Color.web("#5beb82"));
+			SAVEbg.setTranslateX(0);
+		Text SAVEtext = new Text("S A V E");
+			SAVEtext.setFont(Font.font("Poppins-Ligh", 17));
+		
+		SAVE.getChildren().addAll(SAVEbg, SAVEtext);
+			
 		menuObjectArrowLeft = new Text("<");
-			menuObjectArrowLeft.setTranslateX(80);
+			menuObjectArrowLeft.setTranslateX(90);
 			menuObjectArrowLeft.setTranslateY(5);
 			menuObjectArrowLeft.getStyleClass().add("arrow");
 			menuObjectArrowLeft.setOnMouseClicked(e -> {
@@ -140,7 +164,7 @@ public class Scenes {
 			});
 			
 		menuObjectArrowRight = new Text(">");
-			menuObjectArrowRight.setTranslateX(170);
+			menuObjectArrowRight.setTranslateX(180);
 			menuObjectArrowRight.setTranslateY(5);
 			menuObjectArrowRight.getStyleClass().add("arrow");
 			menuObjectArrowRight.setOnMouseClicked(e -> {
@@ -151,13 +175,7 @@ public class Scenes {
 				
 				updateMenu(menuObjectText, menuObject, menuObjectArrowLeft, menuObjectArrowRight, menuStack, menuBg, OK);
 			});
-						
-		menuStack.getChildren().addAll(menuBg, menuObjectText, menuObject, menuObjectArrowLeft, menuObjectArrowRight, OK);
-		updateMenu(menuObjectText, menuObject, menuObjectArrowLeft, menuObjectArrowRight, menuStack, menuBg, OK);
-					
-//		Map<String, Object> trackMap = jsonTypes.getJSONObject(menuTypes[0]).toMap();
-//		List<Object> test = jsonTypes.getJSONObject("station").getJSONArray("color").toList();
-								
+														
 		for(int i=0; i<15; i++) {
 			for(int j=0; j<9; j++) {
 				GridSquare gridSq = new GridSquare(i, j, true);
@@ -170,7 +188,7 @@ public class Scenes {
 						if(overlayX == -25) overlayX += 25;
 					
 					overlayY = gridSq.getPos()[1] + 50;
-						if(overlayY > 400) overlayY -= 220;
+						if(overlayY >= 400) overlayY -= 220;
 					
 					menuStack.setTranslateX(overlayX);
 					menuStack.setTranslateY(overlayY);
@@ -178,13 +196,18 @@ public class Scenes {
 					
 					grid.forEach(gridSqare -> gridSqare.setId(""));
 					gridSq.setId("current");
+					updateMenu(menuObjectText, menuObject, menuObjectArrowLeft, menuObjectArrowRight, menuStack, menuBg, OK);
 				});
 				
 				grid.add(gridSq);
 			}
 		}
 		
+		menuStack.getChildren().addAll(menuBg, menuObjectText, menuObject, menuObjectArrowLeft, menuObjectArrowRight, OK);
+		updateMenu(menuObjectText, menuObject, menuObjectArrowLeft, menuObjectArrowRight, menuStack, menuBg, OK);
+		
 		root.getChildren().addAll(grid);
+		root.getChildren().addAll(SAVE);
 		root.getChildren().add(menuStack);
 		
 		return getSceneWithCSS(root, "createLevel.css");
@@ -194,6 +217,7 @@ public class Scenes {
 		String object = obj.get("object");
 		int[] xy = new int[] {(int)createX, (int)createY};
 		
+		boolean success = true;
 		switch(object) {
 			case "track":
 				{
@@ -202,7 +226,6 @@ public class Scenes {
 					int start = getDirectionToInt(obj.get("start"));
 					int end1 = getDirectionToInt(obj.get("end1"));
 					int end2 = switchable ? getDirectionToInt(obj.get("end2")) : -1;
-					
 					try {
 						Track t = new Track(xy, type, start, end1, end2);
 						t.setOnMouseClicked(e -> {
@@ -212,8 +235,9 @@ public class Scenes {
 								listMap.remove(obj);
 							}
 						});
-					root.getChildren().add(t);
+						root.getChildren().add(t);
 					} catch (Exception e) {
+						success = false;
 						Log.error("Could not add object, check parameters");
 					}
 				}
@@ -236,10 +260,45 @@ public class Scenes {
 						});
 						root.getChildren().add(s);
 					} catch (Exception e) {
+						success = false;
 						Log.error("Could not add object, check parameters");
 					}
 				}
 				break;
+		}
+		if(success) {
+			listMap.add(obj);
+		}
+	}
+	
+	private static void saveToJSON() {
+		try {
+			PrintWriter saver = new PrintWriter(Window.saveDirectory + "/tmp.json");
+			JSONObject obj = new JSONObject();
+			JSONArray array = new JSONArray();
+			
+			obj.put("tracks", array);
+			obj.put("stations", array);
+			
+			for(Map<String, String> m : listMap) {
+				String name = m.get("object");
+				
+				List<String> keys = new ArrayList<String>();
+				m.entrySet().forEach(entry -> keys.add(entry.getKey()));
+				keys.removeIf(el -> el.equals(name));
+						
+				JSONArray currArray = obj.getJSONArray(name+"s");
+
+				JSONObject currObj = new JSONObject();
+				for(String key : keys) {
+					currObj.put(key, m.get(key));
+				} currArray.put(currObj);
+			}
+			System.out.println(obj);
+			saver.println(obj);
+			saver.close();
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
 		}
 	}
 	
@@ -332,7 +391,7 @@ public class Scenes {
 	}
 	
 	private static JSONObject getJsonMenuObjects() {
-		String json = "{\"track\":{\"type\":[\"straight\",\"curved\"],\"switch\":[false,true],\"start\":[\"top\",\"right\",\"bottom\",\"left\"],\"end1\":[\"top\",\"right\",\"bottom\",\"left\"],\"end2\":[\"top\",\"right\",\"bottom\",\"left\"]},\"station\":{\"type\":[\"normal\",\"start\"],\"color\":[\"red\",\"green\",\"blue\",\"black\"],\"exit\":[\"top\",\"right\",\"bottom\",\"left\"]}}";		
+		String json = "{\"track\":{\"1-type\":[\"straight\",\"curved\"],\"5-switch\":[false,true],\"2-start\":[\"top\",\"right\",\"bottom\",\"left\"],\"3-end1\":[\"top\",\"right\",\"bottom\",\"left\"],\"4-end2\":[\"top\",\"right\",\"bottom\",\"left\"]},\"station\":{\"1-type\":[\"normal\",\"start\"],\"2-color\":[\"red\",\"green\",\"blue\",\"black\"],\"3-exit\":[\"top\",\"right\",\"bottom\",\"left\"]}}";		
 		return new JSONObject(json);
 	}
 	
@@ -343,24 +402,26 @@ public class Scenes {
 		
 		currentProperties.clear();
 		currentProperties.put("object", createObjectStr);
+
 		int y = 1;
 		for(String cp : allProperties) {
 			List<Object> values = getAllValues(createObject, cp);
 			
-			currentProperties.put(cp, values.get(0).toString());
+			String key = cp.substring(2);
+			currentProperties.put(key, values.get(0).toString());
 
-			Text property = new Text(cp.toUpperCase());
+			Text property = new Text(key.toUpperCase());
 				property.setTranslateX(10);
 				property.setTranslateY(y*20 + 5);
 				property.getStyleClass().add("menuText");
 				
 			Text value = new Text(values.get(0).toString().toUpperCase());
-				value.setTranslateX(100);
+				value.setTranslateX(110);
 				value.setTranslateY(y*20 + 5);
 				value.getStyleClass().add("menuValue");
 				
 			Text rightArrow = new Text(">");
-				rightArrow.setTranslateX(170);
+				rightArrow.setTranslateX(180);
 				rightArrow.setTranslateY(y*20 + 5);
 				rightArrow.getStyleClass().add("arrow");
 				rightArrow.setOnMouseClicked(e -> {
@@ -375,12 +436,12 @@ public class Scenes {
 					index = (index < values.size()-1) ? index : -1;
 					value.setText(String.valueOf(values.get(++index)).toUpperCase());
 					
-					String key = cp; String val = value.getText().toLowerCase();
+					String val = value.getText().toLowerCase();
 					currentProperties.put(key, val);
 				});
 				
 			Text leftArrow = new Text("<");
-				leftArrow.setTranslateX(80);
+				leftArrow.setTranslateX(90);
 				leftArrow.setTranslateY(y*20 + 5);
 				leftArrow.getStyleClass().add("arrow");
 				leftArrow.setOnMouseClicked(e -> {
@@ -395,7 +456,7 @@ public class Scenes {
 					index = (index != 0) ? index : values.size();
 					value.setText(String.valueOf(values.get(--index)).toUpperCase());
 					
-					String key = cp; String val = value.getText().toLowerCase();
+					String val = value.getText().toLowerCase();
 					currentProperties.put(key, val);
 				});			
 			menuStack.getChildren().addAll(property, value, leftArrow, rightArrow);
@@ -412,6 +473,7 @@ public class Scenes {
 		}
 		return grid;
 	}
+	
 		
 	private static List<String> getAllKeys(JSONObject json) {
 		List<String> keys = new ArrayList<String>();
@@ -431,6 +493,7 @@ public class Scenes {
 	private static List<Object> getAllValues(JSONObject json, String key) {
 		return json.getJSONArray(key).toList();
 	}
+	
 	
 	private static Color parseColorName(String colorName) {
 		switch(colorName.toUpperCase()) {
