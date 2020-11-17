@@ -19,7 +19,7 @@ public class Ball extends Circle {
 	private List<Track> tracks;
 	private Track currentTrack;
 	
-	private double[][] finalTrackPath;
+//	private double[][] finalTrackPath;
 	private int finalCounter = 0;
 	private int finalDirection;
 	private boolean finalStation = false;
@@ -137,7 +137,9 @@ public class Ball extends Circle {
 			if(track.getColumn() == getColumn() && track.getRow() == getRow()) {
 				return track;
 			}
-		} return NULL_TRACK;
+		}
+		throwError("getCurrentTrack", "No track found");
+		return NULL_TRACK;
 	}
 	
 	private void moveNextDirection(int direction) {
@@ -155,7 +157,7 @@ public class Ball extends Circle {
 				setCenterX(getCenterX() - 1);
 				break;
 			default:
-				Log.error("@moveNextDirection: Wrong direction");
+				throwError("moveNextDirection", "Wrong direction");
 		}
 		column = getColumn();
 		row = getRow();
@@ -186,5 +188,9 @@ public class Ball extends Circle {
 			setCursor(Cursor.HAND);
 			currentTrack.setId("ball-hovered");
 		}
+	}
+	
+	private void throwError(String at, String err) {
+		Log.error(String.format("@Ball.%s(): %s", at, err));
 	}
 }

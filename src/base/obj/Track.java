@@ -15,7 +15,7 @@ import base.Log;
 
 public class Track extends StackPane {
 	
-	public final static Integer NULL = null;
+//	public final static Integer NULL = null;
 	private final static double PI = Math.PI;
 	private final static double fi0 = PI/100;
 	
@@ -60,7 +60,6 @@ public class Track extends StackPane {
 		setTranslateY(y);
 		setRotate(calcRotation(origin, end1));
 		if(getRotate() == 45) {
-			Log.error("Wrong [origin] + [end] combination @[" + column + ", " + row + "]");
 			setStyle("-fx-background-color: rgba(255, 0, 0, 0.5);");
 		}
 		
@@ -82,7 +81,7 @@ public class Track extends StackPane {
 	@Override
 	public String toString() {
 		return String.format(
-					"Track@[type=%s, x=%s, y=%s, origin=%s, end=%s]",
+					"Track[type=%s, x=%s, y=%s, origin=%s, end=%s]",
 					this.type,
 					this.column,
 					this.row,
@@ -144,13 +143,14 @@ public class Track extends StackPane {
 		return pathXY;
 	}
 	
+	/* draws track's direction white -> red */
 	public void debugDraw(Pane root) {
 		double[][] path = getPath();
 		for(int j=0; j<path[0].length; j++) {
 			Rectangle r = new Rectangle(1, 1);
 				r.setTranslateX(path[0][j]);
 				r.setTranslateY(path[1][j]);
-				r.setFill(Color.rgb(4*j, 3*j, 2*j));
+				r.setFill(Color.rgb(255, 5*(path[0].length-j), 5*(path[0].length-j)));
 			root.getChildren().add(r);
 		}	
 	}
@@ -165,7 +165,8 @@ public class Track extends StackPane {
 			case 3:
 				return column-1;
 			default:
-				return NULL;
+				throwError("getNextTrackColumn", "Wrong 'currentEnd'");
+				return -1;
 		}
 	}
 	
@@ -179,7 +180,8 @@ public class Track extends StackPane {
 			case 0:
 				return row-1;
 			default:
-				return NULL;
+				throwError("getNextTrackRow", "Wrong 'currentEnd'");
+				return -1;
 		}
 	}
 	
@@ -205,6 +207,10 @@ public class Track extends StackPane {
 
 //	------------------------------------------------
 	
+	private void throwError(String at, String err) {
+		Log.error(String.format("@Track.%s(): %s", at, err));
+	}
+	
 	private int calcQuarter() {
 		if(type.equals(S)) {
 			return 0;
@@ -218,7 +224,7 @@ public class Track extends StackPane {
 				case 5: quarter=1;									// 1st quarter
 					break;
 				default:
-					Log.error("@calcQuarter: Wrong parameters");	// [ERROR]
+					throwError("calcQuarter", "Wrong parameters");
 					break;
 			}
 			return quarter;
@@ -291,7 +297,7 @@ public class Track extends StackPane {
 				}
 				break;
 			default:
-				Log.error("@getAngles: Wrong parameters");
+				throwError("getAngles", "Wrong parameters");
 				break;
 		}
 		return new double[] {startAngle, endAngle};
@@ -336,17 +342,24 @@ public class Track extends StackPane {
 				switch(origin + end) {
 					case 2: return 0;		// (top <-> bottom)
 					case 4: return 90;		// (left <-> right)
-					default: return NULL;	// [ERROR]
+					default:
+						throwError("calcRotation", "Wrong 'origin'+'end' combination for straight track");
+						return 45;
 				}
 			/* curved track */
 			case C:
 				switch(origin + end) {
 					case 1: return 0;							// (top -> right)
-					case 3: return (origin == 1) ? 90 : 270;
+					case 3:
+						return (origin == 1 || origin == 2) ? 90 : 270;
 					case 5: return 180;							// (bottom -> left)
-					default: return NULL;						// [ERROR]
+					default:
+						throwError("calcRotation", "Wrong 'origin'+'end' combination for curved track");
+						return 45;
 				}
-			default: return NULL;	
+			default:
+				throwError("calcRotation", "Wrong track type");
+				return 45;	
 		}
 	}
 		

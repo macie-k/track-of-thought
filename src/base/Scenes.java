@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import base.obj.Ball;
 import base.obj.FullTrack;
@@ -18,6 +19,7 @@ import base.obj.Track;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -57,7 +59,7 @@ public class Scenes {
 	
 	public static Scene levels() {
 		Pane root = getRootPane();
-			
+				
 		StackPane titleContainer = new StackPane();
 			titleContainer.setPrefWidth(850);
 			titleContainer.setTranslateX(0);
@@ -74,6 +76,66 @@ public class Scenes {
 		root.getChildren().add(titleContainer);
 		return getSceneWithCSS(root, "levels.css");
 	}
+	
+	public static FullTrack game(String level) {
+		int random = new Random().nextInt(3)+1;
+		InputStream stream = Scenes.class.getResourceAsStream(String.format("/resources/levels/%s-%d.level", level, random));
+		Log.success(String.format("Selected level: %s-%d", level, random));
+		
+		JSONObject json = new JSONObject(new JSONTokener(stream));
+		JSONArray stationsJson = json.getJSONArray("stations");
+		JSONArray tracksJson = json.getJSONArray("tracks");
+		JSONArray ballsJson = json.getJSONArray("balls");
+		
+		List<Station> stations = new ArrayList<Station>();
+		List<Track> tracks = new ArrayList<Track>();
+		List<Ball> balls = new ArrayList<Ball>();
+		
+		Station startStation = null;
+		for(Object station : stationsJson) {
+			JSONObject obj = (JSONObject) station;
+			
+			Color color = parseColorName(obj.getString("color"));
+			int column = obj.getInt("column");
+			int row = obj.getInt("row");
+			int exit;
+			
+			if(obj.get("type").equals("start")) {
+				exit = parseDirection(obj.getString("exit"));
+				startStation = new Station(column, row, color, exit);
+			} else {
+				exit = -1;
+			}
+			stations.add(new Station(column, row, color, exit));
+		}
+
+		for(Object track : tracksJson) {
+			JSONObject obj = (JSONObject) track;
+			
+			boolean switchable = obj.getBoolean("switch");
+			String type = obj.getString("type");
+			int column = obj.getInt("column");
+			int row = obj.getInt("row");
+			int origin = parseDirection(obj.getString("start"));
+			int end1 = parseDirection(obj.getString("end1"));
+			int end2 = switchable ? parseDirection(obj.getString("end2")) : -1;
+			
+			tracks.add(new Track(GRID[column][row].getPos(), type, origin, end1, end2));							
+		}
+		
+		double[] startCoords = startStation.getXY();
+		for(Object ball : ballsJson) {
+			JSONObject obj = (JSONObject) ball;
+			
+			int delay = obj.getInt("delay");
+			Color color = parseColorName(obj.getString("color"));
+			
+			balls.add(new Ball(startCoords, color, tracks, delay));
+		}
+		
+		return new FullTrack(stations, tracks, balls);
+	}
+	
 	
 	public static void drawPath(Track[] tracks, Pane root) {
 		for(Track track : tracks) {
@@ -125,12 +187,74 @@ public class Scenes {
 			OK.setOnMouseClicked(e -> {
 				currentProperties.put("column", String.valueOf((int)(createX/50-1)));
 				currentProperties.put("row", String.valueOf((int)(createY/50-1)));
-					
+									
 				addNewObject(root, new HashMap<String, String>(currentProperties));
 				menuStack.toFront();
 				menuStack.setVisible(false);
 			});	
 			StackPane.setAlignment(OK, Pos.BOTTOM_CENTER);
+			
+		StackPane SAVE_NAME = new StackPane();
+			SAVE_NAME.setPrefSize(200, 120);
+			SAVE_NAME.setTranslateX(325);
+			SAVE_NAME.setTranslateY(215);
+			SAVE_NAME.setVisible(false);
+			
+		Text SAVE_NAMEClose = new Text(" X ");
+			SAVE_NAMEClose.setTranslateX(-5);
+			SAVE_NAMEClose.setTranslateY(5);
+			SAVE_NAMEClose.setFont(Font.font("Hind Guntur Bold"));
+			SAVE_NAMEClose.setCursor(Cursor.HAND);
+			SAVE_NAMEClose.setFill(Color.WHITE);
+			StackPane.setAlignment(SAVE_NAMEClose, Pos.TOP_RIGHT);
+			SAVE_NAMEClose.setOnMouseClicked(e -> {
+				root.getChildren().forEach(child -> {
+					child.setVisible(!child.equals(menuStack));
+				});
+				SAVE_NAME.setVisible(false);
+			});
+		
+		Text levelNameLabel = new Text("NAME: ");
+			levelNameLabel.setTranslateY(-35);
+			levelNameLabel.setFont(Font.font("Poppins Light", 17));
+			levelNameLabel.setFill(Color.WHITE);
+			
+		TextField levelName = new TextField();
+			levelName.setMaxSize(150, 25);
+			levelName.setTranslateY(-5);
+			levelName.setStyle("-fx-faint-focus-color: transparent;"
+					+ "-fx-focus-color: transparent;"
+					+ "-fx-text-box-border: transparent;"
+					+ "-fx-highlight-fill: #363638;"
+					+ "-fx-highlight-text-fill: #FFF;");
+			
+		Rectangle SAVE_NAMEbg = new Rectangle(200, 120, Color.web("#4B4E54"));
+			SAVE_NAMEbg.setTranslateX(0);
+			SAVE_NAMEbg.setStroke(COLOR_ACCENT);
+			SAVE_NAMEbg.setStrokeWidth(2);
+			
+		StackPane CONFIRM = new StackPane();
+			CONFIRM.setMaxSize(100, 25);
+			CONFIRM.setPrefSize(100, 25);
+			CONFIRM.setTranslateY(35);
+			CONFIRM.setTranslateX(0);
+			CONFIRM.setCursor(Cursor.HAND);
+			CONFIRM.setOnMouseClicked(e -> {
+				saveToJSON(levelName.getText());
+				root.getChildren().forEach(child -> {
+					child.setVisible(!child.equals(menuStack));
+				});
+				SAVE_NAME.setVisible(false);
+			});
+		Rectangle SAVE_NAMEButton = new Rectangle(100, 25, Color.web("#5beb82"));
+		Text SAVE_NAMEButtonText = new Text("CONFIRM");
+			SAVE_NAMEButtonText.setFont(Font.font("Poppins Light", 15));
+			
+		CONFIRM.getChildren().addAll(SAVE_NAMEButton, SAVE_NAMEButtonText);
+
+		SAVE_NAME.getChildren().addAll(SAVE_NAMEbg, levelName, levelNameLabel, SAVE_NAMEClose);
+		SAVE_NAME.getChildren().add(CONFIRM);		
+			
 			
 		StackPane SAVE = new StackPane();
 			SAVE.setTranslateX(375);
@@ -138,15 +262,16 @@ public class Scenes {
 			SAVE.setPrefSize(100, 40);
 			SAVE.setCursor(Cursor.HAND);
 			SAVE.setOnMouseClicked(e -> {
-				 saveToJSON();
+				root.getChildren().forEach(child -> child.setVisible(false));
+				SAVE_NAME.setVisible(true);
 			});
 		Rectangle SAVEbg = new Rectangle(100, 40, Color.web("#5beb82"));
 			SAVEbg.setTranslateX(0);
 		Text SAVEtext = new Text("S A V E");
-			SAVEtext.setFont(Font.font("Poppins-Ligh", 17));
-		
+			SAVEtext.setFont(Font.font("Poppins Light", 17));
+					
 		SAVE.getChildren().addAll(SAVEbg, SAVEtext);
-			
+					
 		menuObjectArrowLeft = new Text("<");
 			menuObjectArrowLeft.setTranslateX(90);
 			menuObjectArrowLeft.setTranslateY(5);
@@ -205,6 +330,7 @@ public class Scenes {
 		
 		root.getChildren().addAll(grid);
 		root.getChildren().addAll(SAVE);
+		root.getChildren().addAll(SAVE_NAME);
 		root.getChildren().add(menuStack);
 		
 		return getSceneWithCSS(root, "createLevel.css");
@@ -225,12 +351,15 @@ public class Scenes {
 					int end2 = switchable ? parseDirection(obj.get("end2")) : -1;
 					try {
 						Track t = new Track(xy, type, start, end1, end2);
+						t.debugDraw(root);
 						t.setOnMouseClicked(e -> {
 							if(e.getButton() == MouseButton.MIDDLE) {
 								t.setVisible(false);
 								listMap.remove(obj);
 							} else {
-								t.changeType();
+								if(t.isClickable()) {
+									t.changeType();
+								}
 							}
 						});
 						root.getChildren().add(t);
@@ -269,9 +398,9 @@ public class Scenes {
 		}
 	}
 	
-	private static void saveToJSON() {
+	private static void saveToJSON(String levelName) {
 		try {
-			PrintWriter saver = new PrintWriter(Window.saveDirectory + "/tmp.json");
+			PrintWriter saver = new PrintWriter(String.format("%s/%s.level", Window.saveDirectory, levelName));
 			JSONObject obj = new JSONObject();
 
 			obj.put("tracks", new JSONArray());
@@ -296,65 +425,7 @@ public class Scenes {
 			e1.printStackTrace();
 		}
 	}
-	
-	public static FullTrack game(String level) {
-		InputStream stream = Scenes.class.getResourceAsStream("/resources/levels/sample.json");
-		
-		JSONObject json = new JSONObject(new JSONTokener(stream));
-		JSONArray stationsJson = json.getJSONArray("stations");
-		JSONArray tracksJson = json.getJSONArray("tracks");
-		JSONArray ballsJson = json.getJSONArray("balls");
-		
-		List<Station> stations = new ArrayList<Station>();
-		List<Track> tracks = new ArrayList<Track>();
-		List<Ball> balls = new ArrayList<Ball>();
-		
-		Station startStation = null;
-		for(Object station : stationsJson) {
-			JSONObject obj = (JSONObject) station;
-			
-			Color color = parseColorName(obj.getString("color"));
-			int column = obj.getInt("column");
-			int row = obj.getInt("row");
-			int exit;
-			
-			if(obj.get("type").equals("start")) {
-				exit = parseDirection(obj.getString("exit"));
-				startStation = new Station(column, row, color, exit);
-			} else {
-				exit = -1;
-			}
-			stations.add(new Station(column, row, color, exit));
-		}
 
-		for(Object track : tracksJson) {
-			JSONObject obj = (JSONObject) track;
-			
-			boolean switchable = obj.getBoolean("switch");
-			String type = obj.getString("type");
-			int column = obj.getInt("column");
-			int row = obj.getInt("row");
-			int origin = parseDirection(obj.getString("start"));
-			int end1 = parseDirection(obj.getString("end1"));
-			int end2 = switchable ? parseDirection(obj.getString("end2")) : -1;
-			
-			tracks.add(new Track(GRID[column][row].getPos(), type, origin, end1, end2));							
-		}
-		
-		double[] startCoords = startStation.getXY();
-		for(Object ball : ballsJson) {
-			JSONObject obj = (JSONObject) ball;
-			
-			int delay = obj.getInt("delay");
-			Color color = parseColorName(obj.getString("color"));
-			
-			balls.add(new Ball(startCoords, color, tracks, delay));
-		}
-		
-		return new FullTrack(stations, tracks, balls);
-	}
-	
-		
 	public static Scene getSceneWithCSS(Pane root, String cssFile) {
 		Scene scene = new Scene(root);
 		scene.getStylesheets().addAll(Window.class.getResource("/resources/styles/" + cssFile).toExternalForm());
@@ -443,7 +514,6 @@ public class Scenes {
 			y++;
 		}	
 	}
-	
 		
 	private static GridSquare[][] getGrid() {
 		GridSquare[][] grid = new GridSquare[15][9];
@@ -455,7 +525,6 @@ public class Scenes {
 		return grid;
 	}
 	
-		
 	private static List<String> getAllKeys(JSONObject json) {
 		List<String> keys = new ArrayList<String>();
 		Map<String, Object> mapObject = json.toMap();
@@ -465,13 +534,9 @@ public class Scenes {
         }
         
         Collections.sort(keys);
-        
         return keys;
 	}
-	
-	
-	
-	
+		
 	private static List<Object> getAllValues(JSONObject json, String key) {
 		return json.getJSONArray(key).toList();
 	}
