@@ -15,7 +15,7 @@ import base.Log;
 
 public class Track extends StackPane {
 	
-//	public final static Integer NULL = null;
+	public final static Integer NULL = null;
 	private final static double PI = Math.PI;
 	private final static double fi0 = PI/100;
 	
@@ -336,6 +336,7 @@ public class Track extends StackPane {
 //		1 -> right
 //		2 -> bottom
 //		3 -> left
+		
 		switch(type) {
 			/* straight track */
 			case S:	
@@ -344,7 +345,7 @@ public class Track extends StackPane {
 					case 4: return 90;		// (left <-> right)
 					default:
 						throwError("calcRotation", "Wrong 'origin'+'end' combination for straight track");
-						return 45;
+						return NULL;
 				}
 			/* curved track */
 			case C:
@@ -355,11 +356,11 @@ public class Track extends StackPane {
 					case 5: return 180;							// (bottom -> left)
 					default:
 						throwError("calcRotation", "Wrong 'origin'+'end' combination for curved track");
-						return 45;
+						return NULL;
 				}
 			default:
 				throwError("calcRotation", "Wrong track type");
-				return 45;	
+				return NULL;	
 		}
 	}
 		

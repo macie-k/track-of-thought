@@ -408,6 +408,7 @@ public class Scenes {
 
 			for(Map<String, String> m : listMap) {
 				String name = m.get("object");
+				boolean startStation = false;
 				
 				List<String> keys = new ArrayList<String>();
 				m.entrySet().forEach(entry -> keys.add(entry.getKey()));
@@ -415,7 +416,13 @@ public class Scenes {
 
 				JSONObject currObj = new JSONObject();
 				for(String key : keys) {
+					if(name.equals("station") && key.equals("type") && m.get(key).equals("start")) {
+						startStation = true;
+					}
 					currObj.put(key, m.get(key));
+				}
+				if(startStation) {
+					currObj.put("color", "black");
 				}
 				obj.getJSONArray(name+"s").put(currObj);
 			}
