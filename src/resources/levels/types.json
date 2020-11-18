@@ -36,7 +36,16 @@
 			"red",
 			"green",
 			"blue",
-			"black"
+			"cyan",
+			"yellow",
+			"pink",
+			"black",
+			"red + o",
+			"green + o",
+			"blue + o",
+			"cyan + o",
+			"yellow + o",
+			"pink + o"
 		],
 		"3-exit": [
 			"top",

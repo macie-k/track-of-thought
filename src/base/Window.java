@@ -30,6 +30,7 @@ public class Window extends Application {
 	
 	private static AnimationTimer gameTimer;
 	private static int seconds = 0;
+	public static boolean levelCreator = false;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -42,11 +43,7 @@ public class Window extends Application {
 		Setup.runSetup();
 		window.show();
 	}
-	
-	public static void createLevel(Scene scene) {
-		setScene(scene);
-	}
-	
+		
 	public static void game(FullTrack allNodes) {
 		
 		final Pane root = Scenes.getRootPane();

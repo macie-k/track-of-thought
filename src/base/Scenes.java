@@ -33,21 +33,25 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 public class Scenes {
+		
 	
 	public final static Color COLOR_CONTAINER = Color.web("#282d33");
 	public final static Color COLOR_ACCENT = Color.web("#C7B59D");
+	
+	final static Color BLACK = Color.web("#101114");
+	final static Color RED = Color.web("#F44241");
+	final static Color GREEN = Color.web("#57E669");
+	final static Color BLUE = Color.web("#4487F3");
+	final static Color CYAN = Color.web("#79FFFA");
+	final static Color PINK = Color.web("#AA46F1");
+	final static Color YELLOW = Color.web("#EBF14A");
 	
 	public final static String BACKGROUND = "#363638";
 	public final static GridSquare[][] GRID = getGrid();
 	
 	public final static String S = "straight";
 	public final static String C = "curved";
-	
-	final static Color RED = Color.web("#8F1114");
-	final static Color BLACK = Color.web("#101114");
-	final static Color GREEN = Color.web("#105114");
-	final static Color BLUE = Color.web("#101193");
-	
+		
 	private static double createX, createY, overlayX, overlayY;
 	private static String createObjectStr;
 	private static JSONObject createObject;
@@ -79,7 +83,7 @@ public class Scenes {
 	
 	public static FullTrack game(String level) {
 		int random = new Random().nextInt(3)+1;
-		InputStream stream = Scenes.class.getResourceAsStream(String.format("/resources/levels/%s-%d.level", level, random));
+		InputStream stream = Scenes.class.getResourceAsStream(String.format("/resources/levels/%s-2.level", level, random));
 		Log.success(String.format("Selected level: %s-%d", level, random));
 		
 		JSONObject json = new JSONObject(new JSONTokener(stream));
@@ -96,17 +100,18 @@ public class Scenes {
 			JSONObject obj = (JSONObject) station;
 			
 			Color color = parseColorName(obj.getString("color"));
+			boolean border = obj.getString("color").contains("+");
 			int column = obj.getInt("column");
 			int row = obj.getInt("row");
 			int exit;
 			
 			if(obj.get("type").equals("start")) {
 				exit = parseDirection(obj.getString("exit"));
-				startStation = new Station(column, row, color, exit);
+				startStation = new Station(column, row, color, exit, border);
 			} else {
 				exit = -1;
 			}
-			stations.add(new Station(column, row, color, exit));
+			stations.add(new Station(column, row, color, exit, border));
 		}
 
 		for(Object track : tracksJson) {
@@ -128,14 +133,14 @@ public class Scenes {
 			JSONObject obj = (JSONObject) ball;
 			
 			int delay = obj.getInt("delay");
+			boolean border = obj.getString("color").contains("+");
 			Color color = parseColorName(obj.getString("color"));
 			
-			balls.add(new Ball(startCoords, color, tracks, delay));
+			balls.add(new Ball(startCoords, color, tracks, delay, border));
 		}
 		
 		return new FullTrack(stations, tracks, balls);
 	}
-	
 	
 	public static void drawPath(Track[] tracks, Pane root) {
 		for(Track track : tracks) {
@@ -342,8 +347,7 @@ public class Scenes {
 		
 		boolean success = true;
 		switch(object) {
-			case "track":
-				{
+			case "track": {
 					String type = obj.get("type");
 					boolean switchable = obj.get("switch").equals("true");
 					int start = parseDirection(obj.get("start"));
@@ -367,18 +371,17 @@ public class Scenes {
 						success = false;
 						Log.error("Could not add object, check parameters");
 					}
-				}
-				break;
+				} break;
 				
-			case "station":
-				{
+			case "station": {
 					String type = obj.get("type");
 					boolean start = type.equals("start");
+					boolean border = obj.get("color").contains("+");
+					int exit = start ? parseDirection(obj.get("exit")) : -1;
 					Color color = start ? parseColorName("black") : parseColorName(obj.get("color"));
-					int exit = start ? parseDirection(obj.get("exit")) : -1; 
 					
 					try {
-						Station s = new Station(xy, color, exit);
+						Station s = new Station(xy, color, exit, border);
 						s.setOnMouseClicked(e -> {
 							if(e.getButton() == MouseButton.MIDDLE) {
 								s.setVisible(false);
@@ -390,8 +393,7 @@ public class Scenes {
 						success = false;
 						Log.error("Could not add object, check parameters");
 					}
-				}
-				break;
+				} break;
 		}
 		if(success) {
 			listMap.add(obj);
@@ -416,7 +418,7 @@ public class Scenes {
 
 				JSONObject currObj = new JSONObject();
 				for(String key : keys) {
-					if(name.equals("station") && key.equals("type") && m.get(key).equals("start")) {
+					if(key.equals("type") && m.get(key).equals("start")) {
 						startStation = true;
 					}
 					currObj.put(key, m.get(key));
@@ -449,7 +451,7 @@ public class Scenes {
 	}
 	
 	private static JSONObject getJsonMenuObjects() {
-		String json = "{\"track\":{\"1-type\":[\"straight\",\"curved\"],\"5-switch\":[false,true],\"2-start\":[\"top\",\"right\",\"bottom\",\"left\"],\"3-end1\":[\"top\",\"right\",\"bottom\",\"left\"],\"4-end2\":[\"top\",\"right\",\"bottom\",\"left\"]},\"station\":{\"1-type\":[\"normal\",\"start\"],\"2-color\":[\"red\",\"green\",\"blue\",\"black\"],\"3-exit\":[\"top\",\"right\",\"bottom\",\"left\"]}}";		
+		String json = "{\"track\":{\"1-type\":[\"straight\",\"curved\"],\"5-switch\":[false,true],\"2-start\":[\"top\",\"right\",\"bottom\",\"left\"],\"3-end1\":[\"top\",\"right\",\"bottom\",\"left\"],\"4-end2\":[\"top\",\"right\",\"bottom\",\"left\"]},\"station\":{\"1-type\":[\"normal\",\"start\"],\"2-color\":[\"red\",\"green\",\"blue\",\"cyan\",\"yellow\",\"pink\",\"black\",\"red + o\",\"green + o\",\"blue + o\",\"cyan + o\",\"yellow + o\",\"pink + o\"],\"3-exit\":[\"top\",\"right\",\"bottom\",\"left\"]}}";		
 		return new JSONObject(json);
 	}
 	
@@ -462,11 +464,15 @@ public class Scenes {
 		currentProperties.put("object", createObjectStr);
 
 		int y = 1;
-		for(String cp : allProperties) {
-			List<Object> values = getAllValues(createObject, cp);
+		for(String currentProperty : allProperties) {
+			List<Object> values = getAllValues(createObject, currentProperty);
 			
-			String key = cp.substring(2);
+			String key = currentProperty.substring(2);
 			currentProperties.put(key, values.get(0).toString());
+
+			if(key.equals("color")) {
+				System.out.println(values);
+			};
 
 			Text property = new Text(key.toUpperCase());
 				property.setTranslateX(10);
@@ -483,7 +489,6 @@ public class Scenes {
 				rightArrow.setTranslateY(y*20 + 5);
 				rightArrow.getStyleClass().add("arrow");
 				rightArrow.setOnMouseClicked(e -> {
-					
 					int index = 0;
 					for(Object v : values) {
 						if(v.toString().equals(value.getText().toLowerCase())) {
@@ -565,6 +570,9 @@ public class Scenes {
 	}
 	
 	private static Color parseColorName(String colorName) {
+		if(colorName.contains("+")) {
+			colorName = colorName.split("\\+")[0].trim();
+		}
 		switch(colorName.toUpperCase()) {
 			case "BLACK":
 				return BLACK;
@@ -574,8 +582,14 @@ public class Scenes {
 				return GREEN;
 			case "BLUE":
 				return BLUE;
+			case "CYAN":
+				return CYAN;
+			case "PINK":
+				return PINK;
+			case "YELLOW":
+				return YELLOW;
 			default:
-				return Color.FUCHSIA;
+				return Color.TRANSPARENT;
 		}
 	}
 }

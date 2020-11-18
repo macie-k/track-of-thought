@@ -6,6 +6,7 @@ import base.Log;
 import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.StrokeType;
 
 public class Ball extends Circle {
 	
@@ -18,6 +19,7 @@ public class Ball extends Circle {
 	private String color;
 	private List<Track> tracks;
 	private Track currentTrack;
+	private boolean border;
 	
 //	private double[][] finalTrackPath;
 	private int finalCounter = 0;
@@ -25,23 +27,30 @@ public class Ball extends Circle {
 	private boolean finalStation = false;
 	
 	
-	public Ball(double[] xy, Color fill, List<Track> tracks, int delay) {
-		this((int)xy[0], (int)xy[1], 10, fill, tracks, delay);
+	public Ball(double[] xy, Color fill, List<Track> tracks, int delay, boolean border) {
+		this((int)xy[0], (int)xy[1], 10, fill, tracks, delay, border);
 	}
 	
-	public Ball(int x, int y, int radius, Color color, List<Track> tracks, int delay) {
-		super(radius-1);	// r - padding for border
+	public Ball(int x, int y, int radius, Color color, List<Track> tracks, int delay, boolean border) {
+		super(border ? radius-4 : radius);	// r - padding for border
 		
 		this.column = x/50-1;
 		this.row = y/50-1;
 		this.color = color.toString();
 		this.tracks = tracks;
 		this.delay = delay;
+		this.border = border;
 		
 		setCenterX(x + 15);
 		setCenterY(y + 25);
 		setFill(color);
 		getStyleClass().add("ball");
+		
+		if(border) {
+			setStroke(Color.rgb(255, 255, 255, .8));
+			setStrokeType(StrokeType.OUTSIDE);
+			setStrokeWidth(4);
+		}
 		
 		/* event listeners to change track when ball above it is clicked */
 		setOnMouseEntered(e -> { modifyTrackOnHover(); });
@@ -115,6 +124,10 @@ public class Ball extends Circle {
 		return color;
 	}
 	
+	public boolean getBorder() {
+		return border;
+	}
+	
 	public int getCounter() {
 		return this.finalCounter;
 	}
@@ -138,7 +151,7 @@ public class Ball extends Circle {
 				return track;
 			}
 		}
-		throwError("getCurrentTrack", "No track found");
+//		throwError("getCurrentTrack", "No track found");
 		return NULL_TRACK;
 	}
 	

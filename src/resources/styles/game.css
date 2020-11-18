@@ -34,14 +34,3 @@
 .clickable > .track {
 	-fx-fill: rgba(255, 255, 255, 0.25);
 }
-
-.ball {
-	-fx-stroke: rgba(145, 139, 119, 0.5);
-	-fx-stroke-width: 2;
-}
-
-#fullTrack {
-	-fx-fill: rgba(255, 255, 255, 0);
-	-fx-stroke: white;
-	-fx-stroke-width: 2;
-}

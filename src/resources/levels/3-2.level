@@ -258,43 +258,43 @@
    ],
    "balls": [
 		{
-			"color": "RED",
+			"color": "red",
 			"delay": 1
 		},
 		{
-			"color": "GREEN",
+			"color": "green",
 			"delay": 8
 		},
 		{
-			"color": "RED",
+			"color": "red",
 			"delay": 12
 		},
 		{
-			"color": "BLUE",
+			"color": "blue",
 			"delay": 15
 		},
 		{
-			"color": "GREEN",
+			"color": "green",
 			"delay": 20
 		},
 		{
-			"color": "RED",
+			"color": "red",
 			"delay": 24
 		},
 		{
-			"color": "BLUE",
+			"color": "blue",
 			"delay": 29
 		},
 		{
-			"color": "RED",
+			"color": "red",
 			"delay": 32
 		},
 		{
-			"color": "GREEN",
+			"color": "green",
 			"delay": 35
 		},
 		{
-			"color": "BLUE",
+			"color": "blue",
 			"delay": 38
 		}
 	]
