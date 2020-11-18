@@ -129,9 +129,13 @@ public class Window extends Application {
 			/* 
 			 	currently available arguments:
 			 		- log: enables logging to file for debugging 
+			 		- create: allows to create new levels
 			*/
 			for(String arg : args) {
 				switch(arg) {
+					case "--create":
+						levelCreator = true;
+						break;
 					case "--log":
 						System.out.println("[OK] Logging enabled");
 						PrintStream outputLog = new PrintStream(new FileOutputStream(new File("log.txt")));
