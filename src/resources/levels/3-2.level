@@ -9,7 +9,7 @@
       },
       {
          "exit":"top",
-         "color":"red",
+         "color":"blue",
          "column":"11",
          "row":"4",
          "type":"normal"
@@ -23,7 +23,7 @@
       },
       {
          "exit":"top",
-         "color":"blue",
+         "color":"red",
          "column":"5",
          "row":"2",
          "type":"normal"

@@ -8,6 +8,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
 
+import static base.Utils.getColRowFromXY;
+
 public class Ball extends Circle {
 	
 	private final static Track NULL_TRACK = null;
@@ -34,8 +36,8 @@ public class Ball extends Circle {
 	public Ball(int x, int y, int radius, Color color, List<Track> tracks, int delay, boolean border) {
 		super(border ? radius-4 : radius);	// r - padding for border
 		
-		this.column = x/50-1;
-		this.row = y/50-1;
+		this.column = getColRowFromXY(x);
+		this.row = getColRowFromXY(y);
 		this.color = color.toString();
 		this.tracks = tracks;
 		this.delay = delay;
@@ -54,8 +56,8 @@ public class Ball extends Circle {
 		}
 		
 		/* event listeners to change track when ball above it is clicked */
-		setOnMouseEntered(e -> { modifyTrackOnHover(); });
-		setOnMouseMoved(e -> { modifyTrackOnHover(); });
+		setOnMouseEntered(e -> modifyTrackOnHover());
+		setOnMouseMoved(e -> modifyTrackOnHover());
 		setOnMouseClicked(e -> {
 			if(currentTrack != null && currentTrack.isClickable()) {
 				currentTrack.changeType();
@@ -134,11 +136,11 @@ public class Ball extends Circle {
 	}
 	
 	public int getColumn() {
-		return (int)(getCenterX()/50-1);
+		return getColRowFromXY(getCenterX());
 	}
 	
 	public int getRow() {
-		return (int)(getCenterY()/50-1);
+		return getColRowFromXY(getCenterY());
 	}
 	
 	public int getDelay() {
@@ -171,7 +173,7 @@ public class Ball extends Circle {
 				setCenterX(getCenterX() - 1);
 				break;
 			default:
-				logError("moveNextDirection", "Wrong direction");
+				Log.error("Wrong direction");
 		}
 		column = getColumn();
 		row = getRow();
@@ -204,10 +206,5 @@ public class Ball extends Circle {
 			setCursor(Cursor.HAND);
 			currentTrack.setId("ball-hovered");
 		}
-	}
-	
-	/* somewhat improved logging */
-	private void logError(String at, String err) {
-		Log.error(String.format("@Ball.%s(): %s", at, err));
 	}
 }

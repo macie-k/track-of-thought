@@ -1,10 +1,9 @@
-package base; 
+package base;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,24 +33,8 @@ import org.json.JSONTokener;
 
 public class Scenes {
 		
-	
-	public final static Color COLOR_CONTAINER = Color.web("#282d33");
-	public final static Color COLOR_ACCENT = Color.web("#C7B59D");
-	
-	final static Color BLACK = Color.web("#101114");
-	final static Color RED = Color.web("#F44241");
-	final static Color GREEN = Color.web("#57E669");
-	final static Color BLUE = Color.web("#4487F3");
-	final static Color CYAN = Color.web("#79FFFA");
-	final static Color PINK = Color.web("#AA46F1");
-	final static Color YELLOW = Color.web("#EBF14A");
-	
-	public final static String BACKGROUND = "#363638";
-	public final static GridSquare[][] GRID = getGrid();
-	
-	public final static String S = "straight";
-	public final static String C = "curved";
-		
+	public final static GridSquare[][] GRID = Utils.getGrid();
+			
 	private static double createX, createY, overlayX, overlayY;
 	private static String createObjectStr;
 	private static JSONObject createObject;
@@ -99,14 +82,14 @@ public class Scenes {
 		for(Object station : stationsJson) {
 			JSONObject obj = (JSONObject) station;
 			
-			Color color = parseColorName(obj.getString("color"));
+			Color color = Utils.parseColorName(obj.getString("color"));
 			boolean border = obj.getString("color").contains("+");
 			int column = obj.getInt("column");
 			int row = obj.getInt("row");
 			int exit;
 			
 			if(obj.get("type").equals("start")) {
-				exit = parseDirection(obj.getString("exit"));
+				exit = Utils.parseDirectionToInt(obj.getString("exit"));
 				startStation = new Station(column, row, color, exit, border);
 			} else {
 				exit = -1;
@@ -121,9 +104,9 @@ public class Scenes {
 			String type = obj.getString("type");
 			int column = obj.getInt("column");
 			int row = obj.getInt("row");
-			int origin = parseDirection(obj.getString("start"));
-			int end1 = parseDirection(obj.getString("end1"));
-			int end2 = switchable ? parseDirection(obj.getString("end2")) : -1;
+			int origin = Utils.parseDirectionToInt(obj.getString("start"));
+			int end1 = Utils.parseDirectionToInt(obj.getString("end1"));
+			int end2 = switchable ? Utils.parseDirectionToInt(obj.getString("end2")) : -1;
 			
 			tracks.add(new Track(GRID[column][row].getPos(), type, origin, end1, end2));							
 		}
@@ -134,7 +117,7 @@ public class Scenes {
 			
 			int delay = obj.getInt("delay");
 			boolean border = obj.getString("color").contains("+");
-			Color color = parseColorName(obj.getString("color"));
+			Color color = Utils.parseColorName(obj.getString("color"));
 			
 			balls.add(new Ball(startCoords, color, tracks, delay, border));
 		}
@@ -142,7 +125,7 @@ public class Scenes {
 		return new FullTrack(stations, tracks, balls);
 	}
 	
-	public static void drawPath(Track[] tracks, Pane root) {
+	public static void drawFullPath(Track[] tracks, Pane root) {
 		for(Track track : tracks) {
 			double[][] path = track.getPath();
 			for(int j=0; j<50; j++) {
@@ -156,23 +139,23 @@ public class Scenes {
 	}
 	
 	/*
-
 		- Objects' structure & properties are avaialable at: resources/structure.json
+		- New levels are created in appdata (windows) or home (unix) directories
+		- In order for the new level to be accessible, it needs to be placed in: bin/resources/levels
 		- Color names that contain '+O' are colors with white border
-			The suffix is omitted during conversion @parseColorName() and passed to .level file in json format
-
+			The suffix is omitted during conversion @parseColorName() and later passed to .level file in json format
 	 */
 	
 	public static Scene createLevel() {
 		Pane root = getRootPane();
 		
 		String[] menuObjects= {"track", "station"};				// available objects as menu "pages"
-		JSONObject jsonObjects = getJsonMenuObjects();			// get general object from structure.json
+		JSONObject jsonObjects = Utils.getJsonFromFile("/resources/structure.json");			// get general object from structure.json
 		List<GridSquare> grid = new ArrayList<GridSquare>();	// list containing all gridSquares
 		
 		createObjectStr = menuObjects[objectIndex];					// current object as string
 		createObject = jsonObjects.getJSONObject(createObjectStr);	// current object as json object
-		allProperties = getAllKeys(createObject);					// get properties of current obect
+		allProperties = Utils.getAllJsonKeys(createObject);					// get properties of current obect
 		
 		/* StackPane containing menu when any square is clicked */
 		StackPane menuStack = new StackPane();
@@ -183,7 +166,7 @@ public class Scenes {
 		/* background for menu */
 		Rectangle menuBg = new Rectangle(200, 170);
 			menuBg.setFill(Color.web("#4B4E54"));
-			menuBg.setStroke(COLOR_ACCENT);
+			menuBg.setStroke(Utils.COLOR_ACCENT);
 			
 		/* label "OBJECT" */
 		Text menuObjectText = new Text("OBJECT ");
@@ -224,7 +207,7 @@ public class Scenes {
 		/* background for saving menu */
 		Rectangle SAVE_NAMEbg = new Rectangle(200, 120, Color.web("#4B4E54"));
 			SAVE_NAMEbg.setTranslateX(0);
-			SAVE_NAMEbg.setStroke(COLOR_ACCENT);
+			SAVE_NAMEbg.setStroke(Utils.COLOR_ACCENT);
 			SAVE_NAMEbg.setStrokeWidth(2);
 			
 		/* button to close the saving menu */
@@ -265,7 +248,7 @@ public class Scenes {
 			CONFIRM.setCursor(Cursor.HAND);
 			CONFIRM.setOnMouseClicked(e -> {
 				/* when clicked saves level to file and restores view */
-				saveToJSON(levelName.getText());
+				saveLevelToJSON(levelName.getText());
 				root.getChildren().forEach(child -> child.setVisible(!child.equals(menuStack)));
 				SAVE_MENU.setVisible(false);
 			});
@@ -385,9 +368,9 @@ public class Scenes {
 					/* get all track's properties */
 					String type = obj.get("type");
 					boolean switchable = obj.get("switch").equals("true");
-					int start = parseDirection(obj.get("start"));
-					int end1 = parseDirection(obj.get("end1"));
-					int end2 = switchable ? parseDirection(obj.get("end2")) : -1;
+					int start = Utils.parseDirectionToInt(obj.get("start"));
+					int end1 = Utils.parseDirectionToInt(obj.get("end1"));
+					int end2 = switchable ? Utils.parseDirectionToInt(obj.get("end2")) : -1;
 					
 					/* try to create the track -> if error is caught don't add to list */
 					try {
@@ -409,7 +392,7 @@ public class Scenes {
 						root.getChildren().add(t);
 					} catch (Exception e) {
 						success = false;										// overwrite success boolean
-						Log.error("Could not add object, check parameters");	// log the error
+						Log.warning("Could not add object, check parameters");	// log the error
 					}
 				} break;
 				
@@ -418,8 +401,8 @@ public class Scenes {
 					String type = obj.get("type");
 					boolean start = type.equals("start");
 					boolean border = obj.get("color").contains("+");
-					int exit = start ? parseDirection(obj.get("exit")) : -1;
-					Color color = start ? parseColorName("black") : parseColorName(obj.get("color"));
+					int exit = start ? Utils.parseDirectionToInt(obj.get("exit")) : -1;
+					Color color = start ? Utils.parseColorName("black") : Utils.parseColorName(obj.get("color"));
 					
 					try {
 						Station s = new Station(xy, color, exit, border);
@@ -432,7 +415,7 @@ public class Scenes {
 						root.getChildren().add(s);
 					} catch (Exception e) {
 						success = false;
-						Log.error("Could not add object, check parameters");
+						Log.warning("Could not add object, check parameters");
 					}
 				} break;
 		}
@@ -442,7 +425,7 @@ public class Scenes {
 	}
 	
 	/* saves current level to file in json format*/
-	private static void saveToJSON(String levelName) {
+	private static void saveLevelToJSON(String levelName) {
 		try {
 			PrintWriter saver = new PrintWriter(String.format("%s/%s.level", Window.saveDirectory, levelName));
 			JSONObject obj = new JSONObject();		// create empty object
@@ -474,7 +457,7 @@ public class Scenes {
 			saver.println(obj);								// print everything to file
 			saver.close();									// close PrintWriter
 		} catch (FileNotFoundException e1) {
-			Log.error("@saveToJSON(): " + e1);
+			Log.error(e1.toString());
 		}
 	}
 
@@ -493,26 +476,20 @@ public class Scenes {
 		
 		return root;
 	}
-	
-	/* returns json structure from file */
-	private static JSONObject getJsonMenuObjects() {
-		InputStream stream = Scenes.class.getResourceAsStream("/resources/structure.json");
-		return new JSONObject(new JSONTokener(stream));
-	}
-	
+		
 	/* updates menu in create mode */
 	private static void updateMenu(Text ObjectText, Text Object, Text ObjArrowL, Text ObjArrowR, StackPane menuStack, Rectangle menuBg, Text OK) {	
 		menuStack.getChildren().clear();														// remove everything from stack
 		menuStack.getChildren().addAll(menuBg, ObjectText, Object, ObjArrowL, ObjArrowR, OK);	// add constans
 		
-		allProperties = getAllKeys(createObject);			// get all properties for current object
+		allProperties = Utils.getAllJsonKeys(createObject);			// get all properties for current object
 		currentProperties.clear();							// clear current properties
 		currentProperties.put("object", createObjectStr);	// add current object to current properties
 
 		int y = 1;	// variable for positioning
 		/* add all keys with values from available properties to menu stack */
 		for(String currentProperty : allProperties) {
-			List<Object> values = getAllValues(createObject, currentProperty);
+			List<Object> values = Utils.getAllJsonValues(createObject, currentProperty);
 			
 			String key = currentProperty.substring(2);				// current key e.g: {color, type, start, ...}
 			currentProperties.put(key, values.get(0).toString());	// set current property do it's default value
@@ -574,76 +551,6 @@ public class Scenes {
 			y++;
 		}	
 	}
-		
-	/* returns full grid */
-	private static GridSquare[][] getGrid() {
-		GridSquare[][] grid = new GridSquare[15][9];
-		for(int i=0; i<15; i++) {
-			for(int j=0; j<9; j++) {
-				grid[i][j] = new GridSquare(i, j);
-			}
-		}
-		return grid;
-	}
-	
-	/* returns all keys for given json object */
-	private static List<String> getAllKeys(JSONObject json) {
-		List<String> keys = new ArrayList<String>();
-		Map<String, Object> mapObject = json.toMap();
-				
-        for (Map.Entry<String, Object> entry : mapObject.entrySet()) {
-            keys.add(entry.getKey());
-        }
-        
-        Collections.sort(keys);
-        return keys;
-	}
-		
-	/* returns all values for a given key from a given object */
-	private static List<Object> getAllValues(JSONObject json, String key) {
-		return json.getJSONArray(key).toList();
-	}
-	
-	/* returns integer direction from a string value */
-	private static int parseDirection(String dir) {
-		switch(dir) {
-			case "top":
-				return 0;
-			case "right":
-				return 1;
-			case "bottom":
-				return 2;
-			case "left":
-				return 3;
-			default:
-				Log.error("Wrong direction @getDirectionToInt");
-				return -1;
-		}
-	}
-	
-	/* returns color from a string value */
-	private static Color parseColorName(String colorName) {
-		/* if the given color string has a border information, strip it to colorname-only string */
-		if(colorName.contains("+")) {
-			colorName = colorName.split("\\+")[0].trim();
-		}
-		switch(colorName.toUpperCase()) {
-			case "BLACK":
-				return BLACK;
-			case "RED":
-				return RED;
-			case "GREEN":
-				return GREEN;
-			case "BLUE":
-				return BLUE;
-			case "CYAN":
-				return CYAN;
-			case "PINK":
-				return PINK;
-			case "YELLOW":
-				return YELLOW;
-			default:
-				return Color.TRANSPARENT;
-		}
-	}
+					
+
 }

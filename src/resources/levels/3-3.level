@@ -16,14 +16,14 @@
       },
       {
          "exit":"top",
-         "color":"red",
+         "color":"blue",
          "column":"11",
          "row":"4",
          "type":"normal"
       },
       {
          "exit":"top",
-         "color":"blue",
+         "color":"red",
          "column":"5",
          "row":"6",
          "type":"normal"
@@ -113,11 +113,11 @@
       },
       {
          "start":"top",
-         "end2":"right",
+         "end2":"bottom",
          "column":"3",
-         "end1":"bottom",
+         "end1":"right",
          "row":"4",
-         "type":"straight",
+         "type":"curved",
          "switch":"true"
       },
       {
@@ -221,11 +221,11 @@
       },
       {
          "start":"left",
-         "end2":"right",
+         "end2":"top",
          "column":"9",
-         "end1":"top",
+         "end1":"right",
          "row":"6",
-         "type":"curved",
+         "type":"straight",
          "switch":"true"
       },
       {

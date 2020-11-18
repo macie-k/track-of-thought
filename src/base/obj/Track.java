@@ -9,15 +9,19 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
-import static base.Scenes.S;
-import static base.Scenes.C;
 import base.Log;
+
+import static base.Utils.getColRowFromXY;
+import static base.Utils.getXYFromRowCol;
 
 public class Track extends StackPane {
 	
 	public final static Integer NULL = null;
+	
 	private final static double PI = Math.PI;
 	private final static double fi0 = PI/100;
+	private final static String S = "straight";
+	private final static String C = "curved";
 	
 	private String type;
 	private Shape track;
@@ -49,8 +53,8 @@ public class Track extends StackPane {
 		this.currentEnd = end1;
 		this.end2 = end2;
 		this.endToSwitch = end2;
-		this.column = x/50-1;
-		this.row = y/50-1;
+		this.column = getColRowFromXY(x);
+		this.row = getColRowFromXY(y);
 		this.quarter = calcQuarter();
 		this.clickable = clickable;
 		
@@ -77,16 +81,16 @@ public class Track extends StackPane {
 		getChildren().addAll(bg, track);
 	}
 	
-	
 	@Override
 	public String toString() {
 		return String.format(
-					"Track[type=%s, x=%s, y=%s, origin=%s, end=%s]",
-					this.type,
-					this.column,
-					this.row,
-					getOriginEndToString(this.origin),
-					getOriginEndToString(this.currentEnd)
+					"Track[xy=(%d, %d), type=%s, origin=%s, end=%s, switch=%b]",
+					column,
+					row,
+					type,
+					getOriginEndToString(origin),
+					getOriginEndToString(currentEnd),
+					clickable
 				);
 	}
 	
@@ -165,7 +169,7 @@ public class Track extends StackPane {
 			case 3:
 				return column-1;
 			default:
-				logError("getNextTrackColumn", "Wrong 'currentEnd'");
+				Log.error("Wrong 'currentEnd' value");
 				return -1;
 		}
 	}
@@ -180,7 +184,7 @@ public class Track extends StackPane {
 			case 0:
 				return row-1;
 			default:
-				logError("getNextTrackRow", "Wrong 'currentEnd'");
+				Log.error("Wrong 'currentEnd' value");
 				return -1;
 		}
 	}
@@ -206,11 +210,7 @@ public class Track extends StackPane {
 	}
 
 //	------------------------------------------------
-	
-	private void logError(String at, String err) {
-		Log.error(String.format("@Track.%s(): %s", at, err));
-	}
-	
+		
 	private int calcQuarter() {
 		if(type.equals(S)) {
 			return 0;
@@ -224,18 +224,15 @@ public class Track extends StackPane {
 				case 5: quarter=1;									// 1st quarter
 					break;
 				default:
-					logError("calcQuarter", "Wrong parameters");
+					Log.error("Wrong parameters");
 					break;
 			}
 			return quarter;
 		}
 	}
 	
-	private int[] getOriginXY() {
-		final int column = (this.column+1)*50;
-		final int row = (this.row+1)*50;
-		
-		int x=column, y=row;
+	private int[] getOriginXY() {		
+		int x=getXYFromRowCol(this.column), y=getXYFromRowCol(this.row);
 		switch(quarter) {
 			case 1:
 				y += 50;
@@ -297,7 +294,7 @@ public class Track extends StackPane {
 				}
 				break;
 			default:
-				logError("getAngles", "Wrong parameters");
+				Log.error("Wrong parameters");
 				break;
 		}
 		return new double[] {startAngle, endAngle};
@@ -344,7 +341,7 @@ public class Track extends StackPane {
 					case 2: return 0;		// (top <-> bottom)
 					case 4: return 90;		// (left <-> right)
 					default:
-						logError("calcRotation", "Wrong 'origin'+'end' combination for straight track");
+						Log.error("Wrong 'origin'+'end' combination for straight track");
 						return NULL;
 				}
 			/* curved track */
@@ -355,11 +352,11 @@ public class Track extends StackPane {
 						return (origin == 1 || origin == 2) ? 90 : 270;
 					case 5: return 180;							// (bottom -> left)
 					default:
-						logError("calcRotation", "Wrong 'origin'+'end' combination for curved track");
+						Log.error("Wrong 'origin'+'end' combination for curved track");
 						return NULL;
 				}
 			default:
-				logError("calcRotation", "Wrong track type");
+				Log.error("Wrong track type");
 				return NULL;	
 		}
 	}

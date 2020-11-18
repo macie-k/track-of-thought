@@ -4,6 +4,8 @@ import base.Log;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+import static base.Utils.getXYFromRowCol;
+
 /* object used only to return the starting coordinates of each grid pane for easier positioning */
 
 public class GridSquare extends Rectangle {
@@ -17,11 +19,11 @@ public class GridSquare extends Rectangle {
 	}
 		
 	public GridSquare(int column, int row, boolean hoverable) {
-		x = (column + 1)*50;
-		y = (row + 1)*50;
+		x = getXYFromRowCol(column);
+		y = getXYFromRowCol(row);
 		this.hoverable = hoverable;
 		
-		if(column < 15 && row < 9) {	// leave 1 block border
+		if(column < 15 && row < 9) {	// additional check for bounds
 			setWidth(50);
 			setHeight(50);
 			setTranslateX(x);

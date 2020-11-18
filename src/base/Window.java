@@ -25,7 +25,7 @@ public class Window extends Application {
 	public static Stage window;		// main stage
 	public static int points = 0;	// points counter
 	public static final String OS = System.getProperty("os.name").toLowerCase();	// get current operating system
-	public static boolean levelCreator = true;	// temporary variable for level creation
+	public static boolean levelCreator = false;	// temporary variable for level creation
 
 	static String saveDirectory;				// directory to save score and fonts
 	
@@ -61,7 +61,7 @@ public class Window extends Application {
 			
 		/* text with points value */
 		final Text pointsText = new Text("0/" + totalBalls);
-			pointsText.setFill(Scenes.COLOR_ACCENT);
+			pointsText.setFill(Utils.COLOR_ACCENT);
 			pointsText.setFont(Font.font("Hind Guntur Bold", 23));
 			
 		pointsStack.getChildren().add(pointsText);

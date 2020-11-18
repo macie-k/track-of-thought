@@ -6,9 +6,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-import static base.Scenes.BACKGROUND;
-import static base.Scenes.COLOR_ACCENT;
-import static base.Scenes.COLOR_CONTAINER;
+import static base.Utils.BACKGROUND;
+import static base.Utils.COLOR_ACCENT;
+import static base.Utils.COLOR_CONTAINER;
 
 import base.Scenes;
 import base.Window;
@@ -42,9 +42,9 @@ public class LevelPane extends StackPane {
 				Window.game(Scenes.game(level));
 			}
 		});
+		
 //		setOnMouseClicked(event -> {Window.game(Scenes.game(level));});
 //		setOnMouseClicked(event -> {Window.createLevel(Scenes.createLevel());});
-
 	}
 	
 	public String getValue() {
