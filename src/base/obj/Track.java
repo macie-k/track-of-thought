@@ -165,7 +165,7 @@ public class Track extends StackPane {
 			case 3:
 				return column-1;
 			default:
-				throwError("getNextTrackColumn", "Wrong 'currentEnd'");
+				logError("getNextTrackColumn", "Wrong 'currentEnd'");
 				return -1;
 		}
 	}
@@ -180,7 +180,7 @@ public class Track extends StackPane {
 			case 0:
 				return row-1;
 			default:
-				throwError("getNextTrackRow", "Wrong 'currentEnd'");
+				logError("getNextTrackRow", "Wrong 'currentEnd'");
 				return -1;
 		}
 	}
@@ -207,7 +207,7 @@ public class Track extends StackPane {
 
 //	------------------------------------------------
 	
-	private void throwError(String at, String err) {
+	private void logError(String at, String err) {
 		Log.error(String.format("@Track.%s(): %s", at, err));
 	}
 	
@@ -224,7 +224,7 @@ public class Track extends StackPane {
 				case 5: quarter=1;									// 1st quarter
 					break;
 				default:
-					throwError("calcQuarter", "Wrong parameters");
+					logError("calcQuarter", "Wrong parameters");
 					break;
 			}
 			return quarter;
@@ -297,7 +297,7 @@ public class Track extends StackPane {
 				}
 				break;
 			default:
-				throwError("getAngles", "Wrong parameters");
+				logError("getAngles", "Wrong parameters");
 				break;
 		}
 		return new double[] {startAngle, endAngle};
@@ -344,7 +344,7 @@ public class Track extends StackPane {
 					case 2: return 0;		// (top <-> bottom)
 					case 4: return 90;		// (left <-> right)
 					default:
-						throwError("calcRotation", "Wrong 'origin'+'end' combination for straight track");
+						logError("calcRotation", "Wrong 'origin'+'end' combination for straight track");
 						return NULL;
 				}
 			/* curved track */
@@ -355,11 +355,11 @@ public class Track extends StackPane {
 						return (origin == 1 || origin == 2) ? 90 : 270;
 					case 5: return 180;							// (bottom -> left)
 					default:
-						throwError("calcRotation", "Wrong 'origin'+'end' combination for curved track");
+						logError("calcRotation", "Wrong 'origin'+'end' combination for curved track");
 						return NULL;
 				}
 			default:
-				throwError("calcRotation", "Wrong track type");
+				logError("calcRotation", "Wrong track type");
 				return NULL;	
 		}
 	}

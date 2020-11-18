@@ -46,6 +46,7 @@ public class Ball extends Circle {
 		setFill(color);
 		getStyleClass().add("ball");
 		
+		/* if should have border, add it */
 		if(border) {
 			setStroke(Color.rgb(255, 255, 255, .8));
 			setStrokeType(StrokeType.OUTSIDE);
@@ -60,6 +61,8 @@ public class Ball extends Circle {
 				currentTrack.changeType();
 			}
 		});
+		
+		/* reset stuff when user hovers out */
 		setOnMouseExited(e -> {
 			setCursor(Cursor.DEFAULT);
 			if(currentTrack != null) {
@@ -69,7 +72,7 @@ public class Ball extends Circle {
 		});
 	}
 		
-	
+	/* all the logic behind the ball's movement */
 	public void update(FullTrack nodes) {
 		Track track = nodes.findTrack(column, row);		// get the track that ball is on
 				
@@ -84,7 +87,7 @@ public class Ball extends Circle {
 		if(track == null) {
 			Station startStation = nodes.getStations().get(0);	// get starting station
 			if(startStation != null) {
-				moveNextDirection(startStation.getExit());	// move towards its exit
+				moveNextDirection(startStation.getExit());		// move towards its exit
 			}
 			return;
 		}
@@ -117,9 +120,7 @@ public class Ball extends Circle {
 		setCenterY(y);
 		index++;
 	}
-	
-	/* setters & getters */
-		
+			
 	public String getColor() {
 		return color;
 	}
@@ -144,17 +145,17 @@ public class Ball extends Circle {
 		return delay;
 	}
 	
-	/* Check if ball is currently on clickable track */
+	/* check if ball is currently on clickable track */
 	private Track getCurrentTrack() {
 		for(Track track : tracks) {
 			if(track.getColumn() == getColumn() && track.getRow() == getRow()) {
 				return track;
 			}
 		}
-//		throwError("getCurrentTrack", "No track found");
 		return NULL_TRACK;
 	}
 	
+	/* returns a direction the ball should move at the beginning */
 	private void moveNextDirection(int direction) {
 		switch(direction) {
 			case 0:
@@ -170,12 +171,13 @@ public class Ball extends Circle {
 				setCenterX(getCenterX() - 1);
 				break;
 			default:
-				throwError("moveNextDirection", "Wrong direction");
+				logError("moveNextDirection", "Wrong direction");
 		}
 		column = getColumn();
 		row = getRow();
 	}
 	
+	/* returns a final direction the ball should move when 'parking' on the station */
 	private int calcFinalDirection(int nextCol, int nextRow) {
 		if(nextCol > column) {
 			return 1;
@@ -192,6 +194,7 @@ public class Ball extends Circle {
 		return -1;
 	}
 	
+	/* when ball is hovered while being on a changable track modifies that track */
 	private void modifyTrackOnHover() {
 		Track currentTrack = getCurrentTrack();
 		this.currentTrack = currentTrack;
@@ -203,7 +206,8 @@ public class Ball extends Circle {
 		}
 	}
 	
-	private void throwError(String at, String err) {
+	/* somewhat improved logging */
+	private void logError(String at, String err) {
 		Log.error(String.format("@Ball.%s(): %s", at, err));
 	}
 }

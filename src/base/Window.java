@@ -22,19 +22,18 @@ import javafx.stage.Stage;
 
 public class Window extends Application {
 	
-	public static Stage window;
-	public static int points = 0;
-	public static final String OS = System.getProperty("os.name").toLowerCase();
+	public static Stage window;		// main stage
+	public static int points = 0;	// points counter
+	public static final String OS = System.getProperty("os.name").toLowerCase();	// get current operating system
+	public static boolean levelCreator = true;	// temporary variable for level creation
 
-	static String saveDirectory;	// directory to save score and fonts
+	static String saveDirectory;				// directory to save score and fonts
 	
-	private static AnimationTimer gameTimer;
-	private static int seconds = 0;
-	public static boolean levelCreator = false;
+	private static AnimationTimer gameTimer;	// main game timer
+	private static int seconds = 0;				// seconds counter for ball releasing
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		
 		saveDirectory = System.getenv(OS.equals("linux") ? "HOME" : "APPDATA") + "/Track of thought";
 		
 		window = primaryStage;
@@ -45,33 +44,38 @@ public class Window extends Application {
 	}
 		
 	public static void game(FullTrack allNodes) {
+		final Pane root = Scenes.getRootPane();							// game root pane
+		final Scene scene = Scenes.getSceneWithCSS(root, "game.css");	// main game scene
 		
-		final Pane root = Scenes.getRootPane();
-		final Scene scene = Scenes.getSceneWithCSS(root, "game.css");
+		final List<Track> tracks = allNodes.getTracks();		// list of all tracks
+		final List<Station> stations = allNodes.getStations();	// list of all stations
+		final List<Ball> balls = allNodes.getBalls();			// list of all balls
 		
-		final List<Track> tracks = allNodes.getTracks();
-		final List<Station> stations = allNodes.getStations();
-		final List<Ball> balls = allNodes.getBalls();
+		final String totalBalls = String.valueOf(balls.size());	// amount of balls
 		
-		final String totalBalls = String.valueOf(balls.size());
-		
+		/* StackPane for points counter */
 		final StackPane pointsStack = new StackPane();
 			pointsStack.setTranslateX(0);
 			pointsStack.setTranslateY(30);
 			pointsStack.setPrefSize(850, 30);
+			
+		/* text with points value */
 		final Text pointsText = new Text("0/" + totalBalls);
 			pointsText.setFill(Scenes.COLOR_ACCENT);
 			pointsText.setFont(Font.font("Hind Guntur Bold", 23));
+			
+		pointsStack.getChildren().add(pointsText);
+
+		/* grid drawing */
+//		for(int i=0; i<15; i++) { root.getChildren().addAll(Scenes.GRID[i]);}
 		
-//		for(int i=0; i<15; i++) { root.getChildren().addAll(Scenes.GRID[i]);}	// draw the grid
-		
+		/* add everything to the roott pane */
 		root.getChildren().addAll(tracks);
 		root.getChildren().addAll(balls);
 		root.getChildren().addAll(stations);
-		pointsStack.getChildren().add(pointsText);
 		root.getChildren().add(pointsStack);
 		
-		setScene(scene);
+		setScene(scene);	// set scene with all elements
 									
 		gameTimer = new AnimationTimer() {
 			private long lastUpdate = 0;
@@ -80,22 +84,26 @@ public class Window extends Application {
 			@Override
 			public void handle(long now) {		
 				if(now - lastUpdate >= 16_000_000) {
-					List<Ball> toRemove = new ArrayList<Ball>();
+					List<Ball> toRemove = new ArrayList<Ball>();	// list of balls that should be removed
+					
 					for(Ball ball : balls) {
+						/* update ball only if should be, or already is 'released' */
 						if(seconds >= ball.getDelay()) {
 							ball.update(allNodes);
 							
+							/* if ball finished 'parking' */
 							if(ball.getCounter() == 25) {
-								Station finalStation = allNodes.findStation(ball.getColumn(), ball.getRow());
-								if(finalStation.getColor().equals(ball.getColor())) {
+								Station finalStation = allNodes.findStation(ball.getColumn(), ball.getRow());	// get final station
+								/* if the station is correct update points value */
+								if(finalStation.getColor().equals(ball.getColor()) && (finalStation.getBorder() == ball.getBorder())) {
 									pointsText.setText(String.valueOf(++points) + "/" + totalBalls);
 								}
-								root.getChildren().remove(ball);
-								toRemove.add(ball);
+								root.getChildren().remove(ball);	// remove the ball from root pane when 'parked'
+								toRemove.add(ball);					// add to removal list
 							}
 						}
 					}
-					balls.removeAll(toRemove);
+					balls.removeAll(toRemove);	// remove balls that finished track
 					lastUpdate = now;
 				}
 				
@@ -109,27 +117,30 @@ public class Window extends Application {
 				
 	}
 	
+	/* sets the main scene */
 	public static void setScene(Scene scene) {
 		window.setScene(scene);
 	}
 	
+	
 	public static void main (String[] args) throws FileNotFoundException {
-		
+		/* parses arguments */
 		if(args.length>0) {
+			/* 
+			 	currently available arguments:
+			 		- log: enables logging to file for debugging 
+			*/
 			for(String arg : args) {
 				switch(arg) {
 					case "--log":
 						System.out.println("[OK] Logging enabled");
-						
 						PrintStream outputLog = new PrintStream(new FileOutputStream(new File("log.txt")));
 							System.setOut(outputLog);
 							System.setErr(outputLog);
 					break;
-					default: break;
 				}
 			}
 		}
-		
 		launch(args);
 	}
 	
