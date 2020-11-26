@@ -1,15 +1,14 @@
 package base.obj;
 
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-import static base.Utils.BACKGROUND;
 import static base.Utils.COLOR_ACCENT;
-import static base.Utils.COLOR_CONTAINER;
+import static base.Utils.COLOR_LEVEL;
 
+import base.Log;
 import base.Scenes;
 import base.Window;
 
@@ -23,7 +22,7 @@ public class LevelPane extends StackPane {
 		setTranslateX(x);
 		setTranslateY(y);
 		
-		container = new Rectangle(97, 70, COLOR_CONTAINER);
+		container = new Rectangle(97, 70, COLOR_LEVEL);
 		container.getStyleClass().add("container");
 		
 		String level = String.valueOf(lvl);
@@ -39,12 +38,11 @@ public class LevelPane extends StackPane {
 			if(Window.levelCreator) {
 				Window.setScene(Scenes.createLevel());
 			} else {
-				Window.game(Scenes.game(level));
+				try { Window.game(Scenes.game(level.charAt(0))); } catch (Exception ex) {
+					Log.error("Selected level is incorrect: " + ex);
+				}
 			}
 		});
-		
-//		setOnMouseClicked(event -> {Window.game(Scenes.game(level));});
-//		setOnMouseClicked(event -> {Window.createLevel(Scenes.createLevel());});
 	}
 	
 	public String getValue() {
@@ -55,11 +53,11 @@ public class LevelPane extends StackPane {
 		if(highlight) {
 			container.setStyle("-fx-cursor: hand;");
 			container.setFill(COLOR_ACCENT);
-			value.setFill(Color.web(BACKGROUND));
+			value.setFill(COLOR_LEVEL);
 		} else {
 			container.setStyle("-fx-cursor: default;");
-			container.setFill(COLOR_CONTAINER);
-			value.setFill(Color.web("#C7B59D"));
+			container.setFill(COLOR_LEVEL);
+			value.setFill(COLOR_ACCENT);
 		}
 	}
 }

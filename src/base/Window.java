@@ -122,7 +122,6 @@ public class Window extends Application {
 		window.setScene(scene);
 	}
 	
-	
 	public static void main (String[] args) throws FileNotFoundException {
 		/* parses arguments */
 		if(args.length>0) {
@@ -135,18 +134,19 @@ public class Window extends Application {
 				switch(arg) {
 					case "--create":
 						levelCreator = true;
+						Log.success("Creator mode enabled");
 						break;
 					case "--log":
-						System.out.println("[OK] Logging enabled");
+						Log.success("Logging enabled");
 						PrintStream outputLog = new PrintStream(new FileOutputStream(new File("log.txt")));
 							System.setOut(outputLog);
 							System.setErr(outputLog);
 					break;
+					default:
+						Log.warning("Unknown argument: " + arg);
 				}
 			}
 		}
 		launch(args);
 	}
-	
-
 }

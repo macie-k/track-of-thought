@@ -16,10 +16,11 @@ import javafx.scene.paint.Color;
 
 public class Utils {
 	
-	public final static Color COLOR_CONTAINER = Color.web("#282d33");
+	public final static Color COLOR_LEVEL = Color.web("#282d33");
 	public final static Color COLOR_ACCENT = Color.web("#C7B59D");
-	public final static String BACKGROUND = "#363638";
-	
+//	public final static Color COLOR_BACKGROUND = Color.web("#363638");
+	public final static Color COLOR_BACKGROUND = Color.web("#2D2E37");
+
 	public final static Color BLACK = Color.web("#101114");
 	public final static Color RED = Color.web("#F44241");
 	public final static Color GREEN = Color.web("#57E669");
@@ -72,13 +73,12 @@ public class Utils {
 		}
 	}
 	
-	
-	/* returns x or y from column or row */
+	/* returns (x from column) or (y from row) */
 	public static int getXYFromRowCol(int rowcol) {
 		return (rowcol + 1)*50;
 	}
 	
-	/* returns column or row from x or y */
+	/* returns (column from x) or (row from y) */
 	public static int getColRowFromXY(int xy) {
 		return xy/50-1;
 	}

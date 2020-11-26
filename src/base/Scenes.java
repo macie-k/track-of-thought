@@ -17,6 +17,7 @@ import base.obj.Station;
 import base.obj.Track;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
@@ -44,6 +45,15 @@ public class Scenes {
 	private static int objectIndex = 0;
 	private static Text menuObjectArrowRight, menuObjectArrowLeft;
 	
+	/*
+		- Objects' structure & properties are avaialable at: resources/structure.json
+		- New levels are created in appdata (windows) or home (unix) directories
+		- In order for the new level to be accessible, it needs to be placed in: bin/resources/levels
+		- Color names that contain '+O' are colors with white border
+			The suffix is omitted during conversion @Utils.parseColorName() and later passed to .level file in json format
+	*/
+
+	
 	public static Scene levels() {
 		Pane root = getRootPane();
 				
@@ -64,20 +74,29 @@ public class Scenes {
 		return getSceneWithCSS(root, "levels.css");
 	}
 	
-	public static FullTrack game(String level) {
-		int random = new Random().nextInt(3)+1;
+	public static FullTrack game(char level) {
+		List<String> levels = Utils.getAllResourceFiles("levels");
+		/* count versions of the selected level */
+		int levelCounter = 0;
+		for(String lvl : levels) {
+			if(lvl.charAt(0) == level) {
+				levelCounter++;
+			}
+		}
+		
+		int random = new Random().nextInt(levelCounter)+1;
 		InputStream stream = Scenes.class.getResourceAsStream(String.format("/resources/levels/%s-%d.level", level, random));
 		Log.success(String.format("Selected level: %s-%d", level, random));
-		
-		JSONObject json = new JSONObject(new JSONTokener(stream));
-		JSONArray stationsJson = json.getJSONArray("stations");
-		JSONArray tracksJson = json.getJSONArray("tracks");
-		JSONArray ballsJson = json.getJSONArray("balls");
 		
 		List<Station> stations = new ArrayList<Station>();
 		List<Track> tracks = new ArrayList<Track>();
 		List<Ball> balls = new ArrayList<Ball>();
 		
+		JSONObject json = new JSONObject(new JSONTokener(stream));
+		JSONArray stationsJson = json.getJSONArray("stations");
+		JSONArray tracksJson = json.getJSONArray("tracks");
+		JSONArray ballsJson = json.getJSONArray("balls");
+
 		Station startStation = null;
 		for(Object station : stationsJson) {
 			JSONObject obj = (JSONObject) station;
@@ -137,14 +156,6 @@ public class Scenes {
 			}
 		}
 	}
-	
-	/*
-		- Objects' structure & properties are avaialable at: resources/structure.json
-		- New levels are created in appdata (windows) or home (unix) directories
-		- In order for the new level to be accessible, it needs to be placed in: bin/resources/levels
-		- Color names that contain '+O' are colors with white border
-			The suffix is omitted during conversion @parseColorName() and later passed to .level file in json format
-	 */
 	
 	public static Scene createLevel() {
 		Pane root = getRootPane();
@@ -240,31 +251,32 @@ public class Scenes {
 					+ "-fx-highlight-text-fill: #FFF;");
 					
 		/* confirmation button StackPane -> triggers saving to .level file */
-		StackPane CONFIRM = new StackPane();
-			CONFIRM.setMaxSize(100, 25);
-			CONFIRM.setPrefSize(100, 25);
-			CONFIRM.setTranslateY(35);
-			CONFIRM.setTranslateX(0);
-			CONFIRM.setCursor(Cursor.HAND);
-			CONFIRM.setOnMouseClicked(e -> {
+		StackPane CONFIRM_CREATE = new StackPane();
+			CONFIRM_CREATE.setMaxSize(100, 25);
+			CONFIRM_CREATE.setPrefSize(100, 25);
+			CONFIRM_CREATE.setTranslateY(35);
+			CONFIRM_CREATE.setTranslateX(0);
+			CONFIRM_CREATE.setCursor(Cursor.HAND);
+			CONFIRM_CREATE.setOnMouseClicked(e -> {
 				/* when clicked saves level to file and restores view */
 				saveLevelToJSON(levelName.getText());
 				root.getChildren().forEach(child -> child.setVisible(!child.equals(menuStack)));
 				SAVE_MENU.setVisible(false);
 			});
+			
 		
 		/* background and text for the confirmation button */
 		Rectangle SAVE_NAMEButton = new Rectangle(100, 25, Color.web("#5beb82"));
 		Text SAVE_NAMEButtonText = new Text("CONFIRM");
 			SAVE_NAMEButtonText.setFont(Font.font("Poppins Light", 15));
 			
-		CONFIRM.getChildren().addAll(SAVE_NAMEButton, SAVE_NAMEButtonText);	
+		CONFIRM_CREATE.getChildren().addAll(SAVE_NAMEButton, SAVE_NAMEButtonText);	
 		SAVE_MENU.getChildren().addAll(SAVE_NAMEbg, levelName, levelNameLabel, SAVE_NAMEClose);	
-		SAVE_MENU.getChildren().add(CONFIRM);		
-			
+		SAVE_MENU.getChildren().add(CONFIRM_CREATE);	
+		
 		/* StackPane for save button -> opens saving menu */
 		StackPane SAVE = new StackPane();
-			SAVE.setTranslateX(375);
+			SAVE.setTranslateX(445);
 			SAVE.setTranslateY(505);
 			SAVE.setPrefSize(100, 40);
 			SAVE.setCursor(Cursor.HAND);
@@ -281,7 +293,22 @@ public class Scenes {
 			SAVEtext.setFont(Font.font("Poppins Light", 17));
 					
 		SAVE.getChildren().addAll(SAVEbg, SAVEtext);
+		
+		/* StackPane for save button -> opens saving menu */
+		StackPane CLEAR = new StackPane();
+			CLEAR.setTranslateX(305);
+			CLEAR.setTranslateY(505);
+			CLEAR.setPrefSize(100, 40);
+			CLEAR.setCursor(Cursor.HAND);
+			
+		/* background and text for the save button */
+		Rectangle CLEARbg = new Rectangle(100, 40, Color.web("#eb5b5b"));
+			CLEARbg.setTranslateX(0);
+		Text CLEARtext = new Text("CLEAR");
+			CLEARtext.setFont(Font.font("Poppins Light", 17));
 					
+		CLEAR.getChildren().addAll(CLEARbg, CLEARtext);
+
 		/* left arrow for navigating through available objects */
 		menuObjectArrowLeft = new Text("<");
 			menuObjectArrowLeft.setTranslateX(90);
@@ -344,23 +371,36 @@ public class Scenes {
 				grid.add(gridSq);
 			}
 		}
-		
+				
 		/* add everything to their stacks and finally to the root Pane */
 		menuStack.getChildren().addAll(menuBg, menuObjectText, menuObject, menuObjectArrowLeft, menuObjectArrowRight, OK);
 		updateMenu(menuObjectText, menuObject, menuObjectArrowLeft, menuObjectArrowRight, menuStack, menuBg, OK);
 		
 		root.getChildren().addAll(grid);
-		root.getChildren().addAll(SAVE);
-		root.getChildren().addAll(SAVE_MENU);
+		root.getChildren().add(SAVE);
+		root.getChildren().add(CLEAR);
+		root.getChildren().add(SAVE_MENU);
 		root.getChildren().add(menuStack);
 		
+		CLEAR.setOnMouseClicked(e -> {
+			root.getChildren().removeIf(child -> shouldClear(child));
+			listMap.clear();
+		});
+		
 		return getSceneWithCSS(root, "createLevel.css");
+	}
+	
+	private static boolean shouldClear(Node child) {
+		String aH = child.getAccessibleHelp();
+		return 	(child instanceof Track) ||
+				(child instanceof Station) ||
+				(aH != null) && (aH.equals("debugdraw"));
 	}
 	
 	/* creates temporary object for createLevel() scene */
 	private static void addNewObject(Pane root, Map<String, String> obj) {
 		String object = obj.get("object");						// get the object type
-		int[] xy = new int[] {(int)createX, (int)createY};		// get the coordinates
+		int[] xy = {(int)createX, (int)createY};		// get the coordinates
 		
 		boolean success = true;		// assume adding was successful -> overwrite later if otherwise
 		switch(object) {
@@ -375,6 +415,10 @@ public class Scenes {
 					/* try to create the track -> if error is caught don't add to list */
 					try {
 						Track t = new Track(xy, type, start, end1, end2);
+						if(switchable) {
+							t.changeType();
+						}
+
 						t.debugDraw(root);			// comment to hide PATH DRAWING - can get annoying when deleting a lot
 						
 						/* listener to remove object and change type if clickable */
@@ -382,6 +426,7 @@ public class Scenes {
 							/* if scroll is cliked remove else try to change type */
 							if(e.getButton() == MouseButton.MIDDLE) {
 								t.setVisible(false);
+								t.removeDebugDraw();
 								listMap.remove(obj);
 							} else {
 								if(t.isClickable()) {

@@ -23,9 +23,10 @@ public class Track extends StackPane {
 	private final static String S = "straight";
 	private final static String C = "curved";
 	
-	private String type;
 	private Shape track;
+	private Rectangle[] debugPath = new Rectangle[50];
 	
+	private String type;
 	private int origin;
 	private int end1;
 	private int end2;
@@ -155,8 +156,16 @@ public class Track extends StackPane {
 				r.setTranslateX(path[0][j]);
 				r.setTranslateY(path[1][j]);
 				r.setFill(Color.rgb(255, 5*(path[0].length-j), 5*(path[0].length-j)));
+				r.setAccessibleHelp("debugdraw");
+				debugPath[j] = r;
 			root.getChildren().add(r);
 		}	
+	}
+	
+	public void removeDebugDraw() {
+		for(Rectangle r : debugPath) {
+			r.setVisible(false);
+		}
 	}
 	
 	public int getNextTrackColumn() {
