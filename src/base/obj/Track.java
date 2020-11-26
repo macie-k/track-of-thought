@@ -24,7 +24,7 @@ public class Track extends StackPane {
 	private final static String C = "curved";
 	
 	private Shape track;
-	private Rectangle[] debugPath = new Rectangle[50];
+	private Rectangle[] debugPath;
 	
 	private String type;
 	private int origin;
@@ -58,6 +58,7 @@ public class Track extends StackPane {
 		this.row = getColRowFromXY(y);
 		this.quarter = calcQuarter();
 		this.clickable = clickable;
+		this.debugPath = getDebugPath();
 		
 		setWidth(50);
 		setHeight(50);
@@ -149,22 +150,42 @@ public class Track extends StackPane {
 	}
 	
 	/* draws track's direction white -> red */
-	public void debugDraw(Pane root) {
+	public Rectangle[] getDebugPath() {
 		double[][] path = getPath();
+		Rectangle[] tab = new Rectangle[path[0].length];
+		
 		for(int j=0; j<path[0].length; j++) {
 			Rectangle r = new Rectangle(1, 1);
 				r.setTranslateX(path[0][j]);
 				r.setTranslateY(path[1][j]);
 				r.setFill(Color.rgb(255, 5*(path[0].length-j), 5*(path[0].length-j)));
 				r.setAccessibleHelp("debugdraw");
-				debugPath[j] = r;
-			root.getChildren().add(r);
+				tab[j] = r;
 		}	
+		return tab;
 	}
 	
-	public void removeDebugDraw() {
+	public void removeDebugPath(Pane root) {
+		for(Rectangle r : debugPath) {
+			root.getChildren().remove(r);
+		}
+	}
+	
+	public void addDebugPath(Pane root) {
+		for(Rectangle r : debugPath) {
+			root.getChildren().add(r);
+		}
+	}
+	
+	public void hideDebugPath() {
 		for(Rectangle r : debugPath) {
 			r.setVisible(false);
+		}
+	}
+	
+	public void showDebugPath() {
+		for(Rectangle r : debugPath) {
+			r.setVisible(true);
 		}
 	}
 	
@@ -380,6 +401,8 @@ public class Track extends StackPane {
 		endToSwitch = (endToSwitch == end1) ? end2 : end1;
 		currentEnd = (currentEnd == end1) ? end2 : end1;
 		quarter = calcQuarter();
+		
+		debugPath = getDebugPath();
 	}
 		
 	private Shape getTrackShape() {

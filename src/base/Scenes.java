@@ -386,7 +386,7 @@ public class Scenes {
 			root.getChildren().removeIf(child -> shouldClear(child));
 			listMap.clear();
 		});
-		
+	
 		return getSceneWithCSS(root, "createLevel.css");
 	}
 	
@@ -415,22 +415,27 @@ public class Scenes {
 					/* try to create the track -> if error is caught don't add to list */
 					try {
 						Track t = new Track(xy, type, start, end1, end2);
+						
+						/* test second type */
 						if(switchable) {
+							t.changeType();
 							t.changeType();
 						}
 
-						t.debugDraw(root);			// comment to hide PATH DRAWING - can get annoying when deleting a lot
+						t.addDebugPath(root);			// comment to hide PATH DRAWING - can get annoying when deleting a lot
 						
 						/* listener to remove object and change type if clickable */
 						t.setOnMouseClicked(e -> {
 							/* if scroll is cliked remove else try to change type */
 							if(e.getButton() == MouseButton.MIDDLE) {
-								t.setVisible(false);
-								t.removeDebugDraw();
+								root.getChildren().remove(t);
+								t.removeDebugPath(root);
 								listMap.remove(obj);
 							} else {
 								if(t.isClickable()) {
+									t.removeDebugPath(root);
 									t.changeType();
+									t.addDebugPath(root);
 								}
 							}
 						});
@@ -453,7 +458,7 @@ public class Scenes {
 						Station s = new Station(xy, color, exit, border);
 						s.setOnMouseClicked(e -> {
 							if(e.getButton() == MouseButton.MIDDLE) {
-								s.setVisible(false);
+								root.getChildren().remove(s);
 								listMap.remove(obj);
 							}
 						});
