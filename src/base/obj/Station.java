@@ -1,5 +1,7 @@
 package base.obj;
 
+import base.Log;
+import base.Utils;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeType;
 
@@ -9,27 +11,29 @@ public class Station extends GridSquare {
 	private int row;
 	private boolean start;
 	private int exit;
-	private String color;
+	private Color color;
+	private String colorStr;
 	private boolean border;
 	
-	public Station(int[] xy, Color fill, int exit, boolean border) {
+	public Station(int[] xy, String fill, int exit, boolean border) {
 		this(xy[0]/50-1, xy[1]/50-1, fill, exit, border);
 	}
 	
-	public Station(int column, int row, Color fill, boolean border) {
+	public Station(int column, int row, String fill, boolean border) {
 		this(column, row, fill, false, -1, border);
 	}
 	
-	public Station(int column, int row, Color fill, int exit, boolean border) {
+	public Station(int column, int row, String fill, int exit, boolean border) {
 		this(column, row, fill, exit != -1, exit, border);
 	}
 	
-	public Station(int column, int row, Color fill, boolean start, int exit, boolean border) {
+	public Station(int column, int row, String color, boolean start, int exit, boolean border) {
 		super(column, row);
 		
 		this.column = column;
 		this.row = row;
-		this.color = fill.toString();
+		this.color = Utils.parseColorName(color);
+		this.colorStr = color;
 		this.start = start;
 		this.exit = exit;
 		this.border = border;
@@ -45,20 +49,61 @@ public class Station extends GridSquare {
 			setStrokeType(StrokeType.OUTSIDE);
 			setStrokeWidth(5);
 		}
-		setFill(fill);
+		setFill(this.color);
+	}
+	
+		
+	public String toString() {
+		return String.format("Station[XY=(%d, %d), Color=%s, Border=%b]", column, row, colorStr, border);
+	}
+	
+	public int[] getFirstTrackColRow() {
+		int col = getColumn();
+		int row = getRow();
+		if(isStart()) {
+			switch(exit) {
+				case 0:
+					return new int[] {col, row-1};
+				case 1:
+					return new int[] {col+1, row};
+				case 2:
+					return new int[] {col, row+1};
+				case 3:
+					return new int[] {col-1, row};
+				default:
+					Log.error("Wrong station exit");
+			}
+		} return null;
 	}
 	
 	public boolean getBorder() {
 		return border;
 	}
 	
-	public String toString() {
-		return String.format("Station[XY=(%d, %d), Color=%s, Border=%b]", column, row, color, border);
+	public void setBorder(boolean value) {
+		border = value;
 	}
 	
-	public String getColor() {
+	public Color getColor() {
 		return color;
 	}
+	
+	public String getColorStr() {
+		return colorStr;
+	}
+	
+	public void setColor(String value) {
+		color = Utils.parseColorName(value);
+		colorStr = value;
+		setFill(color);
+	}
+	
+	public void setColor(Color value) {
+		color = value;
+		setFill(color);
+	}
+	
+	/* functions below should not have setters */
 	
 	public double[] getXY() {
 		return new double[] {getTranslateX(), getTranslateY()};
@@ -67,6 +112,7 @@ public class Station extends GridSquare {
 	public int[] getPos() {
 		return new int[] {row, column};
 	}
+	
 	
 	public boolean isStart() {
 		return start;
@@ -83,4 +129,5 @@ public class Station extends GridSquare {
 	public int getRow() {
 		return row;
 	}
+	
 }

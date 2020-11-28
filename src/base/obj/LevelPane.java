@@ -18,7 +18,6 @@ public class LevelPane extends StackPane {
 	private final Text value;			// level number
 			
 	public LevelPane(int x, int y, int lvl) {
-		
 		setTranslateX(x);
 		setTranslateY(y);
 		
@@ -39,7 +38,8 @@ public class LevelPane extends StackPane {
 				Window.setScene(Scenes.createLevel());
 			} else {
 				try { Window.game(Scenes.game(level.charAt(0))); } catch (Exception ex) {
-					Log.error("Selected level is incorrect: " + ex);
+					Log.error(String.format("Something's wrong with the selected level [%s]", level));
+					Log.error(ex.toString());
 				}
 			}
 		});

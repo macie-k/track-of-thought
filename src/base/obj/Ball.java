@@ -3,6 +3,7 @@ package base.obj;
 import java.util.List;
 
 import base.Log;
+import base.Utils;
 import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -18,7 +19,8 @@ public class Ball extends Circle {
 	private int column;
 	private int row;
 	private int delay;
-	private String color;
+	private Color color;
+	private String colorStr;
 	private List<Track> tracks;
 	private Track currentTrack;
 	private boolean border;
@@ -29,31 +31,29 @@ public class Ball extends Circle {
 	private boolean finalStation = false;
 	
 	
-	public Ball(double[] xy, Color fill, List<Track> tracks, int delay, boolean border) {
-		this((int)xy[0], (int)xy[1], 10, fill, tracks, delay, border);
+	public Ball(double[] xy, String color, List<Track> tracks, int delay, boolean border) {
+		this((int)xy[0], (int)xy[1], 10, color, tracks, delay, border);
 	}
 	
-	public Ball(int x, int y, int radius, Color color, List<Track> tracks, int delay, boolean border) {
+	public Ball(int x, int y, int radius, String color, List<Track> tracks, int delay, boolean border) {
 		super(border ? radius-4 : radius);	// r - padding for border
 		
 		this.column = getColRowFromXY(x);
 		this.row = getColRowFromXY(y);
-		this.color = color.toString();
+		this.color = Utils.parseColorName(color);
+		this.colorStr = color;
 		this.tracks = tracks;
 		this.delay = delay;
 		this.border = border;
 		
 		setCenterX(x + 15);
 		setCenterY(y + 25);
-		setFill(color);
+		setFill(this.color);
 		getStyleClass().add("ball");
+		setStroke(Color.rgb(255, 255, 255, .8));
+		setStrokeType(StrokeType.OUTSIDE);
 		
-		/* if should have border, add it */
-		if(border) {
-			setStroke(Color.rgb(255, 255, 255, .8));
-			setStrokeType(StrokeType.OUTSIDE);
-			setStrokeWidth(4);
-		}
+		setBorder(border); // if should have border, add it 
 		
 		/* event listeners to change track when ball above it is clicked */
 		setOnMouseEntered(e -> modifyTrackOnHover());
@@ -123,8 +123,30 @@ public class Ball extends Circle {
 		index++;
 	}
 			
-	public String getColor() {
+	public void setColor(String colorName) {
+		Object[] parsedColor = Utils.parseColorWithBorder(colorName);
+		color = (Color) parsedColor[0];
+		colorStr = colorName;
+		boolean border = (boolean)parsedColor[1];
+		
+		setFill(color);
+		setBorder(border);
+	}
+	
+	public void setBorder(boolean border) {
+		if(border) {
+			setStrokeWidth(4);
+		} else {
+			setStrokeWidth(0);
+		}
+	}
+	
+	public Color getColor() {
 		return color;
+	}
+	
+	public String getColorStr() {
+		return colorStr;
 	}
 	
 	public boolean getBorder() {

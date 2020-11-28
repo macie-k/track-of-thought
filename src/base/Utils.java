@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -29,7 +31,58 @@ public class Utils {
 	public final static Color PINK = Color.web("#AA46F1");
 	public final static Color YELLOW = Color.web("#EBF14A");
 	
+	public final static List<Color> COLORS_BASE = Arrays.asList(new Color[] {
+			RED, GREEN, BLUE, CYAN, PINK, YELLOW
+	});
+	public final static List<String> COLORS_BASE_STR = Arrays.asList(new String[] {
+			"red", "green", "blue", "cyan", "yellow", "pink"
+	});
+	public final static List<String> COLORS_BORDER_STR = Arrays.asList(new String[] {
+			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o"
+	});
+	public final static List<String> COLORS_STR = Arrays.asList(new String[] {
+			"red", "green", "blue", "cyan", "yellow", "pink",
+			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o"
+	});
 	
+	public static List<String> getRandomColors(int amount, List<String> toExclude, boolean prioritizeBase) {
+		final List<String> newColors = new ArrayList<>();
+		final List<String> allColors = new ArrayList<>(COLORS_STR);
+			allColors.removeAll(toExclude);
+			
+		if(prioritizeBase) {
+			final List<String> baseColors = new ArrayList<>(allColors);
+				baseColors.removeIf(color -> color.contains("+"));
+			newColors.addAll(baseColors);
+			
+			if(newColors.size() < amount) {
+				allColors.removeAll(baseColors);
+				Random r = new Random();
+				
+				while(newColors.size() < amount) {
+					final int index = r.nextInt(allColors.size());
+					newColors.add(allColors.get(index));
+					allColors.remove(index);
+				}
+			}
+		}
+		return newColors;
+	}
+	
+	/* fallback */
+	
+	public static List<String> getRandomColors(int amount, boolean prioritizeBase) {
+		return getRandomColors(amount, new ArrayList<String>(), prioritizeBase);
+	}
+	
+	public static List<String> getRandomColors(int amount, List<String> toExclude) {
+		return getRandomColors(amount, toExclude, false);
+	}
+	
+	public static List<String> getRandomColors(int amount) {
+		return getRandomColors(amount, new ArrayList<String>(), false);
+	}
+			
 	/* returns integer direction from a string value */
 	public static int parseDirectionToInt(String dir) {
 		switch(dir) {
@@ -47,9 +100,18 @@ public class Utils {
 		}
 	}
 	
+	/* returns array with color name and boolean value of border */
+	public static Object[] parseColorWithBorder(String colorName) {
+		Color color = parseColorName(colorName);
+		return new Object[] {color, colorName.contains("+")};
+	}
+	
 	/* returns color from a string value */
 	public static Color parseColorName(String colorName) {
 		/* if the given color string has a border information, strip it to colorname-only string */
+		if(colorName == null) {
+			return null;
+		}
 		if(colorName.contains("+")) {
 			colorName = colorName.split("\\+")[0].trim();
 		}

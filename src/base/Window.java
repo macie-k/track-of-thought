@@ -47,12 +47,12 @@ public class Window extends Application {
 		final Pane root = Scenes.getRootPane();							// game root pane
 		final Scene scene = Scenes.getSceneWithCSS(root, "game.css");	// main game scene
 		
-		final List<Track> tracks = allNodes.getTracks();		// list of all tracks
-		final List<Station> stations = allNodes.getStations();	// list of all stations
-		final List<Ball> balls = allNodes.getBalls();			// list of all balls
+		final List<Ball> balls = allNodes.getBalls();				// list of all balls
+		final List<Track> tracks = allNodes.getTracks();			// list of all tracks
+		final List<Station> stations = allNodes.getStations();		// list of all stations
 		
-		final String totalBalls = String.valueOf(balls.size());	// amount of balls
-		
+		final String totalBalls = String.valueOf(balls.size());		// amount of balls
+				
 		/* StackPane for points counter */
 		final StackPane pointsStack = new StackPane();
 			pointsStack.setTranslateX(0);
@@ -63,18 +63,17 @@ public class Window extends Application {
 		final Text pointsText = new Text("0/" + totalBalls);
 			pointsText.setFill(Utils.COLOR_ACCENT);
 			pointsText.setFont(Font.font("Hind Guntur Bold", 23));
-			
+				
+				
+		/* add everything to the root pane */
 		pointsStack.getChildren().add(pointsText);
-
-		/* grid drawing */
-//		for(int i=0; i<15; i++) { root.getChildren().addAll(Scenes.GRID[i]);}
-		
-		/* add everything to the roott pane */
 		root.getChildren().addAll(tracks);
 		root.getChildren().addAll(balls);
 		root.getChildren().addAll(stations);
 		root.getChildren().add(pointsStack);
-		
+
+//		for(int i=0; i<15; i++) { root.getChildren().addAll(Scenes.GRID[i]);}	// grid drawing
+	
 		setScene(scene);	// set scene with all elements
 									
 		gameTimer = new AnimationTimer() {
@@ -95,7 +94,7 @@ public class Window extends Application {
 							if(ball.getCounter() == 25) {
 								Station finalStation = allNodes.findStation(ball.getColumn(), ball.getRow());	// get final station
 								/* if the station is correct update points value */
-								if(finalStation.getColor().equals(ball.getColor()) && (finalStation.getBorder() == ball.getBorder())) {
+								if(finalStation.getColor() == ball.getColor() && (finalStation.getBorder() == ball.getBorder())) {
 									pointsText.setText(String.valueOf(++points) + "/" + totalBalls);
 								}
 								root.getChildren().remove(ball);	// remove the ball from root pane when 'parked'
@@ -111,6 +110,13 @@ public class Window extends Application {
 				if(now - secondsUpdate >= 1_000_000_000) {
 					secondsUpdate = now;
 					seconds++;
+					for(Ball ball : balls) {
+						if(seconds == ball.getDelay()) {
+							final String newColor = Scenes.getNextBallColor(allNodes);
+							ball.setColor(newColor);
+							break;
+						}
+					}
 				}
 			}
 		}; gameTimer.start();

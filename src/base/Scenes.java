@@ -1,13 +1,16 @@
 package base;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import base.obj.Ball;
 import base.obj.FullTrack;
@@ -88,34 +91,66 @@ public class Scenes {
 		InputStream stream = Scenes.class.getResourceAsStream(String.format("/resources/levels/%s-%d.level", level, random));
 		Log.success(String.format("Selected level: %s-%d", level, random));
 		
-		List<Station> stations = new ArrayList<Station>();
-		List<Track> tracks = new ArrayList<Track>();
-		List<Ball> balls = new ArrayList<Ball>();
+		List<Station> stations = new ArrayList<>();
+		List<Track> tracks = new ArrayList<>();
+		List<Ball> balls = new ArrayList<>();
+		List<String> userColors = new ArrayList<>();
 		
 		JSONObject json = new JSONObject(new JSONTokener(stream));
 		JSONArray stationsJson = json.getJSONArray("stations");
 		JSONArray tracksJson = json.getJSONArray("tracks");
-		JSONArray ballsJson = json.getJSONArray("balls");
-
+		JSONObject ballsJson = json.getJSONObject("balls");
+		final int ballsAmount = ballsJson.getInt("amount");
+		
 		Station startStation = null;
 		for(Object station : stationsJson) {
 			JSONObject obj = (JSONObject) station;
 			
-			Color color = Utils.parseColorName(obj.getString("color"));
+			boolean start = obj.get("type").equals("start");
 			boolean border = obj.getString("color").contains("+");
+			String color = start ? "black" : null;
 			int column = obj.getInt("column");
 			int row = obj.getInt("row");
 			int exit;
 			
-			if(obj.get("type").equals("start")) {
+			if(start) {
 				exit = Utils.parseDirectionToInt(obj.getString("exit"));
 				startStation = new Station(column, row, color, exit, border);
 			} else {
 				exit = -1;
+				userColors.add(obj.getString("color"));
 			}
 			stations.add(new Station(column, row, color, exit, border));
 		}
-
+				
+		final double[] startCoords = startStation.getXY();		
+		final List<String> stationColors = new ArrayList<>();
+		
+		/* Remove duplicates from stations */
+		Set<String> set = new HashSet<>(userColors);
+		userColors.clear(); userColors.addAll(set);
+		
+		/* check if there is enough colors */
+		if(stations.size()-1 > userColors.size()) {
+			Log.warning("Duplicated station colors, generating new ...");
+			
+			final int diff = stations.size() - userColors.size();
+			final List<String> newColors = Utils.getRandomColors(diff, userColors, true);
+			userColors.addAll(newColors);
+		}
+		
+		Random r = new Random();
+		for(Station s : stations) {
+			if(!s.isStart()) {
+				final int index = r.nextInt(userColors.size());
+				final String colorStr = userColors.get(index);
+				
+				userColors.remove(index);
+				stationColors.add(colorStr);
+				s.setColor(colorStr);
+			}
+		}
+						
 		for(Object track : tracksJson) {
 			JSONObject obj = (JSONObject) track;
 			
@@ -130,20 +165,15 @@ public class Scenes {
 			tracks.add(new Track(GRID[column][row].getPos(), type, origin, end1, end2));							
 		}
 		
-		double[] startCoords = startStation.getXY();
-		for(Object ball : ballsJson) {
-			JSONObject obj = (JSONObject) ball;
-			
-			int delay = obj.getInt("delay");
-			boolean border = obj.getString("color").contains("+");
-			Color color = Utils.parseColorName(obj.getString("color"));
-			
-			balls.add(new Ball(startCoords, color, tracks, delay, border));
-		}
-		
+		int globalDelay = 2;
+		for(int i=0; i<ballsAmount; i++) {
+			final int delay = (i==0) ? 0 : r.nextInt(3)+4;
+			globalDelay += delay;
+			balls.add(new Ball(startCoords, null, tracks, globalDelay, false));
+		}		
 		return new FullTrack(stations, tracks, balls);
 	}
-	
+		
 	public static void drawFullPath(Track[] tracks, Pane root) {
 		for(Track track : tracks) {
 			double[][] path = track.getPath();
@@ -166,7 +196,7 @@ public class Scenes {
 		
 		createObjectStr = menuObjects[objectIndex];					// current object as string
 		createObject = jsonObjects.getJSONObject(createObjectStr);	// current object as json object
-		allProperties = Utils.getAllJsonKeys(createObject);					// get properties of current obect
+		allProperties = Utils.getAllJsonKeys(createObject);			// get properties of current obect
 		
 		/* StackPane containing menu when any square is clicked */
 		StackPane menuStack = new StackPane();
@@ -390,6 +420,23 @@ public class Scenes {
 		return getSceneWithCSS(root, "createLevel.css");
 	}
 	
+	public static String getNextBallColor(FullTrack currentTrack) {
+		final int level = currentTrack.getStations().size();
+		final List<String> usedColors = new ArrayList<String>(currentTrack.getUsedColors());
+		final String lastStationColor = currentTrack.getCurrentEndStation().getColorStr();
+		final Ball mostRecentBall = currentTrack.getMostRecentBall();
+		
+		if(mostRecentBall != null) {
+			usedColors.remove(mostRecentBall.getColorStr());
+		}
+		if(level > 4) {
+			usedColors.remove(lastStationColor);
+		}
+		
+		int index = new Random().nextInt(usedColors.size());
+		return usedColors.get(index);
+	}
+	
 	private static boolean shouldClear(Node child) {
 		String aH = child.getAccessibleHelp();
 		return 	(child instanceof Track) ||
@@ -452,7 +499,7 @@ public class Scenes {
 					boolean start = type.equals("start");
 					boolean border = obj.get("color").contains("+");
 					int exit = start ? Utils.parseDirectionToInt(obj.get("exit")) : -1;
-					Color color = start ? Utils.parseColorName("black") : Utils.parseColorName(obj.get("color"));
+					String color = start ? "black" : obj.get("color");
 					
 					try {
 						Station s = new Station(xy, color, exit, border);
@@ -477,9 +524,18 @@ public class Scenes {
 	/* saves current level to file in json format*/
 	private static void saveLevelToJSON(String levelName) {
 		try {
-			PrintWriter saver = new PrintWriter(String.format("%s/%s.level", Window.saveDirectory, levelName));
+			String filePath = String.format("%s/%s.level", Window.saveDirectory, levelName);
+			int counter = 0;
+			while(new File(filePath).exists()) {
+				Log.warning("Level already exists, changing name ...");
+				filePath = String.format("%s/%s-%d.level", Window.saveDirectory, levelName, ++counter);
+			}
+			if(counter != 0) {
+				levelName += "-" + counter;
+			}
+			PrintWriter saver = new PrintWriter(filePath);
 			JSONObject obj = new JSONObject();		// create empty object
-
+			obj.put("name", levelName);				// save level name
 			obj.put("tracks", new JSONArray());		// add tracks as object with an empty array of properties
 			obj.put("stations", new JSONArray());	// same with stations
 			
