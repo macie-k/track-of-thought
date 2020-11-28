@@ -1,6 +1,7 @@
 package base;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -18,10 +19,19 @@ import javafx.scene.paint.Color;
 
 public class Utils {
 	
+
+	public static final String OS = System.getProperty("os.name").toLowerCase();	// get current operating system
+	public static final boolean WINDOWS = !OS.equals("linux");
+	
+	public static final String PATH_ROOT = System.getenv(WINDOWS ? "APPDATA" : "HOME") + "/Track of thought/";
+	public static final String PATH_LEVELS = PATH_ROOT + "levels/";
+	public static final String PATH_LEVELS_CUSTOM = PATH_LEVELS + "custom/";
+	public static final String[] PATHS_TO_LOAD = {PATH_ROOT, PATH_LEVELS};
+
 	public final static Color COLOR_LEVEL = Color.web("#282d33");
 	public final static Color COLOR_ACCENT = Color.web("#C7B59D");
-//	public final static Color COLOR_BACKGROUND = Color.web("#363638");
 	public final static Color COLOR_BACKGROUND = Color.web("#2D2E37");
+//	public final static Color COLOR_BACKGROUND = Color.web("#363638");
 
 	public final static Color BLACK = Color.web("#101114");
 	public final static Color RED = Color.web("#F44241");
@@ -44,7 +54,7 @@ public class Utils {
 			"red", "green", "blue", "cyan", "yellow", "pink",
 			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o"
 	});
-	
+			
 	public static List<String> getRandomColors(int amount, List<String> toExclude, boolean prioritizeBase) {
 		final List<String> newColors = new ArrayList<>();
 		final List<String> allColors = new ArrayList<>(COLORS_STR);
@@ -69,7 +79,7 @@ public class Utils {
 		return newColors;
 	}
 	
-	/* fallback */
+	/* fallback for different arguments */
 	
 	public static List<String> getRandomColors(int amount, boolean prioritizeBase) {
 		return getRandomColors(amount, new ArrayList<String>(), prioritizeBase);
@@ -155,7 +165,7 @@ public class Utils {
 		List<String> filenames = new ArrayList<>();
 
 		try {
-            InputStream in = Utils.class.getResourceAsStream("/resources/" + path);
+            InputStream in = Scenes.class.getResourceAsStream("/resources/" + path);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             
 	        String resource;
@@ -201,5 +211,13 @@ public class Utils {
 	/* returns all values for a given key from a given object */
 	public static List<Object> getAllJsonValues(JSONObject json, String key) {
 		return json.getJSONArray(key).toList();
+	}
+
+	public static void createFolder(String path) {
+		new File(path).mkdir();
+	}
+	
+	public static boolean fileExists(String name) {
+		return new File(name).exists();
 	}
 }

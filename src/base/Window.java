@@ -24,21 +24,17 @@ public class Window extends Application {
 	
 	public static Stage window;		// main stage
 	public static int points = 0;	// points counter
-	public static final String OS = System.getProperty("os.name").toLowerCase();	// get current operating system
 	public static boolean levelCreator = false;	// temporary variable for level creation
 
-	static String saveDirectory;				// directory to save score and fonts
-	
 	private static AnimationTimer gameTimer;	// main game timer
 	private static int seconds = 0;				// seconds counter for ball releasing
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		saveDirectory = System.getenv(OS.equals("linux") ? "HOME" : "APPDATA") + "/Track of thought";
-		
 		window = primaryStage;
 		window.setTitle("Track of thought");
 		window.setResizable(false);
+		
 		Setup.runSetup();
 		window.show();
 	}

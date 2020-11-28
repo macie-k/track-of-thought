@@ -8,18 +8,23 @@ import java.nio.file.Paths;
 
 import javafx.scene.text.Font;
 
-import static base.Window.saveDirectory;
+import static base.Utils.PATHS_TO_LOAD;
+import static base.Utils.PATH_ROOT;
+import static base.Utils.fileExists;
+import static base.Utils.createFolder;
 
 public class Setup {
 		
-	static void runSetup() {
-		new File(saveDirectory).mkdir();		// create main directory if doesn't exist
+	static void runSetup() {		
 		loadFonts();							// load all required fonts
+		for(String dir : PATHS_TO_LOAD) {		// create all necessary folders
+			createFolder(dir);
+		}
 		
 		Window.setScene(Scenes.levels());
 	}
 	
-	static void loadFonts() {
+	private static void loadFonts() {
 		/* list of required font names */
 		String[] fontNames = {
 				"Poppins-Light.ttf",
@@ -28,13 +33,17 @@ public class Setup {
 		
 		/* load each font */
 		for(String font : fontNames) {
-			Font.loadFont(Setup.class.getResourceAsStream("/resources/fonts/" + font), 20);
+			try {
+				Font.loadFont(Setup.class.getResourceAsStream("/resources/fonts/" + font), 20);
+			} catch (Exception e) {
+				Log.error(String.format("Unable to load font {%s}: {%s}", font, e));
+			}
 		}		
 	}
 		
 	@SuppressWarnings("unused")
 	private static void createDirectory(String path) {
-		String finalPath = saveDirectory + "/" + path;				// build final path
+		String finalPath = PATH_ROOT + "/" + path;				// build final path
 		
 		if(!fileExists(finalPath)) {								// if directory doesn't exist
 			if(new File(finalPath).mkdir()) {						// try to create
@@ -47,7 +56,7 @@ public class Setup {
 	
 	@SuppressWarnings("unused")
 	private static void downloadFile(String url, String dir, String filename) {
-		String finalPath = String.format("%s/%s/%s", saveDirectory, dir, filename);
+		String finalPath = String.format("%s%s/%s", PATH_ROOT, dir, filename);
 		
 		if(!fileExists(finalPath)) {
 			try {
@@ -64,7 +73,4 @@ public class Setup {
 		}
 	}
 	
-	private static boolean fileExists(String name) {
-		return new File(name).exists();
-	}
 }

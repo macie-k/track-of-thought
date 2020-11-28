@@ -35,6 +35,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import static base.Utils.PATH_LEVELS_CUSTOM;
+
 public class Scenes {
 		
 	public final static GridSquare[][] GRID = Utils.getGrid();
@@ -55,7 +57,6 @@ public class Scenes {
 		- Color names that contain '+O' are colors with white border
 			The suffix is omitted during conversion @Utils.parseColorName() and later passed to .level file in json format
 	*/
-
 	
 	public static Scene levels() {
 		Pane root = getRootPane();
@@ -69,7 +70,8 @@ public class Scenes {
 			title.setFont(Font.font("Hind Guntur Bold"));
 			
 		for(int i=0; i<12; i++) {
-			root.getChildren().add(new LevelPane(i<=5 ? 75+i*120: 75+(i-6)*120, i<=5 ? 270 : 370, i+3));
+			String level = String.valueOf(i+3);
+			root.getChildren().add(new LevelPane(i<=5 ? 75+i*120: 75+(i-6)*120, i<=5 ? 270 : 370, level, true));
 		}
 		
 		titleContainer.getChildren().add(title);
@@ -77,20 +79,16 @@ public class Scenes {
 		return getSceneWithCSS(root, "levels.css");
 	}
 	
-	public static FullTrack game(char level) {
-		List<String> levels = Utils.getAllResourceFiles("levels");
-		/* count versions of the selected level */
-		int levelCounter = 0;
-		for(String lvl : levels) {
-			if(lvl.charAt(0) == level) {
-				levelCounter++;
-			}
-		}
+	public static FullTrack game(String level, boolean premade) {
 		
+		String path = premade ? "/resources/levels/" : PATH_LEVELS_CUSTOM;
+		
+		int levelCounter = level.equals("3") ? 3 : 5;	// all levels except 3rd have 5 versions
 		int random = new Random().nextInt(levelCounter)+1;
-		InputStream stream = Scenes.class.getResourceAsStream(String.format("/resources/levels/%s-%d.level", level, random));
-		Log.success(String.format("Selected level: %s-%d", level, random));
-		
+		String levelName = String.format("%s-%d", level, random);
+		InputStream stream = Scenes.class.getResourceAsStream(path + levelName + ".level");
+		Log.success("Selected level: " + levelName);
+
 		List<Station> stations = new ArrayList<>();
 		List<Track> tracks = new ArrayList<>();
 		List<Ball> balls = new ArrayList<>();
@@ -420,15 +418,19 @@ public class Scenes {
 		return getSceneWithCSS(root, "createLevel.css");
 	}
 	
+	/* returns color for the next ball */
 	public static String getNextBallColor(FullTrack currentTrack) {
 		final int level = currentTrack.getStations().size();
 		final List<String> usedColors = new ArrayList<String>(currentTrack.getUsedColors());
 		final String lastStationColor = currentTrack.getCurrentEndStation().getColorStr();
 		final Ball mostRecentBall = currentTrack.getMostRecentBall();
 		
+		/* don't use color of the previous ball - skipped for the fist ball */
 		if(mostRecentBall != null) {
 			usedColors.remove(mostRecentBall.getColorStr());
 		}
+		
+		/* for levels above 4 don't use color of the currently 'pathed' station */
 		if(level > 4) {
 			usedColors.remove(lastStationColor);
 		}
@@ -437,8 +439,10 @@ public class Scenes {
 		return usedColors.get(index);
 	}
 	
+	/* checks if given child should be cleared from level creator */
 	private static boolean shouldClear(Node child) {
 		String aH = child.getAccessibleHelp();
+		/* clear only Tracks, Stations, and Tracks' Paths */
 		return 	(child instanceof Track) ||
 				(child instanceof Station) ||
 				(aH != null) && (aH.equals("debugdraw"));
@@ -524,11 +528,11 @@ public class Scenes {
 	/* saves current level to file in json format*/
 	private static void saveLevelToJSON(String levelName) {
 		try {
-			String filePath = String.format("%s/%s.level", Window.saveDirectory, levelName);
+			String filePath = String.format("%s%s.level", PATH_LEVELS_CUSTOM, levelName);
 			int counter = 0;
 			while(new File(filePath).exists()) {
 				Log.warning("Level already exists, changing name ...");
-				filePath = String.format("%s/%s-%d.level", Window.saveDirectory, levelName, ++counter);
+				filePath = String.format("%s%s-%d.level", PATH_LEVELS_CUSTOM, levelName, ++counter);
 			}
 			if(counter != 0) {
 				levelName += "-" + counter;
