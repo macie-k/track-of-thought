@@ -209,12 +209,12 @@
         },
         {
             "start":"right",
-            "end2":"top",
+            "end2":"left",
             "column":"8",
             "end1":"bottom",
             "row":"1",
             "type":"curved",
-            "switch":"false"
+            "switch":"true"
         },
         {
             "start":"top",

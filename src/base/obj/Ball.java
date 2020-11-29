@@ -87,7 +87,7 @@ public class Ball extends Circle {
 		
 		/* start of the game */
 		if(track == null) {
-			Station startStation = nodes.getStations().get(0);	// get starting station
+			Station startStation = nodes.getStartStation();	// get starting station
 			if(startStation != null) {
 				moveNextDirection(startStation.getExit());		// move towards its exit
 			}
@@ -195,7 +195,7 @@ public class Ball extends Circle {
 				setCenterX(getCenterX() - 1);
 				break;
 			default:
-				Log.error("Wrong direction");
+				Log.error("Wrong direction: " + direction);
 		}
 		column = getColumn();
 		row = getRow();

@@ -17,7 +17,7 @@ public class Setup {
 		
 	static void runSetup() {		
 		loadFonts();							// load all required fonts
-		for(String dir : PATHS_TO_LOAD) {		// create all necessary folders
+		for(String dir : PATHS_TO_LOAD) {		// create all necessary folders if dont exist
 			createFolder(dir);
 		}
 		

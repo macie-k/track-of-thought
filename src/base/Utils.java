@@ -105,7 +105,7 @@ public class Utils {
 			case "left":
 				return 3;
 			default:
-				Log.error("Wrong direction @getDirectionToInt");
+				Log.error("Wrong direction");
 				return -1;
 		}
 	}

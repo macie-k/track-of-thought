@@ -54,7 +54,7 @@ public class Station extends GridSquare {
 	
 		
 	public String toString() {
-		return String.format("Station[XY=(%d, %d), Color=%s, Border=%b]", column, row, colorStr, border);
+		return String.format("Station[XY=(%d, %d), Color=%s, Border=%b, Exit=%d]", column, row, colorStr, border, exit);
 	}
 	
 	public int[] getFirstTrackColRow() {

@@ -163,7 +163,7 @@ public class Scenes {
 			tracks.add(new Track(GRID[column][row].getPos(), type, origin, end1, end2));							
 		}
 		
-		int globalDelay = 2;
+		int globalDelay = 3;
 		for(int i=0; i<ballsAmount; i++) {
 			final int delay = (i==0) ? 0 : r.nextInt(3)+4;
 			globalDelay += delay;
