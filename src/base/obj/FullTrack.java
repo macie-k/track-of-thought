@@ -15,7 +15,7 @@ public class FullTrack {
 		this.tracks = tracks;
 		this.balls = balls;
 		
-		/* run loop only once instead of creating getter */
+		/* Sets usedColors to colors from all stations // run loop only once instead of creating a getter */
 		for(Station s : stations) {
 			if(!s.isStart()) {
 				String color = s.getColorStr();
@@ -27,7 +27,10 @@ public class FullTrack {
 		}
 	}
 	
-	public Ball getMostRecentBall() {
+	/* returns x mostRecent balls or up to 0 index */
+	public List<Ball> getMostRecentBalls(int amount) {
+		List<Ball> recentBalls = new ArrayList<>();
+		
 		Ball mostRecent = null;
 		for(Ball b : balls) {
 			if(b.getColor() == null) {
@@ -35,7 +38,16 @@ public class FullTrack {
 			}
 			mostRecent = b;
 		}
-		return mostRecent;
+					
+		final int mostRecentIndex = balls.indexOf(mostRecent);
+		final int leastRecentIndex = mostRecentIndex - amount + 1;
+				
+		int i = mostRecentIndex;
+		while(i>=0 && i>=leastRecentIndex) {
+			recentBalls.add(balls.get(i--));
+		}
+		
+		return recentBalls;
 	}
 	
 	public Station getStartStation() {

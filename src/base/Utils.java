@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import base.obj.GridSquare;
+import base.obj.Track;
 import javafx.scene.paint.Color;
 
 public class Utils {
@@ -26,7 +27,7 @@ public class Utils {
 	public static final String PATH_ROOT = System.getenv(WINDOWS ? "APPDATA" : "HOME") + "/Track of thought/";
 	public static final String PATH_LEVELS = PATH_ROOT + "levels/";
 	public static final String PATH_LEVELS_CUSTOM = PATH_LEVELS + "custom/";
-	public static final String[] PATHS_TO_LOAD = {PATH_ROOT, PATH_LEVELS};
+	public static final String[] PATHS_TO_LOAD = {PATH_ROOT, PATH_LEVELS, PATH_LEVELS_CUSTOM};
 
 	public final static Color COLOR_LEVEL = Color.web("#282d33");
 	public final static Color COLOR_ACCENT = Color.web("#C7B59D");
@@ -36,7 +37,7 @@ public class Utils {
 	public final static Color BLACK = Color.web("#101114");
 	public final static Color RED = Color.web("#F44241");
 	public final static Color GREEN = Color.web("#57E669");
-	public final static Color BLUE = Color.web("#4487F3");
+	public final static Color BLUE = Color.web("#3F6DE0");
 	public final static Color CYAN = Color.web("#79FFFA");
 	public final static Color PINK = Color.web("#AA46F1");
 	public final static Color YELLOW = Color.web("#EBF14A");
@@ -44,16 +45,19 @@ public class Utils {
 	public final static List<Color> COLORS_BASE = Arrays.asList(new Color[] {
 			RED, GREEN, BLUE, CYAN, PINK, YELLOW
 	});
-	public final static List<String> COLORS_BASE_STR = Arrays.asList(new String[] {
-			"red", "green", "blue", "cyan", "yellow", "pink"
-	});
-	public final static List<String> COLORS_BORDER_STR = Arrays.asList(new String[] {
-			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o"
-	});
 	public final static List<String> COLORS_STR = Arrays.asList(new String[] {
 			"red", "green", "blue", "cyan", "yellow", "pink",
 			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o"
 	});
+	
+	public static void randomSwitchTracks(List<Track> tracks) {
+		Random r = new Random();
+		for(Track t : tracks) {
+			if(t.isClickable() && r.nextBoolean()) {
+				t.changeType();
+			}
+		}
+	}
 			
 	public static List<String> getRandomColors(int amount, List<String> toExclude, boolean prioritizeBase) {
 		final List<String> newColors = new ArrayList<>();

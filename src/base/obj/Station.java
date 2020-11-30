@@ -39,7 +39,7 @@ public class Station extends GridSquare {
 		this.border = border;
 		
 		getStyleClass().add("station");
-		if(border) {
+		if(border && !start) {
 			setWidth(getWidth() - 10);
 			setHeight(getHeight() - 10);
 			setTranslateX(getTranslateX() + 5);
@@ -56,26 +56,7 @@ public class Station extends GridSquare {
 	public String toString() {
 		return String.format("Station[XY=(%d, %d), Color=%s, Border=%b, Exit=%d]", column, row, colorStr, border, exit);
 	}
-	
-	public int[] getFirstTrackColRow() {
-		int col = getColumn();
-		int row = getRow();
-		if(isStart()) {
-			switch(exit) {
-				case 0:
-					return new int[] {col, row-1};
-				case 1:
-					return new int[] {col+1, row};
-				case 2:
-					return new int[] {col, row+1};
-				case 3:
-					return new int[] {col-1, row};
-				default:
-					Log.error("Wrong station exit");
-			}
-		} return null;
-	}
-	
+		
 	public boolean getBorder() {
 		return border;
 	}
@@ -103,7 +84,29 @@ public class Station extends GridSquare {
 		setFill(color);
 	}
 	
-	/* functions below should not have setters */
+	/* functions below should remain get-only  */
+	
+	public int[] getFirstTrackColRow() {
+		int col = getColumn();
+		int row = getRow();
+		if(isStart()) {
+			switch(exit) {
+				case 0:
+					return new int[] {col, row-1};
+				case 1:
+					return new int[] {col+1, row};
+				case 2:
+					return new int[] {col, row+1};
+				case 3:
+					return new int[] {col-1, row};
+				default:
+					Log.error("Wrong station exit");
+			}
+		} else {
+			Log.error("Not the first station");
+		}
+		return null;
+	}
 	
 	public double[] getXY() {
 		return new double[] {getTranslateX(), getTranslateY()};

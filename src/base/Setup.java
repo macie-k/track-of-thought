@@ -15,7 +15,8 @@ import static base.Utils.createFolder;
 
 public class Setup {
 		
-	static void runSetup() {		
+	static void runSetup() {	
+		Log.success("Detected OS: " + Utils.OS);
 		loadFonts();							// load all required fonts
 		for(String dir : PATHS_TO_LOAD) {		// create all necessary folders if dont exist
 			createFolder(dir);

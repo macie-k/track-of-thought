@@ -45,7 +45,7 @@ public class Scenes {
 	private static String createObjectStr;
 	private static JSONObject createObject;
 	private static List<String> allProperties;
-	private static Map<String, String> currentProperties = new HashMap<String, String>();
+	private static Map<String, String> currentProperties = new HashMap<>();
 	private static ArrayList<Map<String, String>> listMap = new ArrayList<>();
 	private static int objectIndex = 0;
 	private static Text menuObjectArrowRight, menuObjectArrowLeft;
@@ -53,9 +53,9 @@ public class Scenes {
 	/*
 		- Objects' structure & properties are avaialable at: resources/structure.json
 		- New levels are created in appdata (windows) or home (unix) directories
-		- In order for the new level to be accessible, it needs to be placed in: bin/resources/levels
+		- In order for the premade level to be accessible, it needs to be placed in: bin/resources/levels
 		- Color names that contain '+O' are colors with white border
-			The suffix is omitted during conversion @Utils.parseColorName() and later passed to .level file in json format
+			The suffix is omitted during a conversion @Utils.parseColorName() and boolean border value is passed to constructor
 	*/
 	
 	public static Scene levels() {
@@ -79,7 +79,7 @@ public class Scenes {
 		return getSceneWithCSS(root, "levels.css");
 	}
 	
-	public static FullTrack game(String level, boolean premade) {
+	public static FullTrack gameTrack(String level, boolean premade) {
 		
 		String path = premade ? "/resources/levels/" : PATH_LEVELS_CUSTOM;
 		
@@ -113,7 +113,7 @@ public class Scenes {
 			
 			if(start) {
 				exit = Utils.parseDirectionToInt(obj.getString("exit"));
-				startStation = new Station(column, row, color, exit, border);
+				startStation = new Station(column, row, color, exit, false);
 			} else {
 				exit = -1;
 				userColors.add(obj.getString("color"));
@@ -163,12 +163,14 @@ public class Scenes {
 			tracks.add(new Track(GRID[column][row].getPos(), type, origin, end1, end2));							
 		}
 		
-		int globalDelay = 3;
+		int globalDelay = 2;
 		for(int i=0; i<ballsAmount; i++) {
-			final int delay = (i==0) ? 0 : r.nextInt(3)+4;
+			final int delay = (i==0) ? 0 : r.nextInt(2)+3;
 			globalDelay += delay;
 			balls.add(new Ball(startCoords, null, tracks, globalDelay, false));
-		}		
+		}
+		
+		Utils.randomSwitchTracks(tracks);
 		return new FullTrack(stations, tracks, balls);
 	}
 		
@@ -201,6 +203,7 @@ public class Scenes {
 			menuStack.setPrefSize(200, 170);
 			menuStack.setVisible(false);
 			menuStack.setAlignment(Pos.TOP_LEFT);
+			menuStack.setAccessibleText("MENU");
 			
 		/* background for menu */
 		Rectangle menuBg = new Rectangle(200, 170);
@@ -230,7 +233,7 @@ public class Scenes {
 				currentProperties.put("row", String.valueOf((int)(createY/50-1)));
 									
 				/* add temporary object to the grid */
-				addNewObject(root, new HashMap<String, String>(currentProperties));
+				addNewObject(root, new HashMap<String, String>(currentProperties), menuStack);
 				menuStack.toFront();			// bring menu to the front
 				menuStack.setVisible(false);	// and hide it
 			});	
@@ -419,23 +422,32 @@ public class Scenes {
 	}
 	
 	/* returns color for the next ball */
-	public static String getNextBallColor(FullTrack currentTrack) {
-		final int level = currentTrack.getStations().size();
+	public static String getNextBallColor(FullTrack currentTrack) throws Exception {		
+		final int level = currentTrack.getStations().size()-1;
+		final int recentBallsAmount = (level == 3 || level == 4) ? 1 : level/2;
 		final List<String> usedColors = new ArrayList<String>(currentTrack.getUsedColors());
-		final String lastStationColor = currentTrack.getCurrentEndStation().getColorStr();
-		final Ball mostRecentBall = currentTrack.getMostRecentBall();
+		final List<Ball> mostRecentBalls = currentTrack.getMostRecentBalls(recentBallsAmount);
+
+		final String lastStationColor = currentTrack.getCurrentEndStation().getColorStr();	// station that is on the end of the current path
 		
-		/* don't use color of the previous ball - skipped for the fist ball */
-		if(mostRecentBall != null) {
-			usedColors.remove(mostRecentBall.getColorStr());
+		/* don't use color of the previous n balls - skipped for the fist ball */
+		for(Ball b : mostRecentBalls) {
+			if(b != null) {
+				usedColors.remove(b.getColorStr());
+			}
 		}
-		
+				
 		/* for levels above 4 don't use color of the currently 'pathed' station */
 		if(level > 4) {
 			usedColors.remove(lastStationColor);
 		}
 		
-		int index = new Random().nextInt(usedColors.size());
+		int colors = usedColors.size();
+		if(colors < 2) {
+			throw new Exception("Not enough unique stations: " + colors);
+		}
+		
+		int index = new Random().nextInt(colors);
 		return usedColors.get(index);
 	}
 	
@@ -448,8 +460,10 @@ public class Scenes {
 				(aH != null) && (aH.equals("debugdraw"));
 	}
 	
+	
+	
 	/* creates temporary object for createLevel() scene */
-	private static void addNewObject(Pane root, Map<String, String> obj) {
+	private static void addNewObject(Pane root, Map<String, String> obj, StackPane menu) {
 		String object = obj.get("object");						// get the object type
 		int[] xy = {(int)createX, (int)createY};		// get the coordinates
 		
@@ -487,12 +501,14 @@ public class Scenes {
 									t.removeDebugPath(root);
 									t.changeType();
 									t.addDebugPath(root);
+									menu.toFront();
 								}
 							}
 						});
 						root.getChildren().add(t);
 					} catch (Exception e) {
 						success = false;										// overwrite success boolean
+						Log.error(e.toString());
 						Log.warning("Could not add object, check parameters");	// log the error
 					}
 				} break;
@@ -516,6 +532,7 @@ public class Scenes {
 						root.getChildren().add(s);
 					} catch (Exception e) {
 						success = false;
+						Log.error(e.toString());
 						Log.warning("Could not add object, check parameters");
 					}
 				} break;
@@ -557,7 +574,11 @@ public class Scenes {
 					if(key.equals("type") && m.get(key).equals("start")) {		// overwrite startStation boolean if needed
 						startStation = true;
 					}
-					currObj.put(key, m.get(key));								// put key and its value from map to current json object
+					if(key.equals("column") || key.equals("row")) {
+						currObj.put(key, Integer.valueOf(m.get(key)));
+					} else {
+						currObj.put(key, m.get(key));								// put key and its value from map to current json object
+					}
 				}
 				if(startStation) {
 					currObj.put("color", "black");			// if its starting station force-change color to black

@@ -13,8 +13,6 @@ import static base.Utils.getColRowFromXY;
 
 public class Ball extends Circle {
 	
-	private final static Track NULL_TRACK = null;
-	
 	private int index = 0;
 	private int column;
 	private int row;
@@ -169,6 +167,16 @@ public class Ball extends Circle {
 		return delay;
 	}
 	
+	public String toString() {
+		return String.format(
+				"Ball[xy=(%d, %d), color=%s, border=%b]",
+				column,
+				row,
+				colorStr,
+				border
+			);
+	}
+	
 	/* check if ball is currently on clickable track */
 	private Track getCurrentTrack() {
 		for(Track track : tracks) {
@@ -176,7 +184,7 @@ public class Ball extends Circle {
 				return track;
 			}
 		}
-		return NULL_TRACK;
+		return null;
 	}
 	
 	/* returns a direction the ball should move at the beginning */

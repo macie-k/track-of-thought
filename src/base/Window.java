@@ -24,13 +24,19 @@ public class Window extends Application {
 	
 	public static Stage window;		// main stage
 	public static int points = 0;	// points counter
-	public static boolean levelCreator = false;	// temporary variable for level creation
+	public static boolean levelCreator = true;	// temporary variable for level creation
+	public static Ball mostRecentBall;
 
 	private static AnimationTimer gameTimer;	// main game timer
+	
+	private static int level;
 	private static int seconds = 0;				// seconds counter for ball releasing
+	private static int finishedBalls = 0;
+	private static int activeBalls = 0;
+	private static boolean skip = false;
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public void start(Stage primaryStage) {
 		window = primaryStage;
 		window.setTitle("Track of thought");
 		window.setResizable(false);
@@ -46,20 +52,17 @@ public class Window extends Application {
 		final List<Ball> balls = allNodes.getBalls();				// list of all balls
 		final List<Track> tracks = allNodes.getTracks();			// list of all tracks
 		final List<Station> stations = allNodes.getStations();		// list of all stations
-		
-		final String totalBalls = String.valueOf(balls.size());		// amount of balls
 				
 		/* StackPane for points counter */
 		final StackPane pointsStack = new StackPane();
 			pointsStack.setTranslateX(0);
-			pointsStack.setTranslateY(30);
+			pointsStack.setTranslateY(7);
 			pointsStack.setPrefSize(850, 30);
 			
 		/* text with points value */
-		final Text pointsText = new Text("0/" + totalBalls);
+		final Text pointsText = new Text("0/0");
 			pointsText.setFill(Utils.COLOR_ACCENT);
 			pointsText.setFont(Font.font("Hind Guntur Bold", 23));
-				
 				
 		/* add everything to the root pane */
 		pointsStack.getChildren().add(pointsText);
@@ -67,64 +70,99 @@ public class Window extends Application {
 		root.getChildren().addAll(balls);
 		root.getChildren().addAll(stations);
 		root.getChildren().add(pointsStack);
-
+		
 //		for(int i=0; i<15; i++) { root.getChildren().addAll(Scenes.GRID[i]);}	// grid drawing
-	
+
+		level = stations.size()-1;
 		setScene(scene);	// set scene with all elements
 									
 		gameTimer = new AnimationTimer() {
 			private long lastUpdate = 0;
 			private long secondsUpdate = 0;
-
+						
 			@Override
-			public void handle(long now) {		
-				if(now - lastUpdate >= 16_000_000) {
-					List<Ball> toRemove = new ArrayList<Ball>();	// list of balls that should be removed
+			public void handle(long now) {
+				try {
+					/* game timer */
+					if(now - lastUpdate >= 17_000_000) {
+						gameHandle(root, balls, pointsText, allNodes);
+						lastUpdate = now;
+					}
 					
-					for(Ball ball : balls) {
-						/* update ball only if should be, or already is 'released' */
-						if(seconds >= ball.getDelay()) {
-							ball.update(allNodes);
-							
-							/* if ball finished 'parking' */
-							if(ball.getCounter() == 25) {
-								Station finalStation = allNodes.findStation(ball.getColumn(), ball.getRow());	// get final station
-								/* if the station is correct update points value */
-								if(finalStation.getColor() == ball.getColor() && (finalStation.getBorder() == ball.getBorder())) {
-									pointsText.setText(String.valueOf(++points) + "/" + totalBalls);
-								}
-								root.getChildren().remove(ball);	// remove the ball from root pane when 'parked'
-								toRemove.add(ball);					// add to removal list
-							}
-						}
+					/* timer for counting seconds & managing new balls */
+					if(now - secondsUpdate >= 1_000_000_000) {
+						seconds++;
+						secondsHandle(root, balls, allNodes);
+						secondsUpdate = now;
 					}
-					balls.removeAll(toRemove);	// remove balls that finished track
-					lastUpdate = now;
-				}
-				
-				/* timer for counting seconds */
-				if(now - secondsUpdate >= 1_000_000_000) {
-					secondsUpdate = now;
-					seconds++;
-					for(Ball ball : balls) {
-						if(seconds == ball.getDelay()) {
-							final String newColor = Scenes.getNextBallColor(allNodes);
-							ball.setColor(newColor);
-							break;
-						}
-					}
+				} catch (Exception e) {
+					Log.error(e.toString());
 				}
 			}
 		}; gameTimer.start();
 				
 	}
 	
+	/* updates seconds and sets colors of the new balls */
+	private static void secondsHandle(Pane root, List<Ball> balls, FullTrack allNodes) throws Exception {
+		for(Ball ball : balls) {
+			if(seconds == ball.getDelay()) {
+				
+				/* allow skipping only if there is enough active balls */
+				if(skip) {
+					skip = false;
+					if(activeBalls > level) {
+						balls.remove(ball);
+						root.getChildren().remove(ball);
+						break;
+					}
+				}
+				
+				String newColor = Scenes.getNextBallColor(allNodes);
+				ball.setColor(newColor);
+				
+				activeBalls++;
+				break;
+			}
+		}
+	}
+	
+	/* main game */
+	private static void gameHandle(Pane root, List<Ball> balls, Text pointsText, FullTrack allNodes) {
+		List<Ball> toRemove = new ArrayList<Ball>();	// list of balls that should be removed
+		for(Ball ball : balls) {
+			/* update ball only if should be, or already is 'released' */
+			if(seconds >= ball.getDelay()) {
+				ball.update(allNodes);
+				
+				/* if ball finished 'parking' */
+				if(ball.getCounter() == 25) {
+					finishedBalls++;
+					activeBalls--;
+					
+					Station finalStation = allNodes.findStation(ball.getColumn(), ball.getRow());	// get final station				
+					/* if the station is correct update points value */
+					if(finalStation.getColor() == ball.getColor() && (finalStation.getBorder() == ball.getBorder())) {
+						points++;
+					} else {
+						skip = true;
+					}
+					pointsText.setText(String.valueOf(points) + "/" + String.valueOf(finishedBalls));
+					root.getChildren().remove(ball);	// remove the ball from root pane when 'parked'
+					toRemove.add(ball);					// add to removal list
+				}
+			}
+		}
+		balls.removeAll(toRemove);	// remove balls that finished track
+	}
+		
 	/* sets the main scene */
 	public static void setScene(Scene scene) {
 		window.setScene(scene);
 	}
 	
 	public static void main (String[] args) throws FileNotFoundException {
+		
 		/* parses arguments */
 		if(args.length>0) {
 			/* 
@@ -149,7 +187,11 @@ public class Window extends Application {
 				}
 			}
 		}
-		launch(args);
+		try {
+			launch(args);
+		} catch(Exception e) {
+			Log.error(e.toString());
+		}
 	}
 	
 

@@ -33,14 +33,14 @@ public class LevelPane extends StackPane {
 		
 		setOnMouseEntered(event -> setHiglight(true));
 		setOnMouseExited(event -> setHiglight(false));
-		setOnMouseClicked(e -> {
+		setOnMouseClicked(event -> {
 			if(Window.levelCreator) {
 				Window.setScene(Scenes.createLevel());
 			} else {
 //				Window.game(Scenes.game(lvl, premade));
-				try { Window.game(Scenes.game(lvl, premade)); } catch (Exception ex) {
+				try { Window.game(Scenes.gameTrack(lvl, premade)); } catch (Exception e) {
 					Log.error(String.format("Something's wrong with the selected level [%s]", level));
-					Log.error(ex.toString());
+					Log.error(e.toString());
 				}
 			}
 		});
