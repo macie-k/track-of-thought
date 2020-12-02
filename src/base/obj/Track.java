@@ -1,7 +1,6 @@
 package base.obj;
 
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -80,6 +79,7 @@ public class Track extends StackPane {
 		track = getTrackShape();		
 		Circle bg = new Circle(24, Color.TRANSPARENT);
 			bg.getStyleClass().add("bg");
+			setAlignment(bg, Pos.CENTER);
 		
 		getChildren().addAll(bg, track);
 	}

@@ -44,6 +44,6 @@ public class GridSquare extends Rectangle {
 	}
 	
 	public int[] getPos() {
-		return new int[] {this.x, this.y};
+		return new int[] {x, y};
 	}
 }

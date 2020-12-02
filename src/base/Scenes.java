@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import org.apache.commons.math3.distribution.EnumeratedDistribution;
+import org.apache.commons.math3.util.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -123,13 +126,15 @@ public class Scenes {
 				
 		final double[] startCoords = startStation.getXY();		
 		final List<String> stationColors = new ArrayList<>();
+		final int lvl = stations.size()-1;
 		
 		/* Remove duplicates from stations */
 		Set<String> set = new HashSet<>(userColors);
-		userColors.clear(); userColors.addAll(set);
+		userColors.clear();
+		userColors.addAll(set);
 		
 		/* check if there is enough colors */
-		if(stations.size()-1 > userColors.size()) {
+		if(lvl > userColors.size()) {
 			Log.warning("Duplicated station colors, generating new ...");
 			
 			final int diff = stations.size() - userColors.size();
@@ -164,8 +169,10 @@ public class Scenes {
 		}
 		
 		int globalDelay = 2;
-		for(int i=0; i<ballsAmount; i++) {
-			final int delay = (i==0) ? 0 : r.nextInt(2)+3;
+		balls.add(new Ball(startCoords, null, tracks, globalDelay, false));
+		globalDelay += (15 - lvl)/2;
+		for(int i=1; i<ballsAmount; i++) {
+			final int delay = r.nextInt(2)+3;
 			globalDelay += delay;
 			balls.add(new Ball(startCoords, null, tracks, globalDelay, false));
 		}
@@ -261,8 +268,10 @@ public class Scenes {
 			SAVE_NAMEClose.setCursor(Cursor.HAND);
 			SAVE_NAMEClose.setFill(Color.WHITE);
 			SAVE_NAMEClose.setOnMouseClicked(e -> {
-				root.getChildren().forEach(child -> child.setVisible(!child.equals(menuStack)));	// when [ x ] is clicked show everything except for the menu
-				SAVE_MENU.setVisible(false);														// hide saving menu
+				root.getChildren().forEach(child -> {
+					child.setVisible(!child.equals(menuStack)); // when [ x ] is clicked show everything except for the menu
+				});	
+				SAVE_MENU.setVisible(false);					// hide saving menu
 			});
 		
 		/* label "NAME:" */
@@ -271,33 +280,48 @@ public class Scenes {
 			levelNameLabel.setFont(Font.font("Poppins Light", 17));
 			levelNameLabel.setFill(Color.WHITE);
 			
-		/* input area for entering level name */
+		Color COLOR_DISABLED = Color.web("#939598");
+		Color COLOR_ENABLED = Color.web("#5beb82");
+			
 		TextField levelName = new TextField();
-			levelName.setMaxSize(150, 25);
-			levelName.setTranslateY(-5);
-			levelName.setStyle("-fx-faint-focus-color: transparent;"
-					+ "-fx-focus-color: transparent;"
-					+ "-fx-text-box-border: transparent;"
-					+ "-fx-highlight-fill: #363638;"
-					+ "-fx-highlight-text-fill: #FFF;");
+		StackPane CONFIRM_CREATE = new StackPane();
+		Rectangle SAVE_NAMEButton = new Rectangle(100, 25, levelName.getText().length() > 0 ? COLOR_ENABLED : COLOR_DISABLED);
+			
+		/* input area for entering level name */
+		levelName.setMaxSize(150, 25);
+		levelName.setTranslateY(-5);
+		levelName.setOnKeyReleased(e -> {	
+			if(levelName.getText().length() == 0) {
+				CONFIRM_CREATE.setDisable(true);
+				SAVE_NAMEButton.setFill(COLOR_DISABLED);
+				return;
+			}
+			CONFIRM_CREATE.setDisable(false);
+			SAVE_NAMEButton.setFill(COLOR_ENABLED);
+		});
+		
+		levelName.setStyle("-fx-faint-focus-color: transparent;"
+			+ "-fx-focus-color: transparent;"
+			+ "-fx-text-box-border: transparent;"
+			+ "-fx-highlight-fill: #363638;"
+			+ "-fx-highlight-text-fill: #FFF;");
 					
 		/* confirmation button StackPane -> triggers saving to .level file */
-		StackPane CONFIRM_CREATE = new StackPane();
-			CONFIRM_CREATE.setMaxSize(100, 25);
-			CONFIRM_CREATE.setPrefSize(100, 25);
-			CONFIRM_CREATE.setTranslateY(35);
-			CONFIRM_CREATE.setTranslateX(0);
-			CONFIRM_CREATE.setCursor(Cursor.HAND);
-			CONFIRM_CREATE.setOnMouseClicked(e -> {
-				/* when clicked saves level to file and restores view */
-				saveLevelToJSON(levelName.getText());
-				root.getChildren().forEach(child -> child.setVisible(!child.equals(menuStack)));
-				SAVE_MENU.setVisible(false);
-			});
-			
+		
+		CONFIRM_CREATE.setMaxSize(100, 25);
+		CONFIRM_CREATE.setPrefSize(100, 25);
+		CONFIRM_CREATE.setTranslateY(35);
+		CONFIRM_CREATE.setTranslateX(0);
+		CONFIRM_CREATE.setCursor(Cursor.HAND);
+		CONFIRM_CREATE.setDisable(levelName.getText().length() == 0);
+		CONFIRM_CREATE.setOnMouseClicked(e -> {
+			/* when clicked saves level to file and restores view */
+			saveLevelToJSON(levelName.getText());
+			root.getChildren().forEach(child -> child.setVisible(!child.equals(menuStack)));
+			SAVE_MENU.setVisible(false);
+		});
 		
 		/* background and text for the confirmation button */
-		Rectangle SAVE_NAMEButton = new Rectangle(100, 25, Color.web("#5beb82"));
 		Text SAVE_NAMEButtonText = new Text("CONFIRM");
 			SAVE_NAMEButtonText.setFont(Font.font("Poppins Light", 15));
 			
@@ -421,36 +445,23 @@ public class Scenes {
 		return getSceneWithCSS(root, "createLevel.css");
 	}
 	
-	/* returns color for the next ball */
-	public static String getNextBallColor(FullTrack currentTrack) throws Exception {		
-		final int level = currentTrack.getStations().size()-1;
-		final int recentBallsAmount = (level == 3 || level == 4) ? 1 : level/2;
-		final List<String> usedColors = new ArrayList<String>(currentTrack.getUsedColors());
-		final List<Ball> mostRecentBalls = currentTrack.getMostRecentBalls(recentBallsAmount);
+	public static String getNextBallColor(FullTrack track) {	
+		final List<Pair<String, Double>> pairs = new ArrayList<>();
+		final List<String> usedColors = track.getUsedColors();
+		final List<String> activeColors = track.getActiveBallColors();
+		final List<Ball> mostRecentBalls = track.getMostRecentBalls(1);
+		final String mostRecentColor = mostRecentBalls.isEmpty() ? "" : mostRecentBalls.get(0).getColorStr();
+		
+		for(String color : usedColors) {
+			int occurence = Collections.frequency(activeColors, color);
+			double probability = Math.pow((1.0/usedColors.size()), occurence);
 
-		final String lastStationColor = currentTrack.getCurrentEndStation().getColorStr();	// station that is on the end of the current path
-		
-		/* don't use color of the previous n balls - skipped for the fist ball */
-		for(Ball b : mostRecentBalls) {
-			if(b != null) {
-				usedColors.remove(b.getColorStr());
-			}
+			pairs.add(new Pair<String, Double>(color, color.equals(mostRecentColor) ? 0 : probability));
 		}
-				
-		/* for levels above 4 don't use color of the currently 'pathed' station */
-		if(level > 4) {
-			usedColors.remove(lastStationColor);
-		}
-		
-		int colors = usedColors.size();
-		if(colors < 2) {
-			throw new Exception("Not enough unique stations: " + colors);
-		}
-		
-		int index = new Random().nextInt(colors);
-		return usedColors.get(index);
+		String color = new EnumeratedDistribution<>(pairs).sample();
+		return color;
 	}
-	
+		
 	/* checks if given child should be cleared from level creator */
 	private static boolean shouldClear(Node child) {
 		String aH = child.getAccessibleHelp();
@@ -459,9 +470,7 @@ public class Scenes {
 				(child instanceof Station) ||
 				(aH != null) && (aH.equals("debugdraw"));
 	}
-	
-	
-	
+		
 	/* creates temporary object for createLevel() scene */
 	private static void addNewObject(Pane root, Map<String, String> obj, StackPane menu) {
 		String object = obj.get("object");						// get the object type

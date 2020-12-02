@@ -8,7 +8,9 @@ public class FullTrack {
 	private List<Station> stations;
 	private List<Track> tracks;
 	private List<Ball> balls;
-	private List<String> usedColors = new ArrayList<>();
+	private final List<String> usedColors = new ArrayList<>();
+	private List<Ball> activeBalls = new ArrayList<>();
+	private List<String> activeBallColors = new ArrayList<>();
 	
 	public FullTrack(List<Station> stations, List<Track> tracks, List<Ball> balls) {
 		this.stations = stations;
@@ -19,12 +21,30 @@ public class FullTrack {
 		for(Station s : stations) {
 			if(!s.isStart()) {
 				String color = s.getColorStr();
-				if(s.getBorder()) {
+				if(s.hasBorder()) {
 					color += " + o"; 
 				}
 				usedColors.add(color);
 			}
 		}
+	}
+	
+	public List<Ball> getActiveBalls() {
+		return activeBalls;
+	}
+	
+	public List<String> getActiveBallColors() {
+		return activeBallColors;
+	}
+	
+	public void addActiveBall(Ball b) {
+		activeBalls.add(b);
+		activeBallColors.add(b.getColorStr());
+	}
+	
+	public void removeActiveBall(Ball b) {
+		activeBalls.remove(b);
+		activeBallColors.remove(b.getColorStr());
 	}
 	
 	/* returns x mostRecent balls or up to 0 index */

@@ -1,11 +1,19 @@
 package base.obj;
 
+import static base.Utils.getXYFromRowCol;
+
 import base.Log;
 import base.Utils;
+import javafx.geometry.Pos;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeType;
 
-public class Station extends GridSquare {
+public class Station extends StackPane {
 
 	private int column;
 	private int row;
@@ -14,6 +22,11 @@ public class Station extends GridSquare {
 	private Color color;
 	private String colorStr;
 	private boolean border;
+	private Shape shape;
+	private int x;
+	private int y;
+	
+	private final StackPane fix = new StackPane();
 	
 	public Station(int[] xy, String fill, int exit, boolean border) {
 		this(xy[0]/50-1, xy[1]/50-1, fill, exit, border);
@@ -28,7 +41,11 @@ public class Station extends GridSquare {
 	}
 	
 	public Station(int column, int row, String color, boolean start, int exit, boolean border) {
-		super(column, row);
+		x = getXYFromRowCol(column);
+		y = getXYFromRowCol(row);	
+		
+		setTranslateX(x);
+		setTranslateY(y);
 		
 		this.column = column;
 		this.row = row;
@@ -37,27 +54,96 @@ public class Station extends GridSquare {
 		this.start = start;
 		this.exit = exit;
 		this.border = border;
+				
+		shape = start ? getStartShape() : getStandardShape();
+		getChildren().addAll(shape);
+	}
 		
-		getStyleClass().add("station");
-		if(border && !start) {
-			setWidth(getWidth() - 10);
-			setHeight(getHeight() - 10);
-			setTranslateX(getTranslateX() + 5);
-			setTranslateY(getTranslateY() + 5);
-			getStyleClass().remove("gridPane");
-			setStroke(Color.rgb(255, 255, 255, 0.8));
-			setStrokeType(StrokeType.OUTSIDE);
-			setStrokeWidth(5);
+	private Shape getStandardShape() {
+		Rectangle rectBg = new Rectangle(50, 50, color);
+		rectBg.getStyleClass().add("station");
+		
+		if(border) {
+			rectBg.setWidth(rectBg.getWidth() - 10);
+			rectBg.setHeight(rectBg.getHeight() - 10);
+			rectBg.setTranslateX(rectBg.getTranslateX() + 5);
+			rectBg.setTranslateY(rectBg.getTranslateY() + 5);
+			rectBg.getStyleClass().remove("gridPane");
+			rectBg.setStroke(Color.rgb(255, 255, 255, 0.8));
+			rectBg.setStrokeType(StrokeType.OUTSIDE);
+			rectBg.setStrokeWidth(5);
 		}
-		setFill(this.color);
+		return rectBg;
+	}
+		
+	private Shape getStartShape() {
+		Pos align = null;
+		int[] bigCenter = null;
+		int[] smallCenter = null;
+				
+		final int correction = -10;
+		switch(exit) {
+			case 0:
+				align = Pos.TOP_CENTER;
+				bigCenter = new int[] {25, 0-correction};
+				smallCenter = new int[] {25, 0};
+				break;
+			case 1:
+				align = Pos.CENTER_RIGHT;
+				bigCenter = new int[] {50+correction, 25};
+				smallCenter = new int[] {50, 25};
+				break;
+			case 2:
+				align = Pos.BOTTOM_CENTER;
+				bigCenter = new int[] {25, 50+correction};
+				smallCenter = new int[] {25, 50};
+				break;
+			case 3:
+				align = Pos.CENTER_LEFT;
+				bigCenter = new int[] {0-correction, 25};
+				smallCenter = new int[] {0, 25};
+				break;
+		}
+				
+		final Rectangle coverFix = new Rectangle(20, 20);
+			coverFix.setFill(Color.rgb(255, 255, 255, 0.2));
+		fix.setTranslateX(x);
+		fix.setTranslateY(y);
+		fix.getChildren().add(coverFix);
+		fix.setAlignment(align);
+		fix.setPrefSize(50, 50);
+
+		int xB = bigCenter[0], yB = bigCenter[1];
+		int xS = smallCenter[0], yS = smallCenter[1];
+		
+		Rectangle container = new Rectangle(50, 50);
+		Circle bigCircle = new Circle(xB, yB, 40, Color.TRANSPARENT);
+		Shape first = Path.intersect(container, bigCircle);
+		
+		Circle smallCircle = new Circle(xS, yS, 10, Color.TRANSPARENT);
+		Shape finalShape = Path.subtract(first, smallCircle);
+			finalShape.setFill(Color.web("#262626"));
+			finalShape.setStroke(Color.rgb(255, 255, 255, 0.2));
+			finalShape.setStrokeType(StrokeType.INSIDE);
+			finalShape.setStrokeWidth(1);
+			
+		setAlignment(align);
+		return finalShape;
 	}
 	
+	public StackPane getFix() {
+		return fix;
+	}
+	
+	public int[] getPos() {
+		return new int[] {x, y};
+	}
 		
 	public String toString() {
 		return String.format("Station[XY=(%d, %d), Color=%s, Border=%b, Exit=%d]", column, row, colorStr, border, exit);
 	}
 		
-	public boolean getBorder() {
+	public boolean hasBorder() {
 		return border;
 	}
 	
@@ -76,12 +162,12 @@ public class Station extends GridSquare {
 	public void setColor(String value) {
 		color = Utils.parseColorName(value);
 		colorStr = value;
-		setFill(color);
+		shape.setFill(color);
 	}
 	
 	public void setColor(Color value) {
 		color = value;
-		setFill(color);
+		shape.setFill(color);
 	}
 	
 	/* functions below should remain get-only  */
@@ -112,10 +198,9 @@ public class Station extends GridSquare {
 		return new double[] {getTranslateX(), getTranslateY()};
 	}
 	
-	public int[] getPos() {
-		return new int[] {row, column};
-	}
-	
+//	public int[] getPos() {
+//		return new int[] {row, column};
+//	}
 	
 	public boolean isStart() {
 		return start;

@@ -8,7 +8,6 @@ import javafx.scene.text.Text;
 import static base.Utils.COLOR_ACCENT;
 import static base.Utils.COLOR_LEVEL;
 
-import base.Log;
 import base.Scenes;
 import base.Window;
 
@@ -37,11 +36,11 @@ public class LevelPane extends StackPane {
 			if(Window.levelCreator) {
 				Window.setScene(Scenes.createLevel());
 			} else {
-//				Window.game(Scenes.game(lvl, premade));
-				try { Window.game(Scenes.gameTrack(lvl, premade)); } catch (Exception e) {
-					Log.error(String.format("Something's wrong with the selected level [%s]", level));
-					Log.error(e.toString());
-				}
+				Window.game(Scenes.gameTrack(lvl, premade));
+//				try { Window.game(Scenes.gameTrack(lvl, premade)); } catch (Exception e) {
+//					Log.error(String.format("Something's wrong with the selected level [%s]", level));
+//					Log.error(e.toString());
+//				}
 			}
 		});
 	}

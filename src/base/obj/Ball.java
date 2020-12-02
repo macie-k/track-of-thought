@@ -17,12 +17,13 @@ public class Ball extends Circle {
 	private int column;
 	private int row;
 	private int delay;
+	private boolean border;
+	private boolean active = false;
 	private Color color;
 	private String colorStr;
-	private List<Track> tracks;
 	private Track currentTrack;
-	private boolean border;
-	
+	private List<Track> tracks;
+
 //	private double[][] finalTrackPath;
 	private int finalCounter = 0;
 	private int finalDirection;
@@ -30,10 +31,10 @@ public class Ball extends Circle {
 	
 	
 	public Ball(double[] xy, String color, List<Track> tracks, int delay, boolean border) {
-		this((int)xy[0], (int)xy[1], 10, color, tracks, delay, border);
+		this((int)xy[0], (int)xy[1], 10, color, tracks, delay, false, border);
 	}
 	
-	public Ball(int x, int y, int radius, String color, List<Track> tracks, int delay, boolean border) {
+	public Ball(int x, int y, int radius, String color, List<Track> tracks, int delay, boolean active, boolean border) {
 		super(border ? radius-4 : radius);	// r - padding for border
 		
 		this.column = getColRowFromXY(x);
@@ -120,6 +121,14 @@ public class Ball extends Circle {
 		setCenterY(y);
 		index++;
 	}
+	
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+	
+	public boolean isActive() {
+		return active;
+	}
 			
 	public void setColor(String colorName) {
 		Object[] parsedColor = Utils.parseColorWithBorder(colorName);
@@ -147,7 +156,7 @@ public class Ball extends Circle {
 		return colorStr;
 	}
 	
-	public boolean getBorder() {
+	public boolean hasBorder() {
 		return border;
 	}
 	

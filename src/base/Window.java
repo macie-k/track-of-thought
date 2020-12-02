@@ -24,15 +24,13 @@ public class Window extends Application {
 	
 	public static Stage window;		// main stage
 	public static int points = 0;	// points counter
-	public static boolean levelCreator = true;	// temporary variable for level creation
-	public static Ball mostRecentBall;
+	public static boolean levelCreator = false;	// temporary variable for level creation
 
 	private static AnimationTimer gameTimer;	// main game timer
 	
 	private static int level;
 	private static int seconds = 0;				// seconds counter for ball releasing
 	private static int finishedBalls = 0;
-	private static int activeBalls = 0;
 	private static boolean skip = false;
 
 	@Override
@@ -53,20 +51,23 @@ public class Window extends Application {
 		final List<Track> tracks = allNodes.getTracks();			// list of all tracks
 		final List<Station> stations = allNodes.getStations();		// list of all stations
 				
+//		stations.forEach(station -> station.setColor(Color.TRANSPARENT));
+		
 		/* StackPane for points counter */
 		final StackPane pointsStack = new StackPane();
 			pointsStack.setTranslateX(0);
 			pointsStack.setTranslateY(7);
 			pointsStack.setPrefSize(850, 30);
-			
+
 		/* text with points value */
 		final Text pointsText = new Text("0/0");
 			pointsText.setFill(Utils.COLOR_ACCENT);
 			pointsText.setFont(Font.font("Hind Guntur Bold", 23));
-				
+
 		/* add everything to the root pane */
 		pointsStack.getChildren().add(pointsText);
 		root.getChildren().addAll(tracks);
+		root.getChildren().add(allNodes.getStartStation().getFix());
 		root.getChildren().addAll(balls);
 		root.getChildren().addAll(stations);
 		root.getChildren().add(pointsStack);
@@ -89,42 +90,18 @@ public class Window extends Application {
 						lastUpdate = now;
 					}
 					
-					/* timer for counting seconds & managing new balls */
-					if(now - secondsUpdate >= 1_000_000_000) {
-						seconds++;
-						secondsHandle(root, balls, allNodes);
-						secondsUpdate = now;
-					}
 				} catch (Exception e) {
 					Log.error(e.toString());
+				}
+				/* timer for counting seconds & managing new balls */
+				if(now - secondsUpdate >= 1_000_000_000) {
+					seconds++;
+					secondsHandle(root, balls, allNodes);
+					secondsUpdate = now;
 				}
 			}
 		}; gameTimer.start();
 				
-	}
-	
-	/* updates seconds and sets colors of the new balls */
-	private static void secondsHandle(Pane root, List<Ball> balls, FullTrack allNodes) throws Exception {
-		for(Ball ball : balls) {
-			if(seconds == ball.getDelay()) {
-				
-				/* allow skipping only if there is enough active balls */
-				if(skip) {
-					skip = false;
-					if(activeBalls > level) {
-						balls.remove(ball);
-						root.getChildren().remove(ball);
-						break;
-					}
-				}
-				
-				String newColor = Scenes.getNextBallColor(allNodes);
-				ball.setColor(newColor);
-				
-				activeBalls++;
-				break;
-			}
-		}
 	}
 	
 	/* main game */
@@ -138,11 +115,11 @@ public class Window extends Application {
 				/* if ball finished 'parking' */
 				if(ball.getCounter() == 25) {
 					finishedBalls++;
-					activeBalls--;
+					allNodes.removeActiveBall(ball);
 					
 					Station finalStation = allNodes.findStation(ball.getColumn(), ball.getRow());	// get final station				
 					/* if the station is correct update points value */
-					if(finalStation.getColor() == ball.getColor() && (finalStation.getBorder() == ball.getBorder())) {
+					if(finalStation.getColor() == ball.getColor() && (finalStation.hasBorder() == ball.hasBorder())) {
 						points++;
 					} else {
 						skip = true;
@@ -155,7 +132,31 @@ public class Window extends Application {
 		}
 		balls.removeAll(toRemove);	// remove balls that finished track
 	}
-		
+	
+	/* updates seconds and sets colors of the new balls */
+	private static void secondsHandle(Pane root, List<Ball> balls, FullTrack allNodes) {
+		for(Ball ball : balls) {
+			if(seconds == ball.getDelay()) {
+				
+				/* allow skipping only if there is enough active balls */
+				if(skip) {
+					skip = false;
+					if(allNodes.getActiveBalls().size() > level) {
+						balls.remove(ball);
+						root.getChildren().remove(ball);
+						break;
+					}
+				}
+				
+				String newColor = Scenes.getNextBallColor(allNodes);
+				ball.setColor(newColor);
+				
+				allNodes.addActiveBall(ball);
+				break;
+			}
+		}
+	}
+			
 	/* sets the main scene */
 	public static void setScene(Scene scene) {
 		window.setScene(scene);
