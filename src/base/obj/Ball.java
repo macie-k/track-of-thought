@@ -20,7 +20,7 @@ public class Ball extends Circle {
 	private boolean border;
 	private boolean active = false;
 	private Color color;
-	private String colorStr;
+	private String colorStr;		// english name of the color (optionally with border indicator '+O')
 	private Track currentTrack;
 	private List<Track> tracks;
 
@@ -30,30 +30,24 @@ public class Ball extends Circle {
 	private boolean finalStation = false;
 	
 	
-	public Ball(double[] xy, String color, List<Track> tracks, int delay, boolean border) {
-		this((int)xy[0], (int)xy[1], 10, color, tracks, delay, false, border);
+	public Ball(double[] xy, List<Track> tracks, int delay) {
+		this((int)xy[0], (int)xy[1], 10, tracks, delay, false);
 	}
 	
-	public Ball(int x, int y, int radius, String color, List<Track> tracks, int delay, boolean active, boolean border) {
-		super(border ? radius-4 : radius);	// r - padding for border
+	public Ball(int x, int y, int radius, List<Track> tracks, int delay, boolean active) {
+		super(radius);
 		
 		this.column = getColRowFromXY(x);
 		this.row = getColRowFromXY(y);
-		this.color = Utils.parseColorName(color);
-		this.colorStr = color;
 		this.tracks = tracks;
 		this.delay = delay;
-		this.border = border;
 		
 		setCenterX(x + 15);
 		setCenterY(y + 25);
-		setFill(this.color);
+		setFill(Color.TRANSPARENT);
 		getStyleClass().add("ball");
-		setStroke(Color.rgb(255, 255, 255, .8));
-		setStrokeType(StrokeType.OUTSIDE);
-		
-		setBorder(border); // if should have border, add it 
-		
+		setStrokeType(StrokeType.INSIDE);
+				
 		/* event listeners to change track when ball above it is clicked */
 		setOnMouseEntered(e -> modifyTrackOnHover());
 		setOnMouseMoved(e -> modifyTrackOnHover());
@@ -134,17 +128,21 @@ public class Ball extends Circle {
 		Object[] parsedColor = Utils.parseColorWithBorder(colorName);
 		color = (Color) parsedColor[0];
 		colorStr = colorName;
-		boolean border = (boolean)parsedColor[1];
+		boolean border = (boolean) parsedColor[1];
 		
 		setFill(color);
 		setBorder(border);
 	}
 	
 	public void setBorder(boolean border) {
+		this.border = border;
+	}
+	
+	/* show border at launch to avoid a halo under the start station */
+	public void showBorder() {
 		if(border) {
+			setStroke(Color.WHITE);
 			setStrokeWidth(4);
-		} else {
-			setStrokeWidth(0);
 		}
 	}
 	

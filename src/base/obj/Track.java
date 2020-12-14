@@ -5,7 +5,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
@@ -36,6 +35,7 @@ public class Track extends StackPane {
 	private int row;
 	private int quarter;
 	private boolean clickable;
+	
 		
 	/* doesn't require endSwitch parameter if not clickable */
 	public Track(int [] xy, String type, int origin, int end) {
@@ -59,15 +59,18 @@ public class Track extends StackPane {
 		this.quarter = calcQuarter();
 		this.clickable = clickable;
 		this.debugPath = getDebugPath();
+		setRotate(calcRotation(origin, end1));
 		
 		setWidth(50);
 		setHeight(50);
 		setTranslateX(x);
 		setTranslateY(y);
-		setRotate(calcRotation(origin, end1));
-		if(getRotate() == 45) {
-			setStyle("-fx-background-color: rgba(255, 0, 0, 0.5);");
-		}
+
+		track = getTrackShape();	
+		Circle bg = new Circle(24, Color.TRANSPARENT);
+			bg.getStyleClass().add("bg");
+
+		getChildren().addAll(bg, track);
 		
 		if(clickable) {
 			getStyleClass().add("clickable");
@@ -76,23 +79,18 @@ public class Track extends StackPane {
 			});
 		}
 
-		track = getTrackShape();		
-		Circle bg = new Circle(24, Color.TRANSPARENT);
-			bg.getStyleClass().add("bg");
-			setAlignment(bg, Pos.CENTER);
-		
-		getChildren().addAll(bg, track);
 	}
-	
+		
 	@Override
 	public String toString() {
 		return String.format(
-					"Track[xy=(%d, %d), type=%s, origin=%s, end=%s, switch=%b]",
+					"Track[xy=(%d, %d), type=%s, origin=%s, end=%s, end2=%s, switch=%b]",
 					column,
 					row,
 					type,
 					getOriginEndToString(origin),
 					getOriginEndToString(currentEnd),
+					getOriginEndToString(endToSwitch),
 					clickable
 				);
 	}
@@ -395,10 +393,10 @@ public class Track extends StackPane {
 	public void changeType() {
 		type = (type.equals(S)) ? C : S;		
 		
-		getChildren().remove(1);
+		getChildren().removeIf(Node -> Node.getStyleClass().contains("track"));
 		getChildren().add(getTrackShape());
 		setRotate(calcRotation(origin, endToSwitch));
-		
+				
 		endToSwitch = (endToSwitch == end1) ? end2 : end1;
 		currentEnd = (currentEnd == end1) ? end2 : end1;
 		quarter = calcQuarter();
@@ -407,24 +405,22 @@ public class Track extends StackPane {
 	}
 		
 	private Shape getTrackShape() {
+		Shape track = null;
 		if(type.equals(S)) {
-			Rectangle track =  new Rectangle(15, 0, 20, 50);
-				track.getStyleClass().add("track");
-			return track;
+			track = new Rectangle(15, 0, 20, 50);
 		} else {
 			Rectangle square = new Rectangle(50, 50, Color.TRANSPARENT);
 			
 			Circle small = new Circle(50, 0, 15, Color.TRANSPARENT);
-			Shape topRight = Path.intersect(square, small);
+			Shape topRight = Shape.intersect(square, small);
 			
 			Circle big = new Circle(50, 0, 35, Color.TRANSPARENT);
-			Shape mid = Path.intersect(square, big);
+			Shape mid = Shape.intersect(square, big);
 			
-			Shape track = Path.subtract(mid, topRight);
-				track.getStyleClass().add("track");
-			setAlignment(track, Pos.TOP_RIGHT);
-
-			return track;
+			track = Shape.subtract(mid, topRight);
+			setAlignment(track, Pos.TOP_RIGHT);	
 		}
+		track.getStyleClass().add("track");
+		return track;
 	}
 }

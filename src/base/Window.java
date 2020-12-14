@@ -13,11 +13,18 @@ import base.obj.Station;
 import base.obj.Track;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextBoundsType;
 import javafx.stage.Stage;
 
 public class Window extends Application {
@@ -50,22 +57,27 @@ public class Window extends Application {
 		final List<Ball> balls = allNodes.getBalls();				// list of all balls
 		final List<Track> tracks = allNodes.getTracks();			// list of all tracks
 		final List<Station> stations = allNodes.getStations();		// list of all stations
-				
-//		stations.forEach(station -> station.setColor(Color.TRANSPARENT));
-		
+						
 		/* StackPane for points counter */
 		final StackPane pointsStack = new StackPane();
-			pointsStack.setTranslateX(0);
-			pointsStack.setTranslateY(7);
-			pointsStack.setPrefSize(850, 30);
-
+			pointsStack.setTranslateX(10);
+			pointsStack.setTranslateY(0);
+			pointsStack.setPrefWidth(70);
+			pointsStack.setPrefHeight(30);
+			pointsStack.setBackground(new Background(new BackgroundFill(Color.rgb(145, 139, 119, 0.3), new CornerRadii(0), new Insets(0))));
+			
 		/* text with points value */
 		final Text pointsText = new Text("0/0");
 			pointsText.setFill(Utils.COLOR_ACCENT);
-			pointsText.setFont(Font.font("Hind Guntur Bold", 23));
+			pointsText.setFont(Font.font("Hind Guntur Bold", 20));
+			pointsText.setBoundsType(TextBoundsType.VISUAL);
 
 		/* add everything to the root pane */
-		pointsStack.getChildren().add(pointsText);
+		StackPane.setAlignment(pointsText, Pos.CENTER);
+		StackPane.setMargin(pointsText, new Insets(0));
+		
+		pointsStack.getChildren().addAll(pointsText);
+		
 		root.getChildren().addAll(tracks);
 		root.getChildren().add(allNodes.getStartStation().getFix());
 		root.getChildren().addAll(balls);
@@ -150,7 +162,8 @@ public class Window extends Application {
 				
 				String newColor = Scenes.getNextBallColor(allNodes);
 				ball.setColor(newColor);
-				
+				ball.showBorder();
+			
 				allNodes.addActiveBall(ball);
 				break;
 			}

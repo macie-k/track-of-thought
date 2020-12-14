@@ -20,7 +20,7 @@ public class Station extends StackPane {
 	private boolean start;
 	private int exit;
 	private Color color;
-	private String colorStr;
+	private String colorStr;	// english name of the color WITHOUT BORDER INDICATOR
 	private boolean border;
 	private Shape shape;
 	private int x;
@@ -28,19 +28,19 @@ public class Station extends StackPane {
 	
 	private final StackPane fix = new StackPane();
 	
-	public Station(int[] xy, String fill, int exit, boolean border) {
-		this(xy[0]/50-1, xy[1]/50-1, fill, exit, border);
+	public Station(int[] xy, String fill, int exit) {
+		this(xy[0]/50-1, xy[1]/50-1, fill, exit);
 	}
 	
-	public Station(int column, int row, String fill, boolean border) {
-		this(column, row, fill, false, -1, border);
+	public Station(int column, int row, String fill) {
+		this(column, row, fill, false, -1);
 	}
 	
-	public Station(int column, int row, String fill, int exit, boolean border) {
-		this(column, row, fill, exit != -1, exit, border);
+	public Station(int column, int row, String fill, int exit) {
+		this(column, row, fill, exit != -1, exit);
 	}
 	
-	public Station(int column, int row, String color, boolean start, int exit, boolean border) {
+	public Station(int column, int row, String color, boolean start, int exit) {
 		x = getXYFromRowCol(column);
 		y = getXYFromRowCol(row);	
 		
@@ -53,53 +53,52 @@ public class Station extends StackPane {
 		this.colorStr = color;
 		this.start = start;
 		this.exit = exit;
-		this.border = border;
-				
+	}
+	
+	public void initShape() {
 		shape = start ? getStartShape() : getStandardShape();
+		shape.getStyleClass().add("station");
 		getChildren().addAll(shape);
 	}
 		
 	private Shape getStandardShape() {
 		Rectangle rectBg = new Rectangle(50, 50, color);
-		rectBg.getStyleClass().add("station");
+			rectBg.getStyleClass().remove("gridPane");
+			rectBg.setStrokeType(StrokeType.INSIDE);
+			rectBg.setFill(color);
 		
 		if(border) {
-			rectBg.setWidth(rectBg.getWidth() - 10);
-			rectBg.setHeight(rectBg.getHeight() - 10);
-			rectBg.setTranslateX(rectBg.getTranslateX() + 5);
-			rectBg.setTranslateY(rectBg.getTranslateY() + 5);
-			rectBg.getStyleClass().remove("gridPane");
-			rectBg.setStroke(Color.rgb(255, 255, 255, 0.8));
-			rectBg.setStrokeType(StrokeType.OUTSIDE);
+			rectBg.setStroke(Color.WHITE);
 			rectBg.setStrokeWidth(5);
+		} else {
+			rectBg.setStroke(Color.web("#B1AD9F"));
+			rectBg.setStrokeWidth(1);
 		}
+		
 		return rectBg;
 	}
 		
+	/* utterly bad way to change the station's shape */
 	private Shape getStartShape() {
-		Pos align = null;
+		Pos align = Utils.getDirectionToPos(exit);
 		int[] bigCenter = null;
 		int[] smallCenter = null;
 				
 		final int correction = -10;
 		switch(exit) {
 			case 0:
-				align = Pos.TOP_CENTER;
 				bigCenter = new int[] {25, 0-correction};
 				smallCenter = new int[] {25, 0};
 				break;
 			case 1:
-				align = Pos.CENTER_RIGHT;
 				bigCenter = new int[] {50+correction, 25};
 				smallCenter = new int[] {50, 25};
 				break;
 			case 2:
-				align = Pos.BOTTOM_CENTER;
 				bigCenter = new int[] {25, 50+correction};
 				smallCenter = new int[] {25, 50};
 				break;
 			case 3:
-				align = Pos.CENTER_LEFT;
 				bigCenter = new int[] {0-correction, 25};
 				smallCenter = new int[] {0, 25};
 				break;
@@ -123,10 +122,7 @@ public class Station extends StackPane {
 		Circle smallCircle = new Circle(xS, yS, 10, Color.TRANSPARENT);
 		Shape finalShape = Path.subtract(first, smallCircle);
 			finalShape.setFill(Color.web("#262626"));
-			finalShape.setStroke(Color.rgb(255, 255, 255, 0.2));
-			finalShape.setStrokeType(StrokeType.INSIDE);
-			finalShape.setStrokeWidth(1);
-			
+
 		setAlignment(align);
 		return finalShape;
 	}
@@ -161,7 +157,7 @@ public class Station extends StackPane {
 	
 	public void setColor(String value) {
 		color = Utils.parseColorName(value);
-		colorStr = value;
+		colorStr = value.split("\\+")[0].trim();
 		shape.setFill(color);
 	}
 	

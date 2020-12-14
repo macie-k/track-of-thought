@@ -16,6 +16,7 @@ import org.json.JSONTokener;
 
 import base.obj.GridSquare;
 import base.obj.Track;
+import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 
 public class Utils {
@@ -50,6 +51,23 @@ public class Utils {
 			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o"
 	});
 	
+	/* returns centered alignment position from given int */ 
+	public static Pos getDirectionToPos(int exit) {
+		switch(exit) {
+			case 0: 	
+				return Pos.TOP_CENTER; 		// 0 -> top
+			case 1:
+				return Pos.CENTER_RIGHT;	// 1 -> right
+			case 2:
+				return Pos.BOTTOM_CENTER;	// 2 -> bottom
+			case 3:
+				return Pos.CENTER_LEFT;		// 3 -> left
+			default:
+				return null;
+		}
+	}
+		
+	/* randomly switches tracks */
 	public static void randomSwitchTracks(List<Track> tracks) {
 		Random r = new Random();
 		for(Track t : tracks) {
@@ -58,26 +76,48 @@ public class Utils {
 			}
 		}
 	}
+	
+	public static List<String> getRandomBorderColors(int amount) {
+		final List<String> newColors = new ArrayList<>();
+		final List<String> allColors = new ArrayList<>(COLORS_STR);
+			allColors.removeIf(color -> !color.contains("+"));
+		
+		Random r = new Random();
+		while(newColors.size() < amount) {
+			final int index = r.nextInt(allColors.size());
+			newColors.add(allColors.get(index));
+			allColors.remove(index);
+		}
+		
+		return newColors;
+	}
 			
 	public static List<String> getRandomColors(int amount, List<String> toExclude, boolean prioritizeBase) {
 		final List<String> newColors = new ArrayList<>();
+		
+		/* create a list of all remaining colors */
 		final List<String> allColors = new ArrayList<>(COLORS_STR);
 			allColors.removeAll(toExclude);
 			
-		if(prioritizeBase) {
-			final List<String> baseColors = new ArrayList<>(allColors);
-				baseColors.removeIf(color -> color.contains("+"));
-			newColors.addAll(baseColors);
+		/* create list of only base colors */
+		final List<String> baseColors = new ArrayList<>(allColors);
+			baseColors.removeIf(color -> color.contains("+"));
 			
-			if(newColors.size() < amount) {
-				allColors.removeAll(baseColors);
-				Random r = new Random();
-				
-				while(newColors.size() < amount) {
-					final int index = r.nextInt(allColors.size());
-					newColors.add(allColors.get(index));
-					allColors.remove(index);
-				}
+		Random r = new Random();
+		if(prioritizeBase) {
+			final List<String> copyOfBaseColors = new ArrayList<>(baseColors);
+			while(newColors.size() < amount && copyOfBaseColors.size() > 0) {
+				final int index = r.nextInt(copyOfBaseColors.size());
+				newColors.add(copyOfBaseColors.get(index));
+			}
+		}
+		if(newColors.size() < amount) {
+			allColors.removeAll(baseColors);
+			
+			while(newColors.size() < amount) {
+				final int index = r.nextInt(allColors.size());
+				newColors.add(allColors.get(index));
+				allColors.remove(index);
 			}
 		}
 		return newColors;

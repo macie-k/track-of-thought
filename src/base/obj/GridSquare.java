@@ -12,7 +12,6 @@ public class GridSquare extends Rectangle {
 	
 	private int x;
 	private int y;
-	private boolean hoverable;
 	
 	public GridSquare(int column, int row) {
 		this(column, row, false);
@@ -21,7 +20,6 @@ public class GridSquare extends Rectangle {
 	public GridSquare(int column, int row, boolean hoverable) {
 		x = getXYFromRowCol(column);
 		y = getXYFromRowCol(row);
-		this.hoverable = hoverable;
 		
 		if(column < 15 && row < 9) {	// additional check for bounds
 			setWidth(50);
@@ -39,11 +37,7 @@ public class GridSquare extends Rectangle {
 		}
 	}
 	
-	public boolean getHoverable() {
-		return hoverable;
-	}
-	
-	public int[] getPos() {
+	public int[] getXY() {
 		return new int[] {x, y};
 	}
 }

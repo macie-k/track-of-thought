@@ -96,6 +96,8 @@ public class Scenes {
 		List<Track> tracks = new ArrayList<>();
 		List<Ball> balls = new ArrayList<>();
 		List<String> userColors = new ArrayList<>();
+
+		int bordersAmount = 0;
 		
 		JSONObject json = new JSONObject(new JSONTokener(stream));
 		JSONArray stationsJson = json.getJSONArray("stations");
@@ -109,21 +111,28 @@ public class Scenes {
 			
 			boolean start = obj.get("type").equals("start");
 			boolean border = obj.getString("color").contains("+");
-			String color = start ? "black" : null;
+			String color = start ? "black" : obj.getString("color");
 			int column = obj.getInt("column");
 			int row = obj.getInt("row");
 			int exit;
 			
 			if(start) {
 				exit = Utils.parseDirectionToInt(obj.getString("exit"));
-				startStation = new Station(column, row, color, exit, false);
+				startStation = new Station(column, row, color, exit);
 			} else {
 				exit = -1;
-				userColors.add(obj.getString("color"));
-			}
-			stations.add(new Station(column, row, color, exit, border));
-		}
 				
+				String onlyColor = obj.getString("color").split("\\+")[0].trim();
+				userColors.add(onlyColor);
+				
+				if(border) {
+					bordersAmount++;
+				}
+			}
+			stations.add(new Station(column, row, color, exit));
+		}
+		
+						
 		final double[] startCoords = startStation.getXY();		
 		final List<String> stationColors = new ArrayList<>();
 		final int lvl = stations.size()-1;
@@ -133,14 +142,18 @@ public class Scenes {
 		userColors.clear();
 		userColors.addAll(set);
 		
+		int totalColors = userColors.size() + bordersAmount;
+				
 		/* check if there is enough colors */
-		if(lvl > userColors.size()) {
+		if(lvl > totalColors) {
 			Log.warning("Duplicated station colors, generating new ...");
 			
-			final int diff = stations.size() - userColors.size();
+			final int diff = stations.size() - totalColors;
 			final List<String> newColors = Utils.getRandomColors(diff, userColors, true);
 			userColors.addAll(newColors);
 		}
+		
+		userColors.addAll(Utils.getRandomBorderColors(bordersAmount));
 		
 		Random r = new Random();
 		for(Station s : stations) {
@@ -150,7 +163,12 @@ public class Scenes {
 				
 				userColors.remove(index);
 				stationColors.add(colorStr);
+				
+				s.setBorder(colorStr.contains("+"));
+				s.initShape();
 				s.setColor(colorStr);
+			} else {
+				s.initShape();
 			}
 		}
 						
@@ -165,16 +183,16 @@ public class Scenes {
 			int end1 = Utils.parseDirectionToInt(obj.getString("end1"));
 			int end2 = switchable ? Utils.parseDirectionToInt(obj.getString("end2")) : -1;
 			
-			tracks.add(new Track(GRID[column][row].getPos(), type, origin, end1, end2));							
+			tracks.add(new Track(GRID[column][row].getXY(), type, origin, end1, end2));							
 		}
 		
 		int globalDelay = 2;
-		balls.add(new Ball(startCoords, null, tracks, globalDelay, false));
-		globalDelay += (15 - lvl)/2;
+		balls.add(new Ball(startCoords, tracks, globalDelay));
+		globalDelay += (14 - lvl)/2;
 		for(int i=1; i<ballsAmount; i++) {
 			final int delay = r.nextInt(2)+3;
 			globalDelay += delay;
-			balls.add(new Ball(startCoords, null, tracks, globalDelay, false));
+			balls.add(new Ball(startCoords, tracks, globalDelay));
 		}
 		
 		Utils.randomSwitchTracks(tracks);
@@ -197,9 +215,9 @@ public class Scenes {
 	public static Scene createLevel() {
 		Pane root = getRootPane();
 		
-		String[] menuObjects= {"track", "station"};				// available objects as menu "pages"
-		JSONObject jsonObjects = Utils.getJsonFromFile("/resources/structure.json");			// get general object from structure.json
-		List<GridSquare> grid = new ArrayList<GridSquare>();	// list containing all gridSquares
+		String[] menuObjects= {"track", "station"};										// available objects as menu "pages"
+		JSONObject jsonObjects = Utils.getJsonFromFile("/resources/structure.json");	// get general object from structure.json
+		List<GridSquare> grid = new ArrayList<GridSquare>();							// list containing all gridSquares
 		
 		createObjectStr = menuObjects[objectIndex];					// current object as string
 		createObject = jsonObjects.getJSONObject(createObjectStr);	// current object as json object
@@ -399,15 +417,15 @@ public class Scenes {
 				GridSquare gridSq = new GridSquare(i, j, true);
 				gridSq.setOnMouseClicked(e -> {
 					/* save X and Y of current square */
-					createX = gridSq.getPos()[0];
-					createY = gridSq.getPos()[1];
+					createX = gridSq.getXY()[0];
+					createY = gridSq.getXY()[1];
 					
 					/* calculate X and Y for the menu to avoid partially rendering outside of the window */
-					overlayX = gridSq.getPos()[0] - 75;
+					overlayX = gridSq.getXY()[0] - 75;
 						if(overlayX == 675) overlayX -= 25;
 						if(overlayX == -25) overlayX += 25;
 					
-					overlayY = gridSq.getPos()[1] + 50;
+					overlayY = gridSq.getXY()[1] + 50;
 						if(overlayY >= 400) overlayY -= 220;
 					
 					/* show menu at calculated coordinates */
@@ -446,20 +464,36 @@ public class Scenes {
 	}
 	
 	public static String getNextBallColor(FullTrack track) {	
-		final List<Pair<String, Double>> pairs = new ArrayList<>();
-		final List<String> usedColors = track.getUsedColors();
-		final List<String> activeColors = track.getActiveBallColors();
+		final List<Pair<String, Double>> pairs = new ArrayList<>();						// create list of pairs
+		final List<String> usedColors = track.getUsedColors();							// create list of all used colors
+		final List<String> activeColors = track.getActiveBallColors();					// create list of currently used colors
+		final List<String> activeColorsWithoutBorders = new ArrayList<>(activeColors);	// create list of currently used colors but without borders
+			activeColorsWithoutBorders.forEach(color -> {
+				if(color.contains("+")) {
+					color = color.split("\\+")[0].trim();
+				}
+			});
+		
+		/* get most recent ball(s) & its color */
 		final List<Ball> mostRecentBalls = track.getMostRecentBalls(1);
 		final String mostRecentColor = mostRecentBalls.isEmpty() ? "" : mostRecentBalls.get(0).getColorStr();
-		
+				
 		for(String color : usedColors) {
-			int occurence = Collections.frequency(activeColors, color);
-			double probability = Math.pow((1.0/usedColors.size()), occurence);
-
-			pairs.add(new Pair<String, Double>(color, color.equals(mostRecentColor) ? 0 : probability));
+			final String colorWithoutBorder = color.split("\\+")[0].trim();					// get current color without border
+			final String prevColorWithoutBorder = mostRecentColor.split("\\+")[0].trim();	// get previous color without border
+			
+			final int occurence = Collections.frequency(activeColorsWithoutBorders, colorWithoutBorder);	// check for occurence without border
+			
+			double probability = Math.pow((1.0/usedColors.size()), occurence);								// calculate probability
+			/* if previous color was the same or (current end-station has this color & level is above 5th) set probability to 0 */
+			if(colorWithoutBorder.equals(prevColorWithoutBorder) ||
+					(track.getCurrentEndStation().getColorStr().equals(color) && activeColors.size() > 5)) {
+				probability = 0;
+			}
+			pairs.add(new Pair<String, Double>(color, probability));	
 		}
-		String color = new EnumeratedDistribution<>(pairs).sample();
-		return color;
+		
+		return new EnumeratedDistribution<>(pairs).sample();
 	}
 		
 	/* checks if given child should be cleared from level creator */
@@ -526,12 +560,10 @@ public class Scenes {
 					/* same as above */
 					String type = obj.get("type");
 					boolean start = type.equals("start");
-					boolean border = obj.get("color").contains("+");
 					int exit = start ? Utils.parseDirectionToInt(obj.get("exit")) : -1;
 					String color = start ? "black" : obj.get("color");
-					
 					try {
-						Station s = new Station(xy, color, exit, border);
+						Station s = new Station(xy, color, exit);
 						s.setOnMouseClicked(e -> {
 							if(e.getButton() == MouseButton.MIDDLE) {
 								root.getChildren().remove(s);
