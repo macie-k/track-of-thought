@@ -3,7 +3,9 @@ package base;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class Window extends Application {
 	
 	public static Stage window;		// main stage
 	public static int points = 0;	// points counter
-	public static boolean levelCreator = false;	// temporary variable for level creation
+	public static boolean levelCreator = true;	// temporary variable for level creation
 
 	private static AnimationTimer gameTimer;	// main game timer
 	
@@ -41,7 +43,7 @@ public class Window extends Application {
 	private static boolean skip = false;
 
 	@Override
-	public void start(Stage primaryStage) {
+	public void start(Stage primaryStage) throws IOException, SQLException {
 		window = primaryStage;
 		window.setTitle("Track of thought");
 		window.setResizable(false);
@@ -174,9 +176,8 @@ public class Window extends Application {
 	public static void setScene(Scene scene) {
 		window.setScene(scene);
 	}
-	
-	public static void main (String[] args) throws FileNotFoundException {
 		
+	public static void main (String[] args) throws FileNotFoundException {		
 		/* parses arguments */
 		if(args.length>0) {
 			/* 

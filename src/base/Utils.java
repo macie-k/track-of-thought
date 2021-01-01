@@ -2,10 +2,21 @@ package base;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +36,11 @@ public class Utils {
 	public static final String OS = System.getProperty("os.name").toLowerCase();	// get current operating system
 	public static final boolean WINDOWS = !OS.equals("linux");
 	
-	public static final String PATH_ROOT = System.getenv(WINDOWS ? "APPDATA" : "HOME") + "/Track of thought/";
+	public static final String PATH_ROOT = System.getenv(WINDOWS ? "APPDATA" : "HOME") + "/.Track of thought/";
 	public static final String PATH_LEVELS = PATH_ROOT + "levels/";
 	public static final String PATH_LEVELS_CUSTOM = PATH_LEVELS + "custom/";
+	public static final String PATH_TEMPLATE_DATA = "/resources/data";
+	public static final String PATH_PUBLIC_DATA = PATH_ROOT + "data";
 	public static final String[] PATHS_TO_LOAD = {PATH_ROOT, PATH_LEVELS, PATH_LEVELS_CUSTOM};
 
 	public final static Color COLOR_LEVEL = Color.web("#282d33");
@@ -50,6 +63,113 @@ public class Utils {
 			"red", "green", "blue", "cyan", "yellow", "pink",
 			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o"
 	});
+		
+	/* creates data file and sets new key */
+	public static void createData() {		
+		try {
+			/* copy template data to byte array */
+			InputStream privateData = Setup.class.getResourceAsStream(PATH_TEMPLATE_DATA);
+				byte[] privateBytes = privateData.readAllBytes();
+				privateData.close();
+
+			/* write byte array to data file in game folder */
+			FileOutputStream publicData = new FileOutputStream(PATH_PUBLIC_DATA);
+				publicData.write(privateBytes);
+				publicData.close();
+				
+			/* set new key */
+			setDataKey(getNewKey());
+			Log.success("Successfully created data file");
+		} catch (IOException e) {
+			Log.error("Could not create data file: " + e);
+		}
+	}
+	
+	/* returns true only if data key was read and is correct, false otherwise */
+	public static boolean isCorrectKey() {
+		try {
+			final String key = getDataResults()[0];						// get stored key
+			final int x = Character.getNumericValue(key.charAt(0));		// extract prefix
+			final String encodedKey = key.substring(1, key.length());	// extract encoded key
+			
+			final long modTime = new File(PATH_PUBLIC_DATA).lastModified();					// get current modification time
+			final String savedKey = new String(Base64.getDecoder().decode(encodedKey));		// get currently saved key
+			final double decodedKey = Double.valueOf(savedKey)/Math.pow(Math.E, x);			// decode the key
+
+			return modTime == decodedKey;	// check if flags are the same
+		} catch (Exception e) {
+			Log.error("Could not verify key: " + e);
+			return false;
+		}
+	}
+	
+	/* generate new key for data file */
+	public static String getNewKey() {
+		Random r = new Random();
+		
+		final long modTime = new File(PATH_PUBLIC_DATA).lastModified();		// get current modification time
+		final int x = r.nextInt(9)+1;										// get random exponent
+		final double calculatedKey = modTime*Math.pow(Math.E, x);			// calculate key
+		
+		return (x + Base64.getEncoder().encodeToString(String.valueOf(calculatedKey).getBytes()));	// return key in base64
+	}
+	
+	/* sets data progress value */
+	public static void setDataProgress(int level) {
+		final File data = new File(PATH_PUBLIC_DATA);	// get data file
+		final long modTime = data.lastModified();		// get modification time
+		
+		try {
+			/* execute query to set the level value */
+			Statement st = getDataStatement(PATH_PUBLIC_DATA);
+				st.executeUpdate("UPDATE data SET level = " + level);
+				st.close();
+				
+			data.setLastModified(modTime);	// restore  modification time
+		} catch (SQLException e) {
+			Log.error("Could not save progress: " + e);
+		}
+	}
+	
+	/* sets data key value */
+	public static void setDataKey(String value) {
+		final File data = new File(PATH_PUBLIC_DATA);	// get data file
+		final long modTime = data.lastModified();		// get modification time
+		
+		try {
+			/* execute query to set the key value */
+			Statement st = getDataStatement(PATH_PUBLIC_DATA);
+				st.executeUpdate(String.format("UPDATE data SET key = '%s'", value));
+				st.close();
+			
+			data.setLastModified(modTime);	// restore  modification time
+		} catch (Exception e) {
+			Log.error("Could not save key: " + e);
+		}
+	}
+	
+	/* returns key & progress values */
+	public static String[] getDataResults() throws Exception {
+		try {
+			Statement st = Utils.getDataStatement(PATH_PUBLIC_DATA);
+			ResultSet rs = st.executeQuery("SELECT * FROM data");
+			rs.next();
+		
+			final String key = rs.getString("key");
+			final String level = rs.getString("progress");
+			
+			st.close();
+			return new String[] {key, level};
+		} catch (SQLException e) {
+			throw new Exception("Error getting results from data file");
+		}
+	}
+	
+	/* returns statement for data reading & writing */
+	public static Statement getDataStatement(String path) throws SQLException {
+		Connection conn = DriverManager.getConnection("jdbc:ucanaccess://" + path);
+		return conn.createStatement();
+	}
 	
 	/* returns centered alignment position from given int */ 
 	public static Pos getDirectionToPos(int exit) {
@@ -66,6 +186,38 @@ public class Utils {
 				return null;
 		}
 	}
+	
+	/* creates directory with feedback */
+	public static void createDirectory(String path) {
+		String finalPath = PATH_ROOT + "/" + path;					// build final path
+		
+		if(!fileExists(finalPath)) {								// if directory doesn't exist
+			if(new File(finalPath).mkdir()) {						// try to create
+				Log.success("Successfully created " + finalPath);	// log success
+			} else {												
+				Log.error("Could not create " + finalPath);			// print error if failed
+			}
+		}
+	}
+	
+	/* downloads the file from given url */
+	public static void downloadFile(String url, String dir, String filename) {
+		String finalPath = String.format("%s%s/%s", PATH_ROOT, dir, filename);
+		
+		if(!fileExists(finalPath)) {
+			try {
+				URL link = new URL(url);
+				InputStream IS = link.openStream();
+				Files.copy(IS, Paths.get(finalPath));
+				Log.success("Successfully downloaded: {" + filename + "}");
+				IS.close();
+			} catch (Exception e) {
+				Log.error(e.toString());
+			}
+		} else {
+			Log.success("{" + filename + "} already downloaded");
+		}
+	}
 		
 	/* randomly switches tracks */
 	public static void randomSwitchTracks(List<Track> tracks) {
@@ -77,6 +229,7 @@ public class Utils {
 		}
 	}
 	
+	/* returns list of colors for stations with borders */
 	public static List<String> getRandomBorderColors(int amount) {
 		final List<String> newColors = new ArrayList<>();
 		final List<String> allColors = new ArrayList<>(COLORS_STR);
@@ -92,6 +245,7 @@ public class Utils {
 		return newColors;
 	}
 			
+	/* returns list of colors for stations */
 	public static List<String> getRandomColors(int amount, List<String> toExclude, boolean prioritizeBase) {
 		final List<String> newColors = new ArrayList<>();
 		

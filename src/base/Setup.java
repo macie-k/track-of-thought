@@ -1,27 +1,29 @@
 package base;
 
 import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.sql.SQLException;
 
 import javafx.scene.text.Font;
 
 import static base.Utils.PATHS_TO_LOAD;
-import static base.Utils.PATH_ROOT;
-import static base.Utils.fileExists;
+import static base.Utils.PATH_PUBLIC_DATA;
 import static base.Utils.createFolder;
+import static base.Utils.createData;
+import static base.Utils.isCorrectKey;
 
 public class Setup {
-		
-	static void runSetup() {	
+			
+	static void runSetup() throws IOException, SQLException {	
 		Log.success("Detected OS: " + Utils.OS);
-		loadFonts();							// load all required fonts
+		
 		for(String dir : PATHS_TO_LOAD) {		// create all necessary folders if dont exist
 			createFolder(dir);
 		}
 		
+		loadFonts();			// load all required fonts
+		checkProgress();		// check progress data
+
 		Window.setScene(Scenes.levels());
 	}
 	
@@ -41,37 +43,19 @@ public class Setup {
 			}
 		}		
 	}
-		
-	@SuppressWarnings("unused")
-	private static void createDirectory(String path) {
-		String finalPath = PATH_ROOT + "/" + path;				// build final path
-		
-		if(!fileExists(finalPath)) {								// if directory doesn't exist
-			if(new File(finalPath).mkdir()) {						// try to create
-				Log.success("Successfully created " + finalPath);	// log success
-			} else {												
-				Log.error("Could not create " + finalPath);			// print error if failed
-			}
-		}
-	}
 	
-	@SuppressWarnings("unused")
-	private static void downloadFile(String url, String dir, String filename) {
-		String finalPath = String.format("%s%s/%s", PATH_ROOT, dir, filename);
-		
-		if(!fileExists(finalPath)) {
-			try {
-				URL link = new URL(url);
-				InputStream IS = link.openStream();
-				Files.copy(IS, Paths.get(finalPath));
-				Log.success("Successfully downloaded: {" + filename + "}");
-				IS.close();
-			} catch (Exception e) {
-				Log.error(e.toString());
-			}
+	private static void checkProgress() throws IOException, SQLException {
+		if(!new File(PATH_PUBLIC_DATA).exists()) {
+			Log.warning("Progress data file doesn't exist, creating ...");
+			createData();
 		} else {
-			Log.success("{" + filename + "} already downloaded");
+			if(isCorrectKey()) {
+				Log.success("Key is correct");
+			} else {
+				Log.warning("Key is incorrect, reseting ...");
+				createData();
+			}
 		}
+		
 	}
-	
 }
