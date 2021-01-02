@@ -32,7 +32,7 @@ public class Window extends Application {
 	
 	public static Stage window;		// main stage
 	public static int points = 0;	// points counter
-	public static boolean levelCreator = false;	// temporary variable for level creation
+	public static boolean levelCreator = true;	// temporary variable for level creation
 
 	private static AnimationTimer gameTimer;	// main game timer
 	
@@ -113,7 +113,7 @@ public class Window extends Application {
 					}
 					
 				} catch (Exception e) {
-					Log.error(e.toString());
+					Log.error(e.getMessage());
 				}
 				/* timer for counting seconds & managing new balls */
 				if(now - secondsUpdate >= 1_000_000_000) {
@@ -135,7 +135,7 @@ public class Window extends Application {
 				ball.update(allNodes);
 				
 				/* if ball finished 'parking' */
-				if(ball.getCounter() == 25) {
+				if(ball.getCounter() == 15) {
 					finishedBalls++;
 					allNodes.removeActiveBall(ball);
 					

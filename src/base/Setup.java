@@ -37,7 +37,7 @@ public class Setup {
 			try {
 				Font.loadFont(Setup.class.getResourceAsStream("/resources/data/fonts/" + font), 20);
 			} catch (Exception e) {
-				Log.error(String.format("Unable to load font {%s}: {%s}", font, e));
+				Log.error(String.format("Unable to load font {%s}: {%s}", font, e.getMessage()));
 			}
 		}		
 	}

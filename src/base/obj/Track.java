@@ -38,16 +38,16 @@ public class Track extends StackPane {
 	
 		
 	/* doesn't require endSwitch parameter if not clickable */
-	public Track(int [] xy, String type, int origin, int end) {
+	public Track(int [] xy, String type, int origin, int end) throws Exception {
 		this(xy[0], xy[1], type, origin, end, end, false);
 	}
 	
 	/* translates xy array if endSwitch provided -> is clickable */
-	public Track(int[] xy, String type, int origin, int end1, int end2) {
+	public Track(int[] xy, String type, int origin, int end1, int end2) throws Exception {
 		this(xy[0], xy[1], type, origin, end1, (end2 != -1) ? end2 : end1, end2 != -1);
 	}
 	
-	public Track(int x, int y, String type, int origin, int end1, int end2, boolean clickable) {
+	public Track(int x, int y, String type, int origin, int end1, int end2, boolean clickable) throws Exception {
 		this.type = type;
 		this.origin = origin;
 		this.end1 = end1;
@@ -75,10 +75,11 @@ public class Track extends StackPane {
 		if(clickable) {
 			getStyleClass().add("clickable");
 			setOnMouseClicked(e -> {
-				changeType();
+				try {
+					changeType();
+				} catch (Exception e1) {}
 			});
 		}
-
 	}
 		
 	@Override
@@ -198,7 +199,7 @@ public class Track extends StackPane {
 			case 3:
 				return column-1;
 			default:
-				Log.error("Wrong 'currentEnd' value");
+//				Log.warning("Wrong 'currentEnd' value");
 				return -1;
 		}
 	}
@@ -213,7 +214,7 @@ public class Track extends StackPane {
 			case 0:
 				return row-1;
 			default:
-				Log.error("Wrong 'currentEnd' value");
+//				Log.warning("Wrong 'currentEnd' value");
 				return -1;
 		}
 	}
@@ -356,7 +357,7 @@ public class Track extends StackPane {
 		}
 	}
 	
-	private int calcRotation(int origin, int end) {
+	private int calcRotation(int origin, int end) throws Exception {
 		
 //		0 -> top
 //		1 -> right
@@ -370,8 +371,7 @@ public class Track extends StackPane {
 					case 2: return 0;		// (top <-> bottom)
 					case 4: return 90;		// (left <-> right)
 					default:
-						Log.error("Wrong 'origin'+'end' combination for straight track");
-						return NULL;
+						throw new Exception("Wrong 'origin'+'end' combination for straight track");
 				}
 			/* curved track */
 			case C:
@@ -381,8 +381,7 @@ public class Track extends StackPane {
 						return (origin == 1 || origin == 2) ? 90 : 270;
 					case 5: return 180;							// (bottom -> left)
 					default:
-						Log.error("Wrong 'origin'+'end' combination for curved track");
-						return NULL;
+						throw new Exception("Wrong 'origin'+'end' combination for curved track");
 				}
 			default:
 				Log.error("Wrong track type");
@@ -390,7 +389,7 @@ public class Track extends StackPane {
 		}
 	}
 		
-	public void changeType() {
+	public void changeType() throws Exception {
 		type = (type.equals(S)) ? C : S;		
 		
 		getChildren().removeIf(Node -> Node.getStyleClass().contains("track"));

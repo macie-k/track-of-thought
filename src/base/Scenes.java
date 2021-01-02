@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import base.Log;
 import base.obj.Ball;
 import base.obj.FullTrack;
 import base.obj.GridSquare;
@@ -75,7 +76,10 @@ public class Scenes {
 		int unlocked = 3;
 		try {
 			unlocked = Utils.getProgress();
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			Log.error("Could not get progress: " + e.getMessage());
+			Log.warning("Defaults progress to 3");
+		}
 		
 		for(int i=0; i<12; i++) {
 			String level = String.valueOf(i+3);
@@ -178,7 +182,8 @@ public class Scenes {
 				s.initShape();
 			}
 		}
-						
+					
+		ArrayList<Track> clickableTracks = new ArrayList<>();	// smaller list for ball interactions & random switching
 		for(Object track : tracksJson) {
 			final JSONObject obj = (JSONObject) track;
 			
@@ -190,19 +195,27 @@ public class Scenes {
 			final int end1 = Utils.parseDirectionToInt(obj.getString("end1"));
 			final int end2 = switchable ? Utils.parseDirectionToInt(obj.getString("end2")) : -1;
 			
-			tracks.add(new Track(GRID[column][row].getXY(), type, origin, end1, end2));							
+			try {
+				Track t = new Track(GRID[column][row].getXY(), type, origin, end1, end2);
+				tracks.add(t);		
+				if(switchable) {
+					clickableTracks.add(t);
+				}
+			} catch (Exception e) {
+				Log.error(e.getMessage());
+			}
 		}
-		
+				
 		int globalDelay = 2;
-		balls.add(new Ball(startCoords, tracks, globalDelay));
+		balls.add(new Ball(startCoords, clickableTracks, globalDelay));
 		globalDelay += (14 - lvl)/2;
 		for(int i=1; i<ballsAmount; i++) {
 			final int delay = r.nextInt(3)+3;
 			globalDelay += delay;
-			balls.add(new Ball(startCoords, tracks, globalDelay));
+			balls.add(new Ball(startCoords, clickableTracks, globalDelay));
 		}
 		
-		Utils.randomSwitchTracks(tracks);
+		Utils.randomSwitchTracks(clickableTracks);
 		return new FullTrack(stations, tracks, balls);
 	}
 		
@@ -548,8 +561,10 @@ public class Scenes {
 							listMap.remove(obj);
 						} else {
 							if(t.isClickable()) {
+								try {
+									t.changeType();
+								} catch (Exception e1) {}
 								t.removeDebugPath(root);
-								t.changeType();
 								t.addDebugPath(root);
 								menu.toFront();
 							}
@@ -557,9 +572,8 @@ public class Scenes {
 					});
 					root.getChildren().add(t);
 				} catch (Exception e) {
-					success = false;										// overwrite success boolean
-					Log.error(e.toString());
-					Log.warning("Could not add object, check parameters");	// log the error
+					success = false;											// overwrite success boolean
+					Log.warning("Could not add object: " + e.getMessage());		// log the error
 				}
 			} break;
 			
@@ -583,8 +597,7 @@ public class Scenes {
 					root.getChildren().add(s);
 				} catch (Exception e) {
 					success = false;
-					Log.error(e.toString());
-					Log.warning("Could not add object, check parameters");
+					Log.warning("Could not add object: " + e.getMessage());
 				}
 			} break;
 		}
@@ -639,7 +652,7 @@ public class Scenes {
 			saver.println(obj);								// print everything to file
 			saver.close();									// close PrintWriter
 		} catch (FileNotFoundException e) {
-			Log.error(e.toString());
+			Log.error(e.getMessage());
 		}
 	}
 

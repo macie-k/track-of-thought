@@ -53,7 +53,9 @@ public class Ball extends Circle {
 		setOnMouseMoved(e -> modifyTrackOnHover());
 		setOnMouseClicked(e -> {
 			if(currentTrack != null && currentTrack.isClickable()) {
-				currentTrack.changeType();
+				try {
+					currentTrack.changeType();
+				} catch (Exception e1) {}
 			}
 		});
 		
@@ -74,7 +76,7 @@ public class Ball extends Circle {
 		/* if the station is next track */
 		if(finalStation) {
 			moveNextDirection(finalDirection);	// calc where ball should move
-				finalCounter++;					// move it 25px total into station
+				finalCounter++;					// move it 15px total into station
 			return;
 		}
 		

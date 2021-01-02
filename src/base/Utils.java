@@ -76,7 +76,7 @@ public class Utils {
 					return false;
 				}
 			} catch (Exception e) {
-				System.out.println("Could not unlock level: " + e);
+				System.out.println("Could not unlock level: " + e.getMessage());
 				return false;
 			}
 		} else {
@@ -102,7 +102,7 @@ public class Utils {
 			setDataKey(getNewKey());
 			Log.success("Successfully created data file");
 		} catch (IOException e) {
-			Log.error("Could not create data file: " + e);
+			Log.error("Could not create data file: " + e.getMessage());
 		}
 	}
 	
@@ -119,7 +119,7 @@ public class Utils {
 
 			return modTime == decodedKey;	// check if flags are the same
 		} catch (Exception e) {
-			Log.error("Could not verify data key: " + e);
+			Log.error("Could not verify data key: " + e.getMessage());
 			return false;
 		}
 	}
@@ -161,7 +161,7 @@ public class Utils {
 			
 			data.setLastModified(modTime);	// restore  modification time
 		} catch (Exception e) {
-			Log.error("Could not save data key: " + e);
+			Log.error("Could not save data key: " + e.getMessage());
 		}
 	}
 	
@@ -183,7 +183,7 @@ public class Utils {
 			st.close();
 			return new String[] {key, level};
 		} catch (SQLException e) {
-			throw new Exception("Could not get results from data file");
+			throw new Exception("Could not get results from data file: " + e.getMessage());
 		}
 	}
 	
@@ -234,7 +234,7 @@ public class Utils {
 				Log.success("Successfully downloaded: {" + filename + "}");
 				IS.close();
 			} catch (Exception e) {
-				Log.error(e.toString());
+				Log.error("Could not download file: " + e.getMessage());
 			}
 		} else {
 			Log.success("{" + filename + "} already downloaded");
@@ -245,8 +245,10 @@ public class Utils {
 	public static void randomSwitchTracks(List<Track> tracks) {
 		Random r = new Random();
 		for(Track t : tracks) {
-			if(t.isClickable() && r.nextBoolean()) {
-				t.changeType();
+			if(r.nextBoolean()) {
+				try {
+					t.changeType();
+				} catch (Exception e) {}
 			}
 		}
 	}
@@ -393,7 +395,7 @@ public class Utils {
 	            filenames.add(resource);
 	        }
 		} catch (Exception e) {
-			Log.error(e.toString());
+			Log.error(e.getMessage());
 		}
 	    return filenames;
 	}
