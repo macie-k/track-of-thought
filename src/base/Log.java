@@ -1,11 +1,12 @@
 package base;
 
-import com.diogonunes.jcolor.AnsiFormat;
-import com.diogonunes.jcolor.Attribute;
-import com.diogonunes.jcolor.Ansi;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import com.diogonunes.jcolor.Ansi;
+import com.diogonunes.jcolor.AnsiFormat;
+import com.diogonunes.jcolor.Attribute;
 
 public class Log {
 		

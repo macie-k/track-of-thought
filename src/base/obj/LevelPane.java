@@ -57,12 +57,13 @@ public class LevelPane extends StackPane {
 	}
 			
 	public void fadeHighlight(boolean highlight) {
+		final int duration = 200;
 		if(highlight) {
-			fadeColors(container, 300, COLOR_LEVEL, COLOR_ACCENT);
-			fadeColors(value, 300, COLOR_ACCENT, COLOR_LEVEL);
+			fadeColors(container, duration, COLOR_LEVEL, COLOR_ACCENT);
+			fadeColors(value, duration, COLOR_ACCENT, COLOR_LEVEL);
 		} else {
-			fadeColors(container, 300, COLOR_ACCENT, COLOR_LEVEL);
-			fadeColors(value, 300, COLOR_LEVEL, COLOR_ACCENT);
+			fadeColors(container, duration, COLOR_ACCENT, COLOR_LEVEL);
+			fadeColors(value, duration, COLOR_LEVEL, COLOR_ACCENT);
 		}
 	}
 	

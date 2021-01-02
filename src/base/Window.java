@@ -185,7 +185,9 @@ public class Window extends Application {
 		window.setScene(scene);
 	}
 		
-	public static void main (String[] args) throws FileNotFoundException {		        
+	public static void main (String[] args) throws FileNotFoundException {
+		// enable ANSI colors: https://ss64.com/nt/syntax-ansi.html
+		
 		/* 
 		 	currently available arguments:
 		 		- ide: disables color logging

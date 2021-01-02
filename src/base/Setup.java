@@ -48,9 +48,9 @@ public class Setup {
 			createData();
 		} else {
 			if(isCorrectKey()) {
-				Log.success("Key is correct");
+				Log.success("Data key is correct");
 			} else {
-				Log.warning("Key is incorrect, reseting ...");
+				Log.warning("Data key is incorrect, reseting ...");
 				createData();
 			}
 		}
