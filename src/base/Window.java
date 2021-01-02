@@ -99,7 +99,7 @@ public class Window extends Application {
 			public void handle(long now) {
 				try {
 					/* game timer */
-					if(now - lastUpdate >= 1_000_000) {
+					if(now - lastUpdate >= 17_000_000) {
 						if(balls.size() > 0) {
 							gameHandle(root, balls, pointsText, allNodes);
 							lastUpdate = now;
