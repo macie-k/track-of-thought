@@ -1,12 +1,9 @@
 package base;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +16,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -34,7 +32,7 @@ public class Window extends Application {
 	
 	public static Stage window;		// main stage
 	public static int points = 0;	// points counter
-	public static boolean levelCreator = true;	// temporary variable for level creation
+	public static boolean levelCreator = false;	// temporary variable for level creation
 
 	private static AnimationTimer gameTimer;	// main game timer
 	
@@ -44,9 +42,10 @@ public class Window extends Application {
 	private static boolean skip = false;
 
 	@Override
-	public void start(Stage primaryStage) throws IOException, SQLException {
+	public void start(Stage primaryStage) {
 		window = primaryStage;
 		window.setTitle("Track of thought");
+		window.getIcons().add(new Image("/resources/icon.jpg"));
 		window.setResizable(false);
 		
 		Setup.runSetup();
@@ -100,9 +99,17 @@ public class Window extends Application {
 			public void handle(long now) {
 				try {
 					/* game timer */
-					if(now - lastUpdate >= 17_000_000) {
-						gameHandle(root, balls, pointsText, allNodes);
-						lastUpdate = now;
+					if(now - lastUpdate >= 1_000_000) {
+						if(balls.size() > 0) {
+							gameHandle(root, balls, pointsText, allNodes);
+							lastUpdate = now;
+						} else {
+							gameTimer.stop();
+							if(Utils.unlockLevel((finishedBalls - points) <= 3)) {
+								Log.success("Next level unlocked");
+							}
+							Window.setScene(Scenes.levels());
+						}
 					}
 					
 				} catch (Exception e) {
@@ -178,16 +185,14 @@ public class Window extends Application {
 		window.setScene(scene);
 	}
 		
-	public static void main (String[] args) throws FileNotFoundException, UnsupportedEncodingException {		
-        System.setOut(new PrintStream(System.out, true, "UTF-8"));
-         
-		/* parses arguments */
+	public static void main (String[] args) throws FileNotFoundException {		        
+		/* 
+		 	currently available arguments:
+		 		- ide: disables color logging
+		 		- log: enables logging to file for debugging 
+		 		- create: allows to create new levels
+		*/
 		if(args.length>0) {
-			/* 
-			 	currently available arguments:
-			 		- log: enables logging to file for debugging 
-			 		- create: allows to create new levels
-			*/
 			for(String arg : args) {
 				switch(arg) {
 					case "--ide":
@@ -209,12 +214,6 @@ public class Window extends Application {
 				}
 			}
 		}
-		try {
-			launch(args);
-		} catch(Exception e) {
-			Log.error(e.toString());
-		}
+		launch(args);
 	}
-	
-
 }

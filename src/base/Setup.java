@@ -1,8 +1,6 @@
 package base;
 
 import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
 
 import javafx.scene.text.Font;
 
@@ -14,7 +12,7 @@ import static base.Utils.isCorrectKey;
 
 public class Setup {
 			
-	static void runSetup() throws IOException, SQLException {	
+	static void runSetup() {	
 		Log.success("Detected OS: " + Utils.OS);
 		
 		for(String dir : PATHS_TO_LOAD) {		// create all necessary folders if dont exist
@@ -37,14 +35,14 @@ public class Setup {
 		/* load each font */
 		for(String font : fontNames) {
 			try {
-				Font.loadFont(Setup.class.getResourceAsStream("/resources/fonts/" + font), 20);
+				Font.loadFont(Setup.class.getResourceAsStream("/resources/data/fonts/" + font), 20);
 			} catch (Exception e) {
 				Log.error(String.format("Unable to load font {%s}: {%s}", font, e));
 			}
 		}		
 	}
 	
-	private static void checkProgress() throws IOException, SQLException {
+	private static void checkProgress() {
 		if(!new File(PATH_PUBLIC_DATA).exists()) {
 			Log.warning("Progress data file doesn't exist, creating ...");
 			createData();
@@ -56,6 +54,5 @@ public class Setup {
 				createData();
 			}
 		}
-		
 	}
 }

@@ -1,9 +1,14 @@
 package base.obj;
 
+import javafx.animation.FillTransition;  
+import javafx.scene.Cursor;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import static base.Utils.COLOR_ACCENT;
 import static base.Utils.COLOR_LEVEL;
@@ -16,48 +21,56 @@ public class LevelPane extends StackPane {
 	private final Rectangle container;	// rectangle button
 	private final Text value;			// level number
 			
-	public LevelPane(int x, int y, String lvl, boolean premade) {
+	public LevelPane(int x, int y, String lvl, boolean premade, boolean enabled) {
 		setTranslateX(x);
 		setTranslateY(y);
 		
 		container = new Rectangle(97, 70, COLOR_LEVEL);
-		container.getStyleClass().add("container");
+		container.getStyleClass().add("container");		
 		
 		String level = String.valueOf(lvl);
 		value = new Text(level);
 		value.getStyleClass().add("level-number");
 		value.setFont(Font.font("Poppins Light"));
-		
+				
+		if(enabled) {
+			container.setCursor(Cursor.HAND);
+			value.setCursor(Cursor.HAND);
+			setOnMouseEntered(event -> fadeHighlight(true));
+			setOnMouseExited(event -> fadeHighlight(false));
+			setOnMouseClicked(event -> {
+				if(Window.levelCreator) {
+					Window.setScene(Scenes.createLevel());
+				} else {
+					Window.game(Scenes.gameTrack(lvl, premade));
+				}
+			});
+		} else {
+			container.getStyleClass().add("container-disabled");
+			value.getStyleClass().add("level-number-disabled");
+		}
 		getChildren().addAll(container, value);
-		
-		setOnMouseEntered(event -> setHiglight(true));
-		setOnMouseExited(event -> setHiglight(false));
-		setOnMouseClicked(event -> {
-			if(Window.levelCreator) {
-				Window.setScene(Scenes.createLevel());
-			} else {
-				Window.game(Scenes.gameTrack(lvl, premade));
-//				try { Window.game(Scenes.gameTrack(lvl, premade)); } catch (Exception e) {
-//					Log.error(String.format("Something's wrong with the selected level [%s]", level));
-//					Log.error(e.toString());
-//				}
-			}
-		});
 	}
-	
+		
 	public String getValue() {
-		return this.value.getText();
+		return value.getText();
 	}
 			
-	public void setHiglight(boolean highlight) {
+	public void fadeHighlight(boolean highlight) {
 		if(highlight) {
-			container.setStyle("-fx-cursor: hand;");
-			container.setFill(COLOR_ACCENT);
-			value.setFill(COLOR_LEVEL);
+			fadeColors(container, 300, COLOR_LEVEL, COLOR_ACCENT);
+			fadeColors(value, 300, COLOR_ACCENT, COLOR_LEVEL);
 		} else {
-			container.setStyle("-fx-cursor: default;");
-			container.setFill(COLOR_LEVEL);
-			value.setFill(COLOR_ACCENT);
+			fadeColors(container, 300, COLOR_ACCENT, COLOR_LEVEL);
+			fadeColors(value, 300, COLOR_LEVEL, COLOR_ACCENT);
 		}
+	}
+	
+	private void fadeColors(Shape shape, int duration, Color from, Color to) {
+		FillTransition ft = new FillTransition(Duration.millis(duration), shape, from, to);
+		ft.setOnFinished(e -> {
+			shape.setFill(to);
+		});
+		ft.play();
 	}
 }

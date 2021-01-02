@@ -39,7 +39,7 @@ public class Utils {
 	public static final String PATH_ROOT = WINDOWS ? (System.getenv("APPDATA") + "/track_of_thought/") : (System.getenv("HOME") + "./local/share/track_of_thought/");
 	public static final String PATH_LEVELS = PATH_ROOT + "levels/";
 	public static final String PATH_LEVELS_CUSTOM = PATH_LEVELS + "custom/";
-	public static final String PATH_TEMPLATE_DATA = "/resources/data";
+	public static final String PATH_TEMPLATE_DATA = "/resources/data/data";
 	public static final String PATH_PUBLIC_DATA = PATH_ROOT + "data";
 	public static final String[] PATHS_TO_LOAD = {PATH_ROOT, PATH_LEVELS, PATH_LEVELS_CUSTOM};
 
@@ -63,6 +63,26 @@ public class Utils {
 			"red", "green", "blue", "cyan", "yellow", "pink",
 			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o"
 	});
+	
+	public static boolean unlockLevel(boolean unlock) {
+		if(unlock) {
+			try {
+				final int currentLevel = getProgress();
+				if(currentLevel < 14) {
+					final int nextLevel = currentLevel + 1;
+					setDataProgress(nextLevel);
+					return true;
+				} else {
+					return false;
+				}
+			} catch (Exception e) {
+				System.out.println("Could not unlock level: " + e);
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
 		
 	/* creates data file and sets new key */
 	public static void createData() {		
@@ -99,7 +119,7 @@ public class Utils {
 
 			return modTime == decodedKey;	// check if flags are the same
 		} catch (Exception e) {
-			Log.error("Could not verify key: " + e);
+			Log.error("Could not verify data key: " + e);
 			return false;
 		}
 	}
@@ -116,20 +136,16 @@ public class Utils {
 	}
 	
 	/* sets data progress value */
-	public static void setDataProgress(int level) {
+	public static void setDataProgress(int level) throws SQLException {
 		final File data = new File(PATH_PUBLIC_DATA);	// get data file
 		final long modTime = data.lastModified();		// get modification time
 		
-		try {
-			/* execute query to set the level value */
-			Statement st = getDataStatement(PATH_PUBLIC_DATA);
-				st.executeUpdate("UPDATE data SET level = " + level);
-				st.close();
-				
-			data.setLastModified(modTime);	// restore  modification time
-		} catch (SQLException e) {
-			Log.error("Could not save progress: " + e);
-		}
+		/* execute query to set the level value */
+		Statement st = getDataStatement(PATH_PUBLIC_DATA);
+			st.executeUpdate(String.format("UPDATE data SET progress = '%s'", level));
+			st.close();
+			
+		data.setLastModified(modTime);	// restore  modification time
 	}
 	
 	/* sets data key value */
@@ -145,8 +161,13 @@ public class Utils {
 			
 			data.setLastModified(modTime);	// restore  modification time
 		} catch (Exception e) {
-			Log.error("Could not save key: " + e);
+			Log.error("Could not save data key: " + e);
 		}
+	}
+	
+	/* returns progress value */
+	public static int getProgress() throws Exception {
+		return Integer.valueOf(getDataResults()[1]);
 	}
 	
 	/* returns key & progress values */
@@ -162,7 +183,7 @@ public class Utils {
 			st.close();
 			return new String[] {key, level};
 		} catch (SQLException e) {
-			throw new Exception("Error getting results from data file");
+			throw new Exception("Could not get results from data file");
 		}
 	}
 	

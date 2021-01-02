@@ -18,3 +18,12 @@
 	-fx-fill: #C7B59D;
 }
 
+.level-number-disabled {
+	-fx-fill: #939393;
+}
+
+.container-disabled {
+	-fx-stroke: #939393;
+	-fx-fill: #242424;
+}
+

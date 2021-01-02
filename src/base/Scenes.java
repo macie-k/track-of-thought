@@ -50,7 +50,7 @@ public class Scenes {
 	private static List<String> allProperties;
 	private static Map<String, String> currentProperties = new HashMap<>();
 	private static ArrayList<Map<String, String>> listMap = new ArrayList<>();
-	private static int objectIndex = 0;
+	private static  int objectIndex = 0;
 	private static Text menuObjectArrowRight, menuObjectArrowLeft;
 	
 	/*
@@ -72,9 +72,14 @@ public class Scenes {
 			title.setId("title");
 			title.setFont(Font.font("Hind Guntur Bold"));
 			
+		int unlocked = 3;
+		try {
+			unlocked = Utils.getProgress();
+		} catch (Exception e) {}
+		
 		for(int i=0; i<12; i++) {
 			String level = String.valueOf(i+3);
-			root.getChildren().add(new LevelPane(i<=5 ? 75+i*120: 75+(i-6)*120, i<=5 ? 270 : 370, level, true));
+			root.getChildren().add(new LevelPane((i<=5 ? 75+i*120: 75+(i-6)*120), (i<=5 ? 270 : 370), level, true, (i+3) <= unlocked));
 		}
 		
 		titleContainer.getChildren().add(title);
@@ -84,36 +89,37 @@ public class Scenes {
 	
 	public static FullTrack gameTrack(String level, boolean premade) {
 		
-		String path = premade ? "/resources/levels/" : PATH_LEVELS_CUSTOM;
+		final String path = premade ? "/resources/data/levels/" : PATH_LEVELS_CUSTOM;
 		
-		int levelCounter = level.equals("3") ? 3 : 5;	// all levels except 3rd have 5 versions
-		int random = new Random().nextInt(levelCounter)+1;
-		String levelName = String.format("%s-%d", level, random);
-		InputStream stream = Scenes.class.getResourceAsStream(path + levelName + ".level");
+		final int levelCounter = level.equals("3") ? 3 : 5;	// all levels except 3rd have 5 versions
+		final int random = new Random().nextInt(levelCounter)+1;
+		final String levelName = String.format("%s-%d", level, random);
+		final InputStream stream = Scenes.class.getResourceAsStream(path + levelName + ".level");
+		
 		Log.success("Selected level: " + levelName);
 
-		List<Station> stations = new ArrayList<>();
-		List<Track> tracks = new ArrayList<>();
-		List<Ball> balls = new ArrayList<>();
-		List<String> userColors = new ArrayList<>();
+		final List<Station> stations = new ArrayList<>();
+		final List<Track> tracks = new ArrayList<>();
+		final List<Ball> balls = new ArrayList<>();
+		final List<String> userColors = new ArrayList<>();
 
 		int bordersAmount = 0;
 		
-		JSONObject json = new JSONObject(new JSONTokener(stream));
-		JSONArray stationsJson = json.getJSONArray("stations");
-		JSONArray tracksJson = json.getJSONArray("tracks");
-		JSONObject ballsJson = json.getJSONObject("balls");
+		final JSONObject json = new JSONObject(new JSONTokener(stream));
+		final JSONArray stationsJson = json.getJSONArray("stations");
+		final JSONArray tracksJson = json.getJSONArray("tracks");
+		final JSONObject ballsJson = json.getJSONObject("balls");
 		final int ballsAmount = ballsJson.getInt("amount");
 		
 		Station startStation = null;
 		for(Object station : stationsJson) {
-			JSONObject obj = (JSONObject) station;
+			final JSONObject obj = (JSONObject) station;
 			
-			boolean start = obj.get("type").equals("start");
-			boolean border = obj.getString("color").contains("+");
-			String color = start ? "black" : obj.getString("color");
-			int column = obj.getInt("column");
-			int row = obj.getInt("row");
+			final boolean start = obj.get("type").equals("start");
+			final boolean border = obj.getString("color").contains("+");
+			final String color = start ? "black" : obj.getString("color");
+			final int column = obj.getInt("column");
+			final int row = obj.getInt("row");
 			int exit;
 			
 			if(start) {
@@ -138,7 +144,7 @@ public class Scenes {
 		final int lvl = stations.size()-1;
 		
 		/* Remove duplicates from stations */
-		Set<String> set = new HashSet<>(userColors);
+		final Set<String> set = new HashSet<>(userColors);
 		userColors.clear();
 		userColors.addAll(set);
 		
@@ -173,15 +179,15 @@ public class Scenes {
 		}
 						
 		for(Object track : tracksJson) {
-			JSONObject obj = (JSONObject) track;
+			final JSONObject obj = (JSONObject) track;
 			
-			boolean switchable = obj.getBoolean("switch");
-			String type = obj.getString("type");
-			int column = obj.getInt("column");
-			int row = obj.getInt("row");
-			int origin = Utils.parseDirectionToInt(obj.getString("start"));
-			int end1 = Utils.parseDirectionToInt(obj.getString("end1"));
-			int end2 = switchable ? Utils.parseDirectionToInt(obj.getString("end2")) : -1;
+			final boolean switchable = obj.getBoolean("switch");
+			final String type = obj.getString("type");
+			final int column = obj.getInt("column");
+			final int row = obj.getInt("row");
+			final int origin = Utils.parseDirectionToInt(obj.getString("start"));
+			final int end1 = Utils.parseDirectionToInt(obj.getString("end1"));
+			final int end2 = switchable ? Utils.parseDirectionToInt(obj.getString("end2")) : -1;
 			
 			tracks.add(new Track(GRID[column][row].getXY(), type, origin, end1, end2));							
 		}
@@ -201,9 +207,9 @@ public class Scenes {
 		
 	public static void drawFullPath(Track[] tracks, Pane root) {
 		for(Track track : tracks) {
-			double[][] path = track.getPath();
+			final double[][] path = track.getPath();
 			for(int j=0; j<50; j++) {
-				Rectangle r = new Rectangle(1, 1);
+				final Rectangle r = new Rectangle(1, 1);
 					r.setTranslateX(path[0][j]);
 					r.setTranslateY(path[1][j]);
 					r.setFill(Color.rgb(4*j, 3*j, 2*j));
@@ -213,11 +219,11 @@ public class Scenes {
 	}
 	
 	public static Scene createLevel() {
-		Pane root = getRootPane();
+		final Pane root = getRootPane();
 		
-		String[] menuObjects= {"track", "station"};										// available objects as menu "pages"
-		JSONObject jsonObjects = Utils.getJsonFromFile("/resources/structure.json");	// get general object from structure.json
-		List<GridSquare> grid = new ArrayList<GridSquare>();							// list containing all gridSquares
+		final String[] menuObjects= {"track", "station"};										// available objects as menu "pages"
+		final JSONObject jsonObjects = Utils.getJsonFromFile("/resources/utils/structure.json");	// get general object from structure.json
+		final List<GridSquare> grid = new ArrayList<GridSquare>();							// list containing all gridSquares
 		
 		createObjectStr = menuObjects[objectIndex];					// current object as string
 		createObject = jsonObjects.getJSONObject(createObjectStr);	// current object as json object
@@ -298,8 +304,8 @@ public class Scenes {
 			levelNameLabel.setFont(Font.font("Poppins Light", 17));
 			levelNameLabel.setFill(Color.WHITE);
 			
-		Color COLOR_DISABLED = Color.web("#939598");
-		Color COLOR_ENABLED = Color.web("#5beb82");
+		final Color COLOR_DISABLED = Color.web("#939598");
+		final Color COLOR_ENABLED = Color.web("#5beb82");
 			
 		TextField levelName = new TextField();
 		StackPane CONFIRM_CREATE = new StackPane();
@@ -414,7 +420,7 @@ public class Scenes {
 		/* create visible grid and assign click listener */
 		for(int i=0; i<15; i++) {
 			for(int j=0; j<9; j++) {
-				GridSquare gridSq = new GridSquare(i, j, true);
+				final GridSquare gridSq = new GridSquare(i, j, true);
 				gridSq.setOnMouseClicked(e -> {
 					/* save X and Y of current square */
 					createX = gridSq.getXY()[0];
@@ -499,7 +505,7 @@ public class Scenes {
 	/* checks if given child should be cleared from level creator */
 	private static boolean shouldClear(Node child) {
 		String aH = child.getAccessibleHelp();
-		/* clear only Tracks, Stations, and Tracks' Paths */
+		/* clear only Tracks, Stations, and Tracks' paths */
 		return 	(child instanceof Track) ||
 				(child instanceof Station) ||
 				(aH != null) && (aH.equals("debugdraw"));
@@ -507,76 +513,76 @@ public class Scenes {
 		
 	/* creates temporary object for createLevel() scene */
 	private static void addNewObject(Pane root, Map<String, String> obj, StackPane menu) {
-		String object = obj.get("object");						// get the object type
-		int[] xy = {(int)createX, (int)createY};		// get the coordinates
+		final String object = obj.get("object");				// get the object type
+		final int[] xy = {(int)createX, (int)createY};		// get the coordinates
 		
 		boolean success = true;		// assume adding was successful -> overwrite later if otherwise
 		switch(object) {
 			case "track": {
-					/* get all track's properties */
-					String type = obj.get("type");
-					boolean switchable = obj.get("switch").equals("true");
-					int start = Utils.parseDirectionToInt(obj.get("start"));
-					int end1 = Utils.parseDirectionToInt(obj.get("end1"));
-					int end2 = switchable ? Utils.parseDirectionToInt(obj.get("end2")) : -1;
-					
-					/* try to create the track -> if error is caught don't add to list */
-					try {
-						Track t = new Track(xy, type, start, end1, end2);
-						
-						/* test second type */
-						if(switchable) {
-							t.changeType();
-							t.changeType();
-						}
-
-						t.addDebugPath(root);			// comment to hide PATH DRAWING - can get annoying when deleting a lot
-						
-						/* listener to remove object and change type if clickable */
-						t.setOnMouseClicked(e -> {
-							/* if scroll is cliked remove else try to change type */
-							if(e.getButton() == MouseButton.MIDDLE) {
-								root.getChildren().remove(t);
-								t.removeDebugPath(root);
-								listMap.remove(obj);
-							} else {
-								if(t.isClickable()) {
-									t.removeDebugPath(root);
-									t.changeType();
-									t.addDebugPath(root);
-									menu.toFront();
-								}
-							}
-						});
-						root.getChildren().add(t);
-					} catch (Exception e) {
-						success = false;										// overwrite success boolean
-						Log.error(e.toString());
-						Log.warning("Could not add object, check parameters");	// log the error
-					}
-				} break;
+				/* get all track's properties */
+				final String type = obj.get("type");
+				final boolean switchable = obj.get("switch").equals("true");
+				final int start = Utils.parseDirectionToInt(obj.get("start"));
+				final int end1 = Utils.parseDirectionToInt(obj.get("end1"));
+				final int end2 = switchable ? Utils.parseDirectionToInt(obj.get("end2")) : -1;
 				
-			case "station": {
-					/* same as above */
-					String type = obj.get("type");
-					boolean start = type.equals("start");
-					int exit = start ? Utils.parseDirectionToInt(obj.get("exit")) : -1;
-					String color = start ? "black" : obj.get("color");
-					try {
-						Station s = new Station(xy, color, exit);
-						s.setOnMouseClicked(e -> {
-							if(e.getButton() == MouseButton.MIDDLE) {
-								root.getChildren().remove(s);
-								listMap.remove(obj);
-							}
-						});
-						root.getChildren().add(s);
-					} catch (Exception e) {
-						success = false;
-						Log.error(e.toString());
-						Log.warning("Could not add object, check parameters");
+				/* try to create the track -> if error is caught don't add to list */
+				try {
+					Track t = new Track(xy, type, start, end1, end2);
+					
+					/* test second type */
+					if(switchable) {
+						t.changeType();
+						t.changeType();
 					}
-				} break;
+
+					t.addDebugPath(root);	// comment to hide PATH DRAWING - can get annoying when deleting a lot
+					
+					/* listener to remove object and change type if clickable */
+					t.setOnMouseClicked(e -> {
+						/* if scroll is cliked remove else try to change type */
+						if(e.getButton() == MouseButton.MIDDLE) {
+							root.getChildren().remove(t);
+							t.removeDebugPath(root);
+							listMap.remove(obj);
+						} else {
+							if(t.isClickable()) {
+								t.removeDebugPath(root);
+								t.changeType();
+								t.addDebugPath(root);
+								menu.toFront();
+							}
+						}
+					});
+					root.getChildren().add(t);
+				} catch (Exception e) {
+					success = false;										// overwrite success boolean
+					Log.error(e.toString());
+					Log.warning("Could not add object, check parameters");	// log the error
+				}
+			} break;
+			
+			case "station": {
+				/* same as above */
+				String type = obj.get("type");
+				boolean start = type.equals("start");
+				int exit = start ? Utils.parseDirectionToInt(obj.get("exit")) : -1;
+				String color = start ? "black" : obj.get("color");
+				try {
+					Station s = new Station(xy, color, exit);
+					s.setOnMouseClicked(e -> {
+						if(e.getButton() == MouseButton.MIDDLE) {
+							root.getChildren().remove(s);
+							listMap.remove(obj);
+						}
+					});
+					root.getChildren().add(s);
+				} catch (Exception e) {
+					success = false;
+					Log.error(e.toString());
+					Log.warning("Could not add object, check parameters");
+				}
+			} break;
 		}
 		if(success) {
 			listMap.add(obj);
@@ -603,14 +609,14 @@ public class Scenes {
 			
 			/* iterate over all maps in list of maps */
 			for(Map<String, String> m : listMap) {
-				String name = m.get("object");		// get the object
-				boolean startStation = false;		// assume it's not starting station -> overwrite later if otherwise
+				final String name = m.get("object");	// get the object
+				boolean startStation = false;			// assume it's not starting station -> overwrite later if otherwise
 				
 				List<String> keys = new ArrayList<String>();					// initialize list of keys
 				m.entrySet().forEach(entry -> keys.add(entry.getKey()));		// fill it with all keys from the map
 				keys.removeIf(el -> el.equals(name) || el.equals("object"));	// remove unnecessary information
 
-				JSONObject currObj = new JSONObject();							// initialize object of properties
+				final JSONObject currObj = new JSONObject();					// initialize object of properties
 				for(String key : keys) {										// iterate over all keys
 					if(key.equals("type") && m.get(key).equals("start")) {		// overwrite startStation boolean if needed
 						startStation = true;
@@ -618,7 +624,7 @@ public class Scenes {
 					if(key.equals("column") || key.equals("row")) {
 						currObj.put(key, Integer.valueOf(m.get(key)));
 					} else {
-						currObj.put(key, m.get(key));								// put key and its value from map to current json object
+						currObj.put(key, m.get(key));							// put key and its value from map to current json object
 					}
 				}
 				if(startStation) {
@@ -628,15 +634,15 @@ public class Scenes {
 			}
 			saver.println(obj);								// print everything to file
 			saver.close();									// close PrintWriter
-		} catch (FileNotFoundException e1) {
-			Log.error(e1.toString());
+		} catch (FileNotFoundException e) {
+			Log.error(e.toString());
 		}
 	}
 
 	/* returns scene attached to a .css file */
 	public static Scene getSceneWithCSS(Pane root, String cssFile) {
 		Scene scene = new Scene(root);
-		scene.getStylesheets().addAll(Window.class.getResource("/resources/styles/" + cssFile).toExternalForm());
+		scene.getStylesheets().addAll(Window.class.getResource("/resources/data/styles/" + cssFile).toExternalForm());
 		return scene;
 	}
 		
