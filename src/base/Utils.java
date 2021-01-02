@@ -36,7 +36,7 @@ public class Utils {
 	public static final String OS = System.getProperty("os.name").toLowerCase();	// get current operating system
 	public static final boolean WINDOWS = !OS.equals("linux");
 	
-	public static final String PATH_ROOT = System.getenv(WINDOWS ? "APPDATA" : "HOME") + "/.Track of thought/";
+	public static final String PATH_ROOT = WINDOWS ? (System.getenv("APPDATA") + "/track_of_thought/") : (System.getenv("HOME") + "./local/share/track_of_thought/");
 	public static final String PATH_LEVELS = PATH_ROOT + "levels/";
 	public static final String PATH_LEVELS_CUSTOM = PATH_LEVELS + "custom/";
 	public static final String PATH_TEMPLATE_DATA = "/resources/data";
@@ -69,7 +69,8 @@ public class Utils {
 		try {
 			/* copy template data to byte array */
 			InputStream privateData = Setup.class.getResourceAsStream(PATH_TEMPLATE_DATA);
-				byte[] privateBytes = privateData.readAllBytes();
+				byte[] privateBytes = new byte[privateData.available()];
+				privateData.read(privateBytes);
 				privateData.close();
 
 			/* write byte array to data file in game folder */

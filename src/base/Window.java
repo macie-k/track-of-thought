@@ -1,6 +1,7 @@
 package base;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -177,7 +178,9 @@ public class Window extends Application {
 		window.setScene(scene);
 	}
 		
-	public static void main (String[] args) throws FileNotFoundException {		
+	public static void main (String[] args) throws FileNotFoundException, UnsupportedEncodingException {		
+        System.setOut(new PrintStream(System.out, true, "UTF-8"));
+         
 		/* parses arguments */
 		if(args.length>0) {
 			/* 
@@ -187,6 +190,10 @@ public class Window extends Application {
 			*/
 			for(String arg : args) {
 				switch(arg) {
+					case "--ide":
+						Log.IDE = true;
+						Log.success("IDE mode enabled");
+						break;
 					case "--create":
 						levelCreator = true;
 						Log.success("Creator mode enabled");
