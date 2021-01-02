@@ -4,7 +4,9 @@ Free game for **training divided attention**
 <br>  
 
 ## Overview
-![preview](https://user-images.githubusercontent.com/25122875/103467666-a91ef480-4d51-11eb-9a19-7948ae0e7f6f.gif)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/25122875/103467666-a91ef480-4d51-11eb-9a19-7948ae0e7f6f.gif">
+</p>
 
 <br>
 
