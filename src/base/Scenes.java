@@ -94,6 +94,7 @@ public class Scenes {
 		final int levelCounter = level.equals("3") ? 3 : 5;	// all levels except 3rd have 5 versions
 		final int random = new Random().nextInt(levelCounter)+1;
 		final String levelName = String.format("%s-%d", level, random);
+//		final String levelName = "8-5";
 		final InputStream stream = Scenes.class.getResourceAsStream(path + levelName + ".level");
 		
 		Log.success("Selected level: " + levelName);
@@ -196,7 +197,7 @@ public class Scenes {
 		balls.add(new Ball(startCoords, tracks, globalDelay));
 		globalDelay += (14 - lvl)/2;
 		for(int i=1; i<ballsAmount; i++) {
-			final int delay = r.nextInt(2)+3;
+			final int delay = r.nextInt(3)+3;
 			globalDelay += delay;
 			balls.add(new Ball(startCoords, tracks, globalDelay));
 		}
@@ -570,6 +571,9 @@ public class Scenes {
 				String color = start ? "black" : obj.get("color");
 				try {
 					Station s = new Station(xy, color, exit);
+					s.setBorder(color.contains("+"));
+					s.initShape();
+					s.setColor(color);
 					s.setOnMouseClicked(e -> {
 						if(e.getButton() == MouseButton.MIDDLE) {
 							root.getChildren().remove(s);

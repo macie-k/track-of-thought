@@ -197,9 +197,9 @@ public class Window extends Application {
 		if(args.length>0) {
 			for(String arg : args) {
 				switch(arg) {
-					case "--ide":
+					case "--nocolors":
 						Log.IDE = true;
-						Log.success("IDE mode enabled");
+						Log.success("Colored logging is disabled");
 						break;
 					case "--create":
 						levelCreator = true;

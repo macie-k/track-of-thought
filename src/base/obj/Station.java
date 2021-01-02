@@ -122,7 +122,8 @@ public class Station extends StackPane {
 		Circle smallCircle = new Circle(xS, yS, 10, Color.TRANSPARENT);
 		Shape finalShape = Path.subtract(first, smallCircle);
 			finalShape.setFill(Color.web("#262626"));
-
+			finalShape.setStroke(Color.web("#B1AD9F"));
+			finalShape.setStrokeWidth(1);
 		setAlignment(align);
 		return finalShape;
 	}
