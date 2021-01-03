@@ -207,12 +207,12 @@ public class Scenes {
 		}
 				
 		int globalDelay = 2;
-		balls.add(new Ball(startCoords, clickableTracks, globalDelay));
+		balls.add(new Ball(startCoords, globalDelay));
 		globalDelay += (14 - lvl)/2;
 		for(int i=1; i<ballsAmount; i++) {
 			final int delay = r.nextInt(3)+3;
 			globalDelay += delay;
-			balls.add(new Ball(startCoords, clickableTracks, globalDelay));
+			balls.add(new Ball(startCoords, globalDelay));
 		}
 		
 		Utils.randomSwitchTracks(clickableTracks);

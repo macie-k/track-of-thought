@@ -1,10 +1,7 @@
 package base.obj;
 
-import java.util.List;
-
 import base.Log;
 import base.Utils;
-import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
@@ -21,25 +18,24 @@ public class Ball extends Circle {
 	private boolean active = false;
 	private Color color;
 	private String colorStr;		// english name of the color (optionally with border indicator '+O')
-	private Track currentTrack;
-	private List<Track> tracks;
-
-//	private double[][] finalTrackPath;
+	
+	private double[][] finalTrackPath;
+	private Track finalTrack;	
 	private int finalCounter = 0;
 	private int finalDirection;
 	private boolean finalStation = false;
+	private boolean dontChange;
 	
 	
-	public Ball(double[] xy, List<Track> tracks, int delay) {
-		this((int)xy[0], (int)xy[1], 10, tracks, delay, false);
+	public Ball(double[] xy, int delay) {
+		this((int)xy[0], (int)xy[1], 10, delay, false);
 	}
 	
-	public Ball(int x, int y, int radius, List<Track> tracks, int delay, boolean active) {
+	public Ball(int x, int y, int radius, int delay, boolean active) {
 		super(radius);
 		
 		this.column = getColRowFromXY(x);
 		this.row = getColRowFromXY(y);
-		this.tracks = tracks;
 		this.delay = delay;
 		
 		setCenterX(x + 15);
@@ -47,26 +43,8 @@ public class Ball extends Circle {
 		setFill(Color.TRANSPARENT);
 		getStyleClass().add("ball");
 		setStrokeType(StrokeType.INSIDE);
-				
-		/* event listeners to change track when ball above it is clicked */
-		setOnMouseEntered(e -> modifyTrackOnHover());
-		setOnMouseMoved(e -> modifyTrackOnHover());
-		setOnMouseClicked(e -> {
-			if(currentTrack != null && currentTrack.isClickable()) {
-				try {
-					currentTrack.changeType();
-				} catch (Exception e1) {}
-			}
-		});
 		
-		/* reset stuff when user hovers out */
-		setOnMouseExited(e -> {
-			setCursor(Cursor.DEFAULT);
-			if(currentTrack != null) {
-				currentTrack.setId("");
-			}
-			this.currentTrack = null;
-		});
+		setMouseTransparent(true);
 	}
 		
 	/* all the logic behind the ball's movement */
@@ -88,31 +66,41 @@ public class Ball extends Circle {
 			}
 			return;
 		}
-				
+								
 		double[][] path = track.getPath();	// get path xy coordinates from current track
+		
+		/* 10 last pixels of path are unchangeable - so set the final values at 11th pixel */
+		if(index == path[0].length-11) {
+			dontChange = true;
+			finalTrackPath = path;
+			try {
+				finalTrack = new Track(track);
+			} catch (Exception e) {}
+		}
 
 		/* if the ball is on last pixel of the path */
 		if(index == path[0].length-1) {	
-			int nextCol = track.getNextTrackColumn();	// get next column
-			int nextRow = track.getNextTrackRow();		// get next row
+			int nextCol = finalTrack.getNextTrackColumn();	// get next column
+			int nextRow = finalTrack.getNextTrackRow();		// get next row
 			
-			track = nodes.findTrack(nextCol, nextRow);	// get a corresponding track
+			Track newTrack = nodes.findTrack(nextCol, nextRow);		// get a corresponding track
 			
 			/* if there is no next track available */
-			if(track == null) {
+			if(newTrack == null) {
 				finalStation = true;									// set the flag
 				finalDirection = calcFinalDirection(nextCol, nextRow);	// calculate direction
 				return;
 			}
-			path = track.getPath();			// overwrite path with new one					
-			column = track.getColumn();		// overwrite ball column
-			row = track.getRow();			// overwrite ball row
-			index = -1;						// reset index
+			path = newTrack.getPath();			// overwrite path with new one					
+			column = newTrack.getColumn();		// overwrite ball column
+			row = newTrack.getRow();			// overwrite ball row
+			index = -1;							// reset index
+			dontChange = false;
 		}
 		
 		/* get new ball coordinates and move to them */
-		double x = path[0][index+1];
-		double y = path[1][index+1];
+		double x = dontChange ? finalTrackPath[0][index+1] : path[0][index+1];
+		double y = dontChange ? finalTrackPath[1][index+1] : path[1][index+1];
 		setCenterX(x);
 		setCenterY(y);
 		index++;
@@ -186,16 +174,6 @@ public class Ball extends Circle {
 			);
 	}
 	
-	/* check if ball is currently on clickable track */
-	private Track getCurrentTrack() {
-		for(Track track : tracks) {
-			if(track.getColumn() == getColumn() && track.getRow() == getRow()) {
-				return track;
-			}
-		}
-		return null;
-	}
-	
 	/* returns a direction the ball should move at the beginning */
 	private void moveNextDirection(int direction) {
 		switch(direction) {
@@ -233,17 +211,5 @@ public class Ball extends Circle {
 			return 0;
 		}
 		return -1;
-	}
-	
-	/* when ball is hovered while being on a changable track modifies that track */
-	private void modifyTrackOnHover() {
-		Track currentTrack = getCurrentTrack();
-		this.currentTrack = currentTrack;
-		
-		/* if the ball is over a clickable track allow to change it */
-		if(currentTrack != null && currentTrack.isClickable()) {
-			setCursor(Cursor.HAND);
-			currentTrack.setId("ball-hovered");
-		}
 	}
 }

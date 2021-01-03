@@ -14,9 +14,7 @@ import static base.Utils.getColRowFromXY;
 import static base.Utils.getXYFromRowCol;
 
 public class Track extends StackPane {
-	
-	public final static Integer NULL = null;
-	
+		
 	private final static double PI = Math.PI;
 	private final static double fi0 = PI/100;
 	private final static String S = "straight";
@@ -35,7 +33,7 @@ public class Track extends StackPane {
 	private int row;
 	private int quarter;
 	private boolean clickable;
-	
+		
 		
 	/* doesn't require endSwitch parameter if not clickable */
 	public Track(int [] xy, String type, int origin, int end) throws Exception {
@@ -45,6 +43,11 @@ public class Track extends StackPane {
 	/* translates xy array if endSwitch provided -> is clickable */
 	public Track(int[] xy, String type, int origin, int end1, int end2) throws Exception {
 		this(xy[0], xy[1], type, origin, end1, (end2 != -1) ? end2 : end1, end2 != -1);
+	}
+	
+	/* for creating a copy */
+	public Track(Track t) throws Exception {		
+		this(getXYFromRowCol(t.getColumn()), getXYFromRowCol(t.getRow()), t.getType(), t.getOrigin(), t.getEnd1(), t.getEnd2(), t.isClickable());
 	}
 	
 	public Track(int x, int y, String type, int origin, int end1, int end2, boolean clickable) throws Exception {
@@ -74,10 +77,17 @@ public class Track extends StackPane {
 		
 		if(clickable) {
 			getStyleClass().add("clickable");
-			setOnMouseClicked(e -> {
-				try {
-					changeType();
-				} catch (Exception e1) {}
+			
+			/* Events to change the track even when covered by a ball, but not when mouse was dragged away */
+			setOnMouseReleased(e -> {
+				final double dropColumn = getColRowFromXY(e.getSceneX());
+				final double dropRow = getColRowFromXY(e.getSceneY());
+				
+				if(dropColumn == getColumn() && dropRow == getRow()) {
+					try {
+						changeType();
+					} catch (Exception e1) {}
+				}
 			});
 		}
 	}
@@ -97,16 +107,19 @@ public class Track extends StackPane {
 	}
 	
 	public double[][] getPath() {
-		double[][] pathXY = new double[2][50];
+		final int size = 30;
+		final double ratio = 50.0/size;
+		
+		double[][] pathXY = new double[2][size+1];
 		final int originX = getOriginXY()[0];
 		final int originY = getOriginXY()[1];
 		
 		if(type.equals(S)) {
 			switch(origin + currentEnd) {
 				case 2:
-					for(int i=0; i<50; i++) {
+					for(int i=0; i<=size; i++) {
 						double x = originX + 25;
-						double y = originY + i;
+						double y = originY + ratio*i;
 						
 						pathXY[0][i] = x;
 						pathXY[1][i] = y;
@@ -116,8 +129,8 @@ public class Track extends StackPane {
 					}
 					break;
 				case 4:
-					for(int i=0; i<50; i++) {
-						double x = originX + i;
+					for(int i=0; i<=size; i++) {
+						double x = originX + ratio*i;
 						double y = originY + 25;
 						
 						pathXY[0][i] = x;
@@ -138,9 +151,9 @@ public class Track extends StackPane {
 				fi *= -1;
 			}
 
-			for(int i=0; i<50; i++) {
-				double x = originX + 25*Math.cos(startFi + i*fi);
-				double y = originY - 25*Math.sin(startFi + i*fi);
+			for(int i=0; i<=size; i++) {
+				double x = originX + 25*Math.cos(startFi + ratio*i*fi);
+				double y = originY - 25*Math.sin(startFi + ratio*i*fi);
 				
 				pathXY[0][i] = x;
 				pathXY[1][i] = y;
@@ -199,7 +212,6 @@ public class Track extends StackPane {
 			case 3:
 				return column-1;
 			default:
-//				Log.warning("Wrong 'currentEnd' value");
 				return -1;
 		}
 	}
@@ -214,11 +226,22 @@ public class Track extends StackPane {
 			case 0:
 				return row-1;
 			default:
-//				Log.warning("Wrong 'currentEnd' value");
 				return -1;
 		}
 	}
 	
+	public int getOrigin() {
+		return this.origin;
+	}
+	
+	public int getEnd1() {
+		return this.currentEnd;
+	}
+	
+	public int getEnd2() {
+		return this.endToSwitch;
+	}
+		
 	public boolean isClickable() {
 		return clickable;
 	}
@@ -262,7 +285,7 @@ public class Track extends StackPane {
 	}
 	
 	private int[] getOriginXY() {		
-		int x=getXYFromRowCol(this.column), y=getXYFromRowCol(this.row);
+		int x = getXYFromRowCol(this.column), y = getXYFromRowCol(this.row);
 		switch(quarter) {
 			case 1:
 				y += 50;
@@ -384,15 +407,14 @@ public class Track extends StackPane {
 						throw new Exception("Wrong 'origin'+'end' combination for curved track");
 				}
 			default:
-				Log.error("Wrong track type");
-				return NULL;	
+				throw new Exception("Wrong track type");	
 		}
 	}
 		
 	public void changeType() throws Exception {
 		type = (type.equals(S)) ? C : S;		
 		
-		getChildren().removeIf(Node -> Node.getStyleClass().contains("track"));
+		getChildren().removeIf(node -> node.getStyleClass().contains("track"));
 		getChildren().add(getTrackShape());
 		setRotate(calcRotation(origin, endToSwitch));
 				

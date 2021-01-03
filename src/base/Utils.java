@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,11 +31,10 @@ import javafx.scene.paint.Color;
 
 public class Utils {
 	
-
 	public static final String OS = System.getProperty("os.name").toLowerCase();	// get current operating system
 	public static final boolean WINDOWS = !OS.equals("linux");
 	
-	public static final String PATH_ROOT = WINDOWS ? (System.getenv("APPDATA") + "/track_of_thought/") : (System.getenv("HOME") + "./local/share/track_of_thought/");
+	public static final String PATH_ROOT = WINDOWS ? (System.getenv("APPDATA") + "/track_of_thought/") : (System.getenv("HOME") + "/.local/share/track_of_thought/");
 	public static final String PATH_LEVELS = PATH_ROOT + "levels/";
 	public static final String PATH_LEVELS_CUSTOM = PATH_LEVELS + "custom/";
 	public static final String PATH_TEMPLATE_DATA = "/resources/data/data";
@@ -76,7 +74,7 @@ public class Utils {
 					return false;
 				}
 			} catch (Exception e) {
-				System.out.println("Could not unlock level: " + e.getMessage());
+				Log.error("Could not unlock level: " + e.getMessage());
 				return false;
 			}
 		} else {
@@ -189,8 +187,7 @@ public class Utils {
 	
 	/* returns statement for data reading & writing */
 	public static Statement getDataStatement(String path) throws SQLException {
-		Connection conn = DriverManager.getConnection("jdbc:ucanaccess://" + path);
-		return conn.createStatement();
+		return DriverManager.getConnection("jdbc:ucanaccess://" + path).createStatement();
 	}
 	
 	/* returns centered alignment position from given int */ 

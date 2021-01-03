@@ -17,6 +17,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -32,7 +33,7 @@ public class Window extends Application {
 	
 	public static Stage window;		// main stage
 	public static int points = 0;	// points counter
-	public static boolean levelCreator = true;	// temporary variable for level creation
+	public static boolean levelCreator = false;	// temporary variable for level creation
 
 	private static AnimationTimer gameTimer;	// main game timer
 	
@@ -40,6 +41,7 @@ public class Window extends Application {
 	private static int seconds = 0;				// seconds counter for ball releasing
 	private static int finishedBalls = 0;
 	private static boolean skip = false;
+	private static double timeD = 1;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -90,6 +92,19 @@ public class Window extends Application {
 
 		level = stations.size()-1;
 		setScene(scene);	// set scene with all elements
+		
+		
+		scene.setOnKeyPressed(e -> {
+			if(e.getCode() == KeyCode.SPACE) {
+				timeD = .25;
+			}
+		});
+		
+		scene.setOnKeyReleased(e -> {
+			if(e.getCode() == KeyCode.SPACE) {
+				timeD = 1;
+			}
+		});
 									
 		gameTimer = new AnimationTimer() {
 			private long lastUpdate = 0;
@@ -97,9 +112,10 @@ public class Window extends Application {
 						
 			@Override
 			public void handle(long now) {
+				
 				try {
 					/* game timer */
-					if(now - lastUpdate >= 17_000_000) {
+					if(now - lastUpdate >= 34_000_000*timeD) {
 						if(balls.size() > 0) {
 							gameHandle(root, balls, pointsText, allNodes);
 							lastUpdate = now;
@@ -115,8 +131,9 @@ public class Window extends Application {
 				} catch (Exception e) {
 					Log.error(e.getMessage());
 				}
+				
 				/* timer for counting seconds & managing new balls */
-				if(now - secondsUpdate >= 1_000_000_000) {
+				if(now - secondsUpdate >= 1_000_000_000*timeD) {
 					seconds++;
 					secondsHandle(root, balls, allNodes);
 					secondsUpdate = now;
@@ -185,9 +202,7 @@ public class Window extends Application {
 		window.setScene(scene);
 	}
 		
-	public static void main (String[] args) throws FileNotFoundException {
-		// enable ANSI colors: https://ss64.com/nt/syntax-ansi.html
-		
+	public static void main (String[] args) throws FileNotFoundException {		
 		/* 
 		 	currently available arguments:
 		 		- ide: disables color logging
