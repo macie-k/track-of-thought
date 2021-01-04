@@ -9,7 +9,9 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -126,10 +128,11 @@ public class Utils {
 				publicData.close();
 				
 			/* set new key */
-			setDataKey(getNewKey());
-			Log.success("Successfully created data file");
+			if(setDataKey(getNewKey())) {
+				Log.success("Successfully created data file");
+			}
 		} catch (IOException e) {
-			Log.error("Could not create data file: " + e.getMessage());
+			Log.error("Could not create data file: " + e);
 		}
 	}
 	
@@ -146,7 +149,7 @@ public class Utils {
 
 			return modTime == decodedKey;	// check if flags are the same
 		} catch (Exception e) {
-			Log.error("Could not verify data key: " + e.getMessage());
+			Log.error("Could not verify data key: " + e);
 			return false;
 		}
 	}
@@ -163,32 +166,50 @@ public class Utils {
 	}
 	
 	/* sets data progress value */
-	public static void setDataProgress(int level) throws SQLException {
+	public static boolean setDataProgress(int level) {
 		final File data = new File(PATH_PUBLIC_DATA);	// get data file
 		final long modTime = data.lastModified();		// get modification time
-		
-		/* execute query to set the level value */
-		Statement st = getDataStatement(PATH_PUBLIC_DATA);
-			st.executeUpdate(String.format("UPDATE data SET progress = '%s'", level));
+		final String sql = "UPDATE progress SET level=?";
+
+		try {
+			/* execute query to set the level value */
+			Statement st = getDataConnection(PATH_PUBLIC_DATA).createStatement();
+			PreparedStatement ps = st.getConnection().prepareStatement(sql);
+			
+			ps.setInt(1, level);
+			ps.executeUpdate();
+			ps.close();
 			st.close();
 			
-		data.setLastModified(modTime);	// restore  modification time
+			data.setLastModified(modTime);	// restore  modification time
+			return true;
+		} catch (SQLException e) {
+			Log.error("Could not set level: " + e);
+			return false;
+		}
 	}
 	
 	/* sets data key value */
-	public static void setDataKey(String value) {
+	public static boolean setDataKey(String value) {
 		final File data = new File(PATH_PUBLIC_DATA);	// get data file
 		final long modTime = data.lastModified();		// get modification time
+		final String sql = "UPDATE progress SET safekey=?";
 		
 		try {
-			/* execute query to set the key value */
-			Statement st = getDataStatement(PATH_PUBLIC_DATA);
-				st.executeUpdate(String.format("UPDATE data SET key = '%s'", value));
-				st.close();
+			/* execute query to set the level value */
+			Statement st = getDataConnection(PATH_PUBLIC_DATA).createStatement();
+			PreparedStatement ps = st.getConnection().prepareStatement(sql);
+			
+			ps.setString(1, value);
+			ps.executeUpdate();
+			ps.close();
+			st.close();
 			
 			data.setLastModified(modTime);	// restore  modification time
-		} catch (Exception e) {
-			Log.error("Could not save data key: " + e.getMessage());
+			return true;
+		} catch (SQLException e) {
+			Log.error("Could not set key: " + e);
+			return false;
 		}
 	}
 	
@@ -200,12 +221,12 @@ public class Utils {
 	/* returns key & progress values */
 	public static String[] getDataResults() throws Exception {
 		try {
-			Statement st = Utils.getDataStatement(PATH_PUBLIC_DATA);
-			ResultSet rs = st.executeQuery("SELECT * FROM data");
+			Statement st = getDataConnection(PATH_PUBLIC_DATA).createStatement();
+			ResultSet rs = st.executeQuery("SELECT * FROM progress");
 			rs.next();
 		
-			final String key = rs.getString("key");
-			final String level = rs.getString("progress");
+			final String key = rs.getString("safekey");
+			final String level = rs.getString("level");
 			
 			st.close();
 			return new String[] {key, level};
@@ -215,8 +236,8 @@ public class Utils {
 	}
 	
 	/* returns statement for data reading & writing */
-	public static Statement getDataStatement(String path) throws SQLException {
-		return DriverManager.getConnection("jdbc:ucanaccess://" + path).createStatement();
+	public static Connection getDataConnection(String path) throws SQLException {
+		return DriverManager.getConnection("jdbc:ucanaccess://" + path);
 	}
 	
 	/* returns centered alignment position from given int */ 

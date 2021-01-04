@@ -82,7 +82,7 @@ public class Scenes {
 			title.setOpacity(0);
 			
 		StackPane startContainer = new StackPane();
-			startContainer.setPrefSize(850, 50);
+			startContainer.setPrefSize(850, 45);
 			startContainer.setOpacity(0);
 			startContainer.setScaleX(0.7);
 			startContainer.setScaleY(0.7);
@@ -90,11 +90,11 @@ public class Scenes {
 			
 		Text startText = new Text("START");
 			startText.setId("startText");
-			startText.setFont(Font.font(FONT_TEXT, 30));
+			startText.setFont(Font.font(FONT_TEXT, 25));
 			startText.setMouseTransparent(true);
 			startText.setTranslateY(-1);	// weird padding fix
 			
-		Rectangle startBg = new Rectangle(185, 50, COLOR_BACKGROUND);
+		Rectangle startBg = new Rectangle(175, 45, COLOR_BACKGROUND);
 			startBg.setId("startBg");
 			startBg.setOnMouseEntered(e -> {
 				fadeColors(startText, 200, COLOR_ACCENT, COLOR_BACKGROUND);
@@ -103,32 +103,49 @@ public class Scenes {
 			startBg.setOnMouseExited(e -> {
 				fadeColors(startText, 200, COLOR_BACKGROUND, COLOR_ACCENT);
 				fadeColors(startBg, 200, COLOR_ACCENT, COLOR_BACKGROUND);
-			});
-			startBg.setOnMouseClicked(e -> Window.setScene(levels()));
-			
+			});	
+
+		final Interpolator EASE_OUT = new Interpolator() {
+			@Override
+			protected double curve(double t) {
+				return (t == 1.0) ? 1.0 : 1 - Math.pow(1.8, -7*t);
+			}
+		};
 								
 		Timeline titleFade = new Timeline(
-				new KeyFrame(Duration.seconds(1),
+				new KeyFrame(Duration.seconds(.7),
 						new KeyValue(title.opacityProperty(), 1, Interpolator.EASE_IN)
 				)
 		);
 		
 		Timeline titleMove = new Timeline(
-			new KeyFrame(Duration.seconds(1),
-					new KeyValue(titleContainer.translateYProperty(), 90, Interpolator.EASE_OUT),
-					new KeyValue(titleContainer.scaleXProperty(), 0.95, Interpolator.EASE_OUT),
-					new KeyValue(titleContainer.scaleYProperty(), 0.95, Interpolator.EASE_OUT)
+			new KeyFrame(Duration.seconds(1.5),
+					new KeyValue(titleContainer.translateYProperty(), 100, EASE_OUT),
+					new KeyValue(titleContainer.scaleXProperty(), 0.95, EASE_OUT),
+					new KeyValue(titleContainer.scaleYProperty(), 0.95, EASE_OUT)
 			)
 		);
 		
 		Timeline buttonAnimation = new Timeline(
-			new KeyFrame(Duration.seconds(1),
-					new KeyValue(startContainer.opacityProperty(), 1, Interpolator.EASE_IN),
-					new KeyValue(startContainer.scaleXProperty(), 1, Interpolator.EASE_OUT),
-					new KeyValue(startContainer.scaleYProperty(), 1, Interpolator.EASE_OUT)
+			new KeyFrame(Duration.seconds(1.5),
+					new KeyValue(startContainer.opacityProperty(), 1, EASE_OUT),
+					new KeyValue(startContainer.scaleXProperty(), 1, EASE_OUT),
+					new KeyValue(startContainer.scaleYProperty(), 1, EASE_OUT)
 			)
 		);
-				
+		
+		Timeline moveAway = new Timeline(
+			new KeyFrame(Duration.seconds(0.5), e -> Window.setScene(levels())),
+			new KeyFrame(Duration.seconds(1),
+					new KeyValue(titleContainer.translateYProperty(), -150, EASE_OUT),
+					new KeyValue(startContainer.translateYProperty(), 650, EASE_OUT)
+			)
+		);
+		
+//		moveAway.setOnFinished(e -> Window.setScene(levels()));
+		startBg.setOnMouseClicked(e -> {
+			moveAway.play();
+		});
 		
 		titleMove.setDelay(Duration.seconds(.5));		
 		buttonAnimation.setDelay(Duration.seconds(.5));

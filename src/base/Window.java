@@ -47,7 +47,7 @@ public class Window extends Application {
 	public void start(Stage primaryStage) {
 		window = primaryStage;
 		window.setTitle("Track of thought");
-		window.getIcons().add(new Image("/resources/icon.jpg"));
+		window.getIcons().add(new Image("/resources/icon.png"));
 		window.setResizable(false);
 		
 		Setup.runSetup();
@@ -204,9 +204,9 @@ public class Window extends Application {
 			
 	/* sets the main scene with fade in effect */
 	public static void setScene(Pane root) {
-		root.setOpacity(0);
+			root.setOpacity(0);
 		window.setScene(root.getScene());
-		Utils.fadeIn(root, 500);
+			Utils.fadeIn(root, 500);
 	}
 		
 	public static void main (String[] args) throws FileNotFoundException {		
