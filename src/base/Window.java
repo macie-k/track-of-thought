@@ -55,12 +55,17 @@ public class Window extends Application {
 	}
 		
 	public static void game(FullTrack allNodes) {
+		seconds = 0;
+		finishedBalls = 0;
+		points = 0;
+		timeD = 1;
+		
 		final Pane root = Scenes.getRootPane();							// game root pane
 		final Scene scene = Scenes.getSceneWithCSS(root, "game.css");	// main game scene
 		
-		final List<Ball> balls = allNodes.getBalls();				// list of all balls
-		final List<Track> tracks = allNodes.getTracks();			// list of all tracks
-		final List<Station> stations = allNodes.getStations();		// list of all stations
+		final List<Ball> balls = new ArrayList<>(allNodes.getBalls());			// list of all balls
+		final List<Track> tracks = new ArrayList<>(allNodes.getTracks());		// list of all tracks
+		final List<Station> stations = new ArrayList<>(allNodes.getStations()); // list of all stations
 						
 		/* StackPane for points counter */
 		final StackPane pointsStack = new StackPane();
@@ -91,12 +96,12 @@ public class Window extends Application {
 //		for(int i=0; i<15; i++) { root.getChildren().addAll(Scenes.GRID[i]);}	// grid drawing
 
 		level = stations.size()-1;
-		setScene(scene);	// set scene with all elements
+		setScene(root);	// set scene with all elements
 		
 		
 		scene.setOnKeyPressed(e -> {
 			if(e.getCode() == KeyCode.SPACE) {
-				timeD = .25;
+				timeD = 0.25;
 			}
 		});
 		
@@ -120,8 +125,8 @@ public class Window extends Application {
 							gameHandle(root, balls, pointsText, allNodes);
 							lastUpdate = now;
 						} else {
-							gameTimer.stop();
-							if(Utils.unlockLevel((finishedBalls - points) <= 3)) {
+							gameTimer.stop();							
+							if(Utils.unlockLevel((finishedBalls - points) <= 3, level)) {
 								Log.success("Next level unlocked");
 							}
 							Window.setScene(Scenes.levels());
@@ -197,9 +202,11 @@ public class Window extends Application {
 		}
 	}
 			
-	/* sets the main scene */
-	public static void setScene(Scene scene) {
-		window.setScene(scene);
+	/* sets the main scene with fade in effect */
+	public static void setScene(Pane root) {
+		root.setOpacity(0);
+		window.setScene(root.getScene());
+		Utils.fadeIn(root, 500);
 	}
 		
 	public static void main (String[] args) throws FileNotFoundException {		

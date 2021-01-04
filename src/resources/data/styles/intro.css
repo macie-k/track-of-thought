@@ -1,0 +1,19 @@
+#pane {
+	-fx-background-color: #1F2227;
+	-fx-background-color: #2D2E37;
+}
+
+#title {
+	-fx-fill: #C7B59D;
+}
+
+#startBg {
+	-fx-fill: #2D2E37;
+	-fx-stroke: #C7B59D;
+	-fx-stroke-width: 3;
+	-fx-cursor: hand;
+}
+
+#startText {
+	-fx-fill: #C7B59D;
+}

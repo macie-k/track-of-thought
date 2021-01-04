@@ -22,7 +22,7 @@ public class Setup {
 		loadFonts();			// load all required fonts
 		checkProgress();		// check progress data
 
-		Window.setScene(Scenes.levels());
+		Window.setScene(Scenes.intro());
 	}
 	
 	private static void loadFonts() {

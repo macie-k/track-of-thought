@@ -58,6 +58,12 @@ public class Station extends StackPane {
 	public void initShape() {
 		shape = start ? getStartShape() : getStandardShape();
 		shape.getStyleClass().add("station");
+		
+		/* compensate for border */
+		if(start) {
+			setTranslateX(getTranslateX()-1);
+			setTranslateY(getTranslateY()-1);
+		}
 		getChildren().addAll(shape);
 	}
 		

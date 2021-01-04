@@ -26,8 +26,13 @@ import org.json.JSONTokener;
 
 import base.obj.GridSquare;
 import base.obj.Track;
+import javafx.animation.FadeTransition;
+import javafx.animation.FillTransition;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Shape;
+import javafx.util.Duration;
 
 public class Utils {
 	
@@ -61,12 +66,36 @@ public class Utils {
 			"red", "green", "blue", "cyan", "yellow", "pink",
 			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o"
 	});
+		
 	
-	public static boolean unlockLevel(boolean unlock) {
+	/* fades in given node */
+	public static void fadeIn(Node node, int duration) {
+		FadeTransition ft = new FadeTransition(Duration.millis(duration), node);
+			ft.setFromValue(node.getOpacity());
+		    ft.setToValue(1);
+		    ft.play();
+	}
+		
+	/* animates color change */
+	public static void fadeColors(Shape shape, int duration, Color from, Color to) {
+		FillTransition ft = new FillTransition(Duration.millis(duration), shape, from, to);
+			ft.play();
+	}
+	
+	/* for developement only */
+	public static void forceUnlockLevel(int level) {
+		try {
+			setDataProgress(level);
+		} catch (Exception e) {
+			Log.error("Could not unlock level: " + e.getMessage());
+		}
+	}
+	
+	/* returns true only if level was unlocked */
+	public static boolean unlockLevel(boolean unlock, int currentLevel) {
 		if(unlock) {
 			try {
-				final int currentLevel = getProgress();
-				if(currentLevel < 14) {
+				if((currentLevel < 14) && (getProgress() == currentLevel)) {
 					final int nextLevel = currentLevel + 1;
 					setDataProgress(nextLevel);
 					return true;

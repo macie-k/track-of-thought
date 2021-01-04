@@ -1,19 +1,16 @@
 package base.obj;
 
-import javafx.animation.FillTransition;  
 import javafx.scene.Cursor;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
 
 import static base.Utils.COLOR_ACCENT;
 import static base.Utils.COLOR_LEVEL;
 
 import base.Scenes;
+import base.Utils;
 import base.Window;
 
 public class LevelPane extends StackPane {
@@ -59,19 +56,11 @@ public class LevelPane extends StackPane {
 	public void fadeHighlight(boolean highlight) {
 		final int duration = 200;
 		if(highlight) {
-			fadeColors(container, duration, COLOR_LEVEL, COLOR_ACCENT);
-			fadeColors(value, duration, COLOR_ACCENT, COLOR_LEVEL);
+			Utils.fadeColors(container, duration, COLOR_LEVEL, COLOR_ACCENT);
+			Utils.fadeColors(value, duration, COLOR_ACCENT, COLOR_LEVEL);
 		} else {
-			fadeColors(container, duration, COLOR_ACCENT, COLOR_LEVEL);
-			fadeColors(value, duration, COLOR_LEVEL, COLOR_ACCENT);
+			Utils.fadeColors(container, duration, COLOR_ACCENT, COLOR_LEVEL);
+			Utils.fadeColors(value, duration, COLOR_LEVEL, COLOR_ACCENT);
 		}
-	}
-	
-	private void fadeColors(Shape shape, int duration, Color from, Color to) {
-		FillTransition ft = new FillTransition(Duration.millis(duration), shape, from, to);
-		ft.setOnFinished(e -> {
-			shape.setFill(to);
-		});
-		ft.play();
 	}
 }

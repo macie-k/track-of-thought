@@ -20,6 +20,10 @@ import base.obj.GridSquare;
 import base.obj.LevelPane;
 import base.obj.Station;
 import base.obj.Track;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -32,6 +36,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
@@ -39,7 +44,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import static base.Utils.fadeColors;
 import static base.Utils.PATH_LEVELS_CUSTOM;
+import static base.Utils.COLOR_ACCENT;
+import static base.Utils.COLOR_BACKGROUND;
+
+/* Functions are returning Panes to allow fade in effect */
 
 public class Scenes {
 		
@@ -51,18 +61,94 @@ public class Scenes {
 	private static List<String> allProperties;
 	private static Map<String, String> currentProperties = new HashMap<>();
 	private static ArrayList<Map<String, String>> listMap = new ArrayList<>();
-	private static  int objectIndex = 0;
+	private static int objectIndex = 0;
 	private static Text menuObjectArrowRight, menuObjectArrowLeft;
 	
-	/*
-		- Objects' structure & properties are avaialable at: resources/structure.json
-		- New levels are created in appdata (windows) or home (unix) directories
-		- In order for the premade level to be accessible, it needs to be placed in: bin/resources/levels
-		- Color names that contain '+O' are colors with white border
-			The suffix is omitted during a conversion @Utils.parseColorName() and boolean border value is passed to constructor
-	*/
+	private static String FONT_TITLE = "Hind Guntur Bold";
+	private static String FONT_TEXT = "Poppins Light";
+
+		
+	public static Pane intro() {
+		Pane root = getRootPane();
+		
+		StackPane titleContainer = new StackPane();
+			titleContainer.setPrefWidth(850);
+			titleContainer.setTranslateX(0);
+			titleContainer.setTranslateY(209);	// real y += 35
+		
+		Text title = new Text("TRACK OF THOUGHT");
+			title.setId("title");
+			title.setFont(Font.font(FONT_TITLE, 85));
+			title.setOpacity(0);
+			
+		StackPane startContainer = new StackPane();
+			startContainer.setPrefSize(850, 50);
+			startContainer.setOpacity(0);
+			startContainer.setScaleX(0.7);
+			startContainer.setScaleY(0.7);
+			startContainer.setTranslateY(350);
+			
+		Text startText = new Text("START");
+			startText.setId("startText");
+			startText.setFont(Font.font(FONT_TEXT, 30));
+			startText.setMouseTransparent(true);
+			startText.setTranslateY(-1);	// weird padding fix
+			
+		Rectangle startBg = new Rectangle(185, 50, COLOR_BACKGROUND);
+			startBg.setId("startBg");
+			startBg.setOnMouseEntered(e -> {
+				fadeColors(startText, 200, COLOR_ACCENT, COLOR_BACKGROUND);
+				fadeColors(startBg, 200, COLOR_BACKGROUND, COLOR_ACCENT);
+			});
+			startBg.setOnMouseExited(e -> {
+				fadeColors(startText, 200, COLOR_BACKGROUND, COLOR_ACCENT);
+				fadeColors(startBg, 200, COLOR_ACCENT, COLOR_BACKGROUND);
+			});
+			startBg.setOnMouseClicked(e -> Window.setScene(levels()));
+			
+								
+		Timeline titleFade = new Timeline(
+				new KeyFrame(Duration.seconds(1),
+						new KeyValue(title.opacityProperty(), 1, Interpolator.EASE_IN)
+				)
+		);
+		
+		Timeline titleMove = new Timeline(
+			new KeyFrame(Duration.seconds(1),
+					new KeyValue(titleContainer.translateYProperty(), 90, Interpolator.EASE_OUT),
+					new KeyValue(titleContainer.scaleXProperty(), 0.95, Interpolator.EASE_OUT),
+					new KeyValue(titleContainer.scaleYProperty(), 0.95, Interpolator.EASE_OUT)
+			)
+		);
+		
+		Timeline buttonAnimation = new Timeline(
+			new KeyFrame(Duration.seconds(1),
+					new KeyValue(startContainer.opacityProperty(), 1, Interpolator.EASE_IN),
+					new KeyValue(startContainer.scaleXProperty(), 1, Interpolator.EASE_OUT),
+					new KeyValue(startContainer.scaleYProperty(), 1, Interpolator.EASE_OUT)
+			)
+		);
+				
+		
+		titleMove.setDelay(Duration.seconds(.5));		
+		buttonAnimation.setDelay(Duration.seconds(.5));
+		
+		titleFade.setDelay(Duration.seconds(.5));
+		titleFade.setOnFinished(e -> {
+			titleMove.play();
+			buttonAnimation.play();
+		});
+		titleFade.play();
+						        
+		titleContainer.getChildren().add(title);
+		startContainer.getChildren().addAll(startBg, startText);
+		root.getChildren().addAll(titleContainer, startContainer);
+		
+		getSceneWithCSS(root, "intro.css");
+		return root;
+	}
 	
-	public static Scene levels() {
+	public static Pane levels() {
 		Pane root = getRootPane();
 				
 		StackPane titleContainer = new StackPane();
@@ -71,7 +157,7 @@ public class Scenes {
 			titleContainer.setTranslateY(60);
 		Text title = new Text("SELECT LEVEL");
 			title.setId("title");
-			title.setFont(Font.font("Hind Guntur Bold"));
+			title.setFont(Font.font(FONT_TITLE));
 			
 		int unlocked = 3;
 		try {
@@ -88,7 +174,9 @@ public class Scenes {
 		
 		titleContainer.getChildren().add(title);
 		root.getChildren().add(titleContainer);
-		return getSceneWithCSS(root, "levels.css");
+		
+		getSceneWithCSS(root, "levels.css");
+		return root;
 	}
 	
 	public static FullTrack gameTrack(String level, boolean premade) {
@@ -232,7 +320,14 @@ public class Scenes {
 		}
 	}
 	
-	public static Scene createLevel() {
+	/*
+		- Objects' structure & properties are avaialable at: resources/structure.json
+		- In order for the premade level to be accessible, it needs to be placed in: bin/resources/levels
+		- Color names that contain '+O' are colors with white border
+			The suffix is omitted during a conversion @Utils.parseColorName() and boolean border value is passed to constructor
+	*/
+	
+	public static Pane createLevel() {
 		final Pane root = getRootPane();
 		
 		final String[] menuObjects= {"track", "station"};										// available objects as menu "pages"
@@ -302,7 +397,7 @@ public class Scenes {
 			StackPane.setAlignment(SAVE_NAMEClose, Pos.TOP_RIGHT);	// align it to top-right corner
 			SAVE_NAMEClose.setTranslateX(-5);						// create small X padding
 			SAVE_NAMEClose.setTranslateY(5);						// create small Y padding
-			SAVE_NAMEClose.setFont(Font.font("Hind Guntur Bold"));
+			SAVE_NAMEClose.setFont(Font.font(FONT_TITLE));
 			SAVE_NAMEClose.setCursor(Cursor.HAND);
 			SAVE_NAMEClose.setFill(Color.WHITE);
 			SAVE_NAMEClose.setOnMouseClicked(e -> {
@@ -315,7 +410,7 @@ public class Scenes {
 		/* label "NAME:" */
 		Text levelNameLabel = new Text("NAME: ");
 			levelNameLabel.setTranslateY(-35);
-			levelNameLabel.setFont(Font.font("Poppins Light", 17));
+			levelNameLabel.setFont(Font.font(FONT_TEXT, 17));
 			levelNameLabel.setFill(Color.WHITE);
 			
 		final Color COLOR_DISABLED = Color.web("#939598");
@@ -361,7 +456,7 @@ public class Scenes {
 		
 		/* background and text for the confirmation button */
 		Text SAVE_NAMEButtonText = new Text("CONFIRM");
-			SAVE_NAMEButtonText.setFont(Font.font("Poppins Light", 15));
+			SAVE_NAMEButtonText.setFont(Font.font(FONT_TEXT, 15));
 			
 		CONFIRM_CREATE.getChildren().addAll(SAVE_NAMEButton, SAVE_NAMEButtonText);	
 		SAVE_MENU.getChildren().addAll(SAVE_NAMEbg, levelName, levelNameLabel, SAVE_NAMEClose);	
@@ -383,7 +478,7 @@ public class Scenes {
 		Rectangle SAVEbg = new Rectangle(100, 40, Color.web("#5beb82"));
 			SAVEbg.setTranslateX(0);
 		Text SAVEtext = new Text("SAVE");
-			SAVEtext.setFont(Font.font("Poppins Light", 17));
+			SAVEtext.setFont(Font.font(FONT_TEXT, 17));
 					
 		SAVE.getChildren().addAll(SAVEbg, SAVEtext);
 		
@@ -398,7 +493,7 @@ public class Scenes {
 		Rectangle CLEARbg = new Rectangle(100, 40, Color.web("#eb5b5b"));
 			CLEARbg.setTranslateX(0);
 		Text CLEARtext = new Text("CLEAR");
-			CLEARtext.setFont(Font.font("Poppins Light", 17));
+			CLEARtext.setFont(Font.font(FONT_TEXT, 17));
 					
 		CLEAR.getChildren().addAll(CLEARbg, CLEARtext);
 
@@ -479,8 +574,9 @@ public class Scenes {
 			root.getChildren().removeIf(child -> shouldClear(child));
 			listMap.clear();
 		});
-	
-		return getSceneWithCSS(root, "createLevel.css");
+		
+		getSceneWithCSS(root, "createLevel.css");
+		return root;
 	}
 	
 	public static String getNextBallColor(FullTrack track) {	
@@ -659,7 +755,8 @@ public class Scenes {
 	/* returns scene attached to a .css file */
 	public static Scene getSceneWithCSS(Pane root, String cssFile) {
 		Scene scene = new Scene(root);
-		scene.getStylesheets().addAll(Window.class.getResource("/resources/data/styles/" + cssFile).toExternalForm());
+			scene.setFill(COLOR_BACKGROUND);
+			scene.getStylesheets().addAll(Window.class.getResource("/resources/data/styles/" + cssFile).toExternalForm());
 		return scene;
 	}
 		

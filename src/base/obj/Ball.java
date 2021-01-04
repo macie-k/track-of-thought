@@ -69,8 +69,8 @@ public class Ball extends Circle {
 								
 		double[][] path = track.getPath();	// get path xy coordinates from current track
 		
-		/* 10 last pixels of path are unchangeable - so set the final values at 11th pixel */
-		if(index == path[0].length-11) {
+		/* last part of path is unchangeable */
+		if(index == path[0].length-6) {
 			dontChange = true;
 			finalTrackPath = path;
 			try {
