@@ -39,7 +39,7 @@
 ## Colored logs
 - Windows doesn't enable ANSI by default, so your output may look like that
    ![a](https://user-images.githubusercontent.com/25122875/103597157-d4474680-4eff-11eb-98af-6060eaa13938.png)
-- You can make it look better, by enabling ANSI in registry
+- You can make it look better, by enabling ANSI in registry - [Read more](https://ss64.com/nt/syntax-ansi.html)
    ![b](https://user-images.githubusercontent.com/25122875/103597158-d5787380-4eff-11eb-9f16-74b7b606b996.png)
   ```
   [HKEY_CURRENT_USER\Console]
