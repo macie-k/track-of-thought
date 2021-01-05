@@ -3,7 +3,7 @@
 <br>
 
 ## 1. Check first 
-- You may have java installed, check it by typing `java -version` in cmd  
+- You may have java installed, check it by typing `java -version` or `java --version` in cmd  
 - If your output contains `Java(TM) SE Runtime Environment` you can go to point `2.3`
 ![Screenshot - 05_01](https://user-images.githubusercontent.com/25122875/103594349-c215da00-4ef8-11eb-8fe4-4c72d319d172.png)
 
