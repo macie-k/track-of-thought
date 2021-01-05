@@ -18,7 +18,7 @@ Free game for **training divided attention**
 ## Support
 - You can buy me a coffee here: 
 <p align="center">
-  <a href="http://bit.ly/BuyMeACoffee-GitHub" target="_blank">
+  <a href="https://ko-fi.com/maciekk" target="_blank">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60px">
   </a>  
 </p>
