@@ -49,5 +49,5 @@
 
 <br> 
 
-- Optionally use [Windows Terminal](https://github.com/microsoft/terminal/releases)
+- Optionally download `.reg` file [here](https://gist.githubusercontent.com/emermacko/f126a741af741d95ec220af8a75f9de3/raw/f47cb76d4df1978e436e510dd14669fb12370f0f/enable_ansi.reg) or use [Windows Terminal](https://github.com/microsoft/terminal/releases)
 - Or disable it by using `--nocolors` option
