@@ -41,13 +41,8 @@
    ![a](https://user-images.githubusercontent.com/25122875/103597157-d4474680-4eff-11eb-98af-6060eaa13938.png)
 - You can make it look better, by enabling ANSI in registry - [Read more](https://ss64.com/nt/syntax-ansi.html)
    ![b](https://user-images.githubusercontent.com/25122875/103597158-d5787380-4eff-11eb-9f16-74b7b606b996.png)
-  ```
-  [HKEY_CURRENT_USER\Console]
-  - Create new DWORD value: "VirtualTerminalLevel"
-  - Set it to 1
-  ```
 
 <br> 
 
-- Optionally download `.reg` file [here](https://pastebin.com/d0w5mVNg) or use [Windows Terminal](https://github.com/microsoft/terminal/releases)
+- Optionally download the `.reg` script [here](https://pastebin.com/d0w5mVNg) or use [Windows Terminal](https://github.com/microsoft/terminal/releases)
 - Or disable it by using `--nocolors` option
