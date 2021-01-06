@@ -25,4 +25,4 @@
 <br>
 
 ## 4. Permissions
-- The only required permission is `rw` for `~/.local/share/` directory
+- The only required permission is `rw` for `~/.local/share/` directory 
