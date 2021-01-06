@@ -33,7 +33,7 @@ You must divide your attention to guide them all simultaneously.
 
 ## Requirements
 - Java 1.8 - [Download](https://www.java.com/en/download/)
-- [For .exe] - `JAVA_HOME` System Variable leading to the JRE's root directory
+- [For .exe] - Add your `JRE/bin` directory to PATH Environment Variable
 
 <br>
 
