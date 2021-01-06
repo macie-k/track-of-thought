@@ -1,4 +1,4 @@
-# Instructions for compiling & building
+# Instructions for compiling
   
 <br>
 
