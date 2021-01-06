@@ -78,7 +78,7 @@ public class Track extends StackPane {
 		if(clickable) {
 			getStyleClass().add("clickable");
 			
-			/* Events to change the track even when covered by a ball, but not when mouse was dragged away */
+			/* Change the track only when mouse was released on the its square */
 			setOnMouseReleased(e -> {
 				final double dropColumn = getColRowFromXY(e.getSceneX());
 				final double dropRow = getColRowFromXY(e.getSceneY());
@@ -106,18 +106,18 @@ public class Track extends StackPane {
 				);
 	}
 	
-	public double[][] getPath() {
-		final int size = 30;
+	public double[][] getPath(boolean creator) {
+		final int size = creator ? 50 : 35;
 		final double ratio = 50.0/size;
 		
-		double[][] pathXY = new double[2][size+1];
+		double[][] pathXY = new double[2][size];
 		final int originX = getOriginXY()[0];
 		final int originY = getOriginXY()[1];
 		
 		if(type.equals(S)) {
 			switch(origin + currentEnd) {
 				case 2:
-					for(int i=0; i<=size; i++) {
+					for(int i=0; i<size; i++) {
 						double x = originX + 25;
 						double y = originY + ratio*i;
 						
@@ -129,7 +129,7 @@ public class Track extends StackPane {
 					}
 					break;
 				case 4:
-					for(int i=0; i<=size; i++) {
+					for(int i=0; i<size; i++) {
 						double x = originX + ratio*i;
 						double y = originY + 25;
 						
@@ -151,7 +151,7 @@ public class Track extends StackPane {
 				fi *= -1;
 			}
 
-			for(int i=0; i<=size; i++) {
+			for(int i=0; i<size; i++) {
 				double x = originX + 25*Math.cos(startFi + ratio*i*fi);
 				double y = originY - 25*Math.sin(startFi + ratio*i*fi);
 				
@@ -162,9 +162,14 @@ public class Track extends StackPane {
 		return pathXY;
 	}
 	
+	/* default getPath for game */
+	public double[][] getPath() {
+		return getPath(false);
+	}
+	
 	/* draws track's direction white -> red */
 	public Rectangle[] getDebugPath() {
-		double[][] path = getPath();
+		double[][] path = getPath(true);
 		Rectangle[] tab = new Rectangle[path[0].length];
 		
 		for(int j=0; j<path[0].length; j++) {
@@ -172,7 +177,7 @@ public class Track extends StackPane {
 				r.setTranslateX(path[0][j]);
 				r.setTranslateY(path[1][j]);
 				r.setFill(Color.rgb(255, 5*(path[0].length-j), 5*(path[0].length-j)));
-				r.setAccessibleHelp("debugdraw");
+				r.setMouseTransparent(true);
 				tab[j] = r;
 		}	
 		return tab;
@@ -185,6 +190,7 @@ public class Track extends StackPane {
 	}
 	
 	public void addDebugPath(Pane root) {
+		debugPath = getDebugPath();
 		for(Rectangle r : debugPath) {
 			root.getChildren().add(r);
 		}

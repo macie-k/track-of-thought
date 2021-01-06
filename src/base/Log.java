@@ -19,11 +19,16 @@ public class Log {
 	public static void success(String s) {
 		System.out.println(getTime() + (IDE ? " [OK] " : SUCCESS) + s);
 	}
-		
+	
+	public static void error(String e, boolean disableCaller) {
+		System.err.println(getTime() + (IDE ? " [ERROR] " : ERROR) + e);
+	}
+	
 	public static void error(String e) {
 		System.err.println(getTime() + (IDE ? " [ERROR] " : ERROR) + getCallerLog(e));
+	
 	}
-
+	
 	public static void warning(String w) {
 		System.out.println(getTime() + (IDE ? " [!] " : WARNING) + w);
 	}

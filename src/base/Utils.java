@@ -70,6 +70,34 @@ public class Utils {
 	});
 		
 	
+	public static int checkArgumentWithValue(String name, String nargs, String[] args, int counter) {
+		final String[] required = nargs.split(" ");
+		
+		if(counter+required.length >= args.length) {
+			Log.error(String.format("%s: %d values required", name, required.length), true);
+			return args.length - (counter+required.length);
+		}
+		
+		for(String val : required) {
+			try {
+				switch(val) {
+					case "int":
+						Integer.parseInt(args[++counter]);
+						break;
+					case "boolean":
+						Boolean.parseBoolean(args[++counter]);
+						break;
+				}
+			} catch(NumberFormatException e) {
+				Log.error(String.format("%s: Value must be type of {%s}", name, nargs), true);
+				return 0;
+			}
+		}
+		
+		return required.length;
+	}
+
+	
 	/* fades in given node */
 	public static void fadeIn(Node node, int duration) {
 		FadeTransition ft = new FadeTransition(Duration.millis(duration), node);
@@ -77,11 +105,19 @@ public class Utils {
 		    ft.setToValue(1);
 		    ft.play();
 	}
-		
+	
 	/* animates color change */
 	public static void fadeColors(Shape shape, int duration, Color from, Color to) {
 		FillTransition ft = new FillTransition(Duration.millis(duration), shape, from, to);
 			ft.play();
+	}
+	
+	public static void resetLevel() {
+		try {
+			setDataProgress(3);
+		} catch (Exception e) {
+			Log.error("Could not unlock level: " + e);
+		}
 	}
 	
 	/* for developement only */
@@ -89,7 +125,7 @@ public class Utils {
 		try {
 			setDataProgress(level);
 		} catch (Exception e) {
-			Log.error("Could not unlock level: " + e.getMessage());
+			Log.error("Could not unlock level: " + e);
 		}
 	}
 	
@@ -105,7 +141,7 @@ public class Utils {
 					return false;
 				}
 			} catch (Exception e) {
-				Log.error("Could not unlock level: " + e.getMessage());
+				Log.error("Could not unlock level: " + e);
 				return false;
 			}
 		} else {
@@ -144,10 +180,10 @@ public class Utils {
 			final String encodedKey = key.substring(1, key.length());	// extract encoded key
 			
 			final long modTime = new File(PATH_PUBLIC_DATA).lastModified();					// get current modification time
-			final String savedKey = new String(Base64.getDecoder().decode(encodedKey));		// get currently saved key
-			final double decodedKey = Double.valueOf(savedKey)/Math.pow(Math.E, x);			// decode the key
+			final String decodedKey = new String(Base64.getDecoder().decode(encodedKey));	// get currently saved key
+			final double decodedTime = Double.valueOf(decodedKey)/Math.pow(Math.E, x);		// decode the key
 
-			return modTime == decodedKey;	// check if flags are the same
+			return modTime == decodedTime;	// check if flags are the same
 		} catch (Exception e) {
 			Log.error("Could not verify data key: " + e);
 			return false;
@@ -178,13 +214,13 @@ public class Utils {
 			
 			ps.setInt(1, level);
 			ps.executeUpdate();
-			ps.close();
-			st.close();
+				ps.close();
+				st.close();
 			
 			data.setLastModified(modTime);	// restore  modification time
 			return true;
 		} catch (SQLException e) {
-			Log.error("Could not set level: " + e);
+			Log.error("Could not set progress: " + e);
 			return false;
 		}
 	}
@@ -202,8 +238,8 @@ public class Utils {
 			
 			ps.setString(1, value);
 			ps.executeUpdate();
-			ps.close();
-			st.close();
+				ps.close();
+				st.close();
 			
 			data.setLastModified(modTime);	// restore  modification time
 			return true;
@@ -223,8 +259,8 @@ public class Utils {
 		try {
 			Statement st = getDataConnection(PATH_PUBLIC_DATA).createStatement();
 			ResultSet rs = st.executeQuery("SELECT * FROM progress");
-			rs.next();
-		
+				rs.next();
+
 			final String key = rs.getString("safekey");
 			final String level = rs.getString("level");
 			
@@ -235,7 +271,7 @@ public class Utils {
 		}
 	}
 	
-	/* returns statement for data reading & writing */
+	/* returns connection for data reading & writing */
 	public static Connection getDataConnection(String path) throws SQLException {
 		return DriverManager.getConnection("jdbc:ucanaccess://" + path);
 	}
@@ -281,7 +317,7 @@ public class Utils {
 				Log.success("Successfully downloaded: {" + filename + "}");
 				IS.close();
 			} catch (Exception e) {
-				Log.error("Could not download file: " + e.getMessage());
+				Log.error("Could not download file: " + e);
 			}
 		} else {
 			Log.success("{" + filename + "} already downloaded");

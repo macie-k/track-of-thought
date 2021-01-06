@@ -16,7 +16,6 @@
 	-fx-stroke: #BCAA94;
 }
 
-
 .arrow, .menuText, .menuValue, #OK {
 	-fx-font-family: "Hind Guntur Bold";
 	-fx-font-size: 15;
@@ -26,6 +25,14 @@
 
 #OK {
 	-fx-fill: "#c4ffd4";
+}
+
+#level-name {
+	-fx-faint-focus-color: transparent;
+	-fx-focus-color: transparent;
+	-fx-text-box-border: transparent;
+	-fx-highlight-fill: #363638;
+	-fx-highlight-text-fill: #FFF;
 }
 
 .menuValue {
@@ -39,7 +46,7 @@
 }
 
 .clickable {
-	-fx-cursor: hand;
+	-fx-cursor: CROSSHAIR;
 }
 
 .clickable:hover > .bg, .clickable > .bg {

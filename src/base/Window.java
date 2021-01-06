@@ -96,15 +96,16 @@ public class Window extends Application {
 //		for(int i=0; i<15; i++) { root.getChildren().addAll(Scenes.GRID[i]);}	// grid drawing
 
 		level = stations.size()-1;
-		setScene(root);	// set scene with all elements
+		setScene(root);	
 		
-		
+		/* event for speeding up time */
 		scene.setOnKeyPressed(e -> {
 			if(e.getCode() == KeyCode.SPACE) {
 				timeD = 0.25;
 			}
 		});
 		
+		/* event for restoring time */
 		scene.setOnKeyReleased(e -> {
 			if(e.getCode() == KeyCode.SPACE) {
 				timeD = 1;
@@ -138,7 +139,8 @@ public class Window extends Application {
 				}
 				
 				/* timer for counting seconds & managing new balls */
-				if(now - secondsUpdate >= 1_000_000_000*timeD) {
+				final int correction = (int) ((timeD != 1) ? (16_000_000 - 34_000_000*timeD) : 0);
+				if(now - secondsUpdate >= 1_000_000_000*timeD + correction) {
 					seconds++;
 					secondsHandle(root, balls, allNodes);
 					secondsUpdate = now;
@@ -212,13 +214,37 @@ public class Window extends Application {
 	public static void main (String[] args) throws FileNotFoundException {		
 		/* 
 		 	currently available arguments:
-		 		- ide: disables color logging
-		 		- log: enables logging to file for debugging 
+		 		- force-unlock: forces level unlock
+		 		- reset: resets progres
+		 		- nocolors: disables color logging
 		 		- create: allows to create new levels
+		 		- log: enables logging to file for debugging 
 		*/
+				
+		int counter = -1;
+		int skips = 0;
+		
 		if(args.length>0) {
 			for(String arg : args) {
+				counter++;
+				if(skips-- > 0) {
+					continue;
+				}
+
 				switch(arg) {
+					case "--force-unlock":
+						skips = Utils.checkArgumentWithValue("--force-unlock", "int", args, counter);
+						if(skips != 0) {
+							final int level = Integer.parseInt(args[counter+1]);
+							Utils.forceUnlockLevel(level);
+							skip = true;
+							Log.success("Successfully unlocked levels up to " + level);
+						}
+						break;
+					case "--reset":
+						Utils.resetLevel();
+						Log.success("Succesfully reset levels");
+						break;
 					case "--nocolors":
 						Log.IDE = true;
 						Log.success("Colored logging is disabled");
@@ -229,6 +255,7 @@ public class Window extends Application {
 						break;
 					case "--log":
 						Log.success("Logging enabled");
+						Log.IDE = true;
 						PrintStream outputLog = new PrintStream(new FileOutputStream(new File("log.txt")));
 							System.setOut(outputLog);
 							System.setErr(outputLog);

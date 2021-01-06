@@ -200,7 +200,9 @@ public class Scenes {
 		
 		final String path = premade ? "/resources/data/levels/" : PATH_LEVELS_CUSTOM;
 		
-		final int levelCounter = level.equals("3") ? 3 : 5;	// all levels except 3rd have 5 versions
+		int levelCounter = level.equals("3") ? 3 : 5;	// all levels except 3rd have 5 versions
+		if(Integer.valueOf(level) > 8) levelCounter = 2;	// temporary restriction for new levels
+		
 		final int random = new Random().nextInt(levelCounter)+1;
 		final String levelName = String.format("%s-%d", level, random);
 //		final String levelName = "8-5";
@@ -311,11 +313,12 @@ public class Scenes {
 			}
 		}
 				
+		int avarageDelay = 120 / ballsAmount;
 		int globalDelay = 2;
 		balls.add(new Ball(startCoords, globalDelay));
 		globalDelay += (14 - lvl)/2;
 		for(int i=1; i<ballsAmount; i++) {
-			final int delay = r.nextInt(3)+3;
+			final int delay = avarageDelay + r.nextInt(3);
 			globalDelay += delay;
 			balls.add(new Ball(startCoords, globalDelay));
 		}
@@ -438,6 +441,7 @@ public class Scenes {
 		Rectangle SAVE_NAMEButton = new Rectangle(100, 25, levelName.getText().length() > 0 ? COLOR_ENABLED : COLOR_DISABLED);
 			
 		/* input area for entering level name */
+		levelName.setId("level-name");
 		levelName.setMaxSize(150, 25);
 		levelName.setTranslateY(-5);
 		levelName.setOnKeyReleased(e -> {	
@@ -449,12 +453,6 @@ public class Scenes {
 			CONFIRM_CREATE.setDisable(false);
 			SAVE_NAMEButton.setFill(COLOR_ENABLED);
 		});
-		
-		levelName.setStyle("-fx-faint-focus-color: transparent;"
-			+ "-fx-focus-color: transparent;"
-			+ "-fx-text-box-border: transparent;"
-			+ "-fx-highlight-fill: #363638;"
-			+ "-fx-highlight-text-fill: #FFF;");
 					
 		/* confirmation button StackPane -> triggers saving to .level file */
 		
@@ -666,7 +664,7 @@ public class Scenes {
 					t.addDebugPath(root);	// comment to hide PATH DRAWING - can get annoying when deleting a lot
 					
 					/* listener to remove object and change type if clickable */
-					t.setOnMouseClicked(e -> {
+					t.setOnMouseReleased(e -> {
 						/* if scroll is cliked remove else try to change type */
 						if(e.getButton() == MouseButton.MIDDLE) {
 							root.getChildren().remove(t);
@@ -675,10 +673,10 @@ public class Scenes {
 						} else {
 							if(t.isClickable()) {
 								try {
+									t.removeDebugPath(root);
 									t.changeType();
+									t.addDebugPath(root);
 								} catch (Exception e1) {}
-								t.removeDebugPath(root);
-								t.addDebugPath(root);
 								menu.toFront();
 							}
 						}
