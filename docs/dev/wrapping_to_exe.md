@@ -8,7 +8,7 @@
 <br>
 
 ## Config
-- Download the config from [here](https://pastebin.com/icmGV4nk)
+- Download the config from [here](https://hastebin.com/zoyetaxolo)
 - Open config in Launch4j
 - Edit fields:
   - Basic:
