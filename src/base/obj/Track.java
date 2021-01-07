@@ -178,6 +178,7 @@ public class Track extends StackPane {
 				r.setTranslateY(path[1][j]);
 				r.setFill(Color.rgb(255, 5*(path[0].length-j), 5*(path[0].length-j)));
 				r.setMouseTransparent(true);
+				r.setAccessibleHelp("debugdraw"); 	// for bulk removing
 				tab[j] = r;
 		}	
 		return tab;

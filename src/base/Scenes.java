@@ -497,7 +497,7 @@ public class Scenes {
 					
 		SAVE.getChildren().addAll(SAVEbg, SAVEtext);
 		
-		/* StackPane for save button -> opens saving menu */
+		/* StackPane for clear button -> removes all elements */
 		StackPane CLEAR = new StackPane();
 			CLEAR.setTranslateX(305);
 			CLEAR.setTranslateY(505);
@@ -667,8 +667,8 @@ public class Scenes {
 					t.setOnMouseReleased(e -> {
 						/* if scroll is cliked remove else try to change type */
 						if(e.getButton() == MouseButton.MIDDLE) {
-							root.getChildren().remove(t);
 							t.removeDebugPath(root);
+							root.getChildren().remove(t);
 							listMap.remove(obj);
 						} else {
 							if(t.isClickable()) {
