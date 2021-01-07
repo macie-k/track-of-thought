@@ -12,10 +12,8 @@
 ## 2. Java setup
 - Download & install [JRE 1.8](https://java.com/en/download/)
 - Add JRE's `bin` folder to `PATH` Environment Variable
-- Create Environment Variable `JAVA_HOME` with JRE's directory (default: `C:\Program Files\Java\jre1.8.0_xxx`)
-   - That's required only when using the `.exe` file  
-![env](https://user-images.githubusercontent.com/25122875/90809392-b054e100-e321-11ea-854e-09486aa8f21f.png)
 - After that sign out & in
+- Check if `java -version` command returns downloaded java version
 
 <br>
 
