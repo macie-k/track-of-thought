@@ -33,7 +33,8 @@ You must divide your attention to guide them all simultaneously.
 
 ## Requirements
 - Java 1.8 - [Download](https://www.java.com/en/download/)
-- [For .exe] - Add your `JRE/bin` directory to PATH Environment Variable
+- Add your `JRE/bin` directory to PATH Environment Variable
+  - You can test it by typing `java -version` in terminal
 
 <br>
 
