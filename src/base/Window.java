@@ -243,7 +243,6 @@ public class Window extends Application {
 						break;
 					case "--reset":
 						Utils.resetLevel();
-						Log.success("Succesfully reset levels");
 						break;
 					case "--nocolors":
 						Log.IDE = true;

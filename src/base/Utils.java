@@ -59,7 +59,8 @@ public class Utils {
 	public final static Color BLUE = Color.web("#3F6DE0");
 	public final static Color CYAN = Color.web("#79FFFA");
 	public final static Color PINK = Color.web("#AA46F1");
-	public final static Color YELLOW = Color.web("#EBF14A");
+	public final static Color YELLOW = Color.web("#F5EF42");
+	public final static Color ORANGE = Color.web("#FFAA00");
 	
 	public final static List<Color> COLORS_BASE = Arrays.asList(new Color[] {
 			RED, GREEN, BLUE, CYAN, PINK, YELLOW
@@ -68,7 +69,7 @@ public class Utils {
 			"red", "green", "blue", "cyan", "yellow", "pink",
 			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o"
 	});
-		
+	
 	
 	public static int checkArgumentWithValue(String name, String nargs, String[] args, int counter) {
 		final String[] required = nargs.split(" ");
@@ -115,6 +116,7 @@ public class Utils {
 	public static void resetLevel() {
 		try {
 			setDataProgress(3);
+			Log.success("Succesfully reset levels");
 		} catch (Exception e) {
 			Log.error("Could not unlock level: " + e);
 		}
@@ -445,6 +447,8 @@ public class Utils {
 				return PINK;
 			case "YELLOW":
 				return YELLOW;
+			case "ORANGE":
+				return ORANGE;
 			default:
 				return Color.TRANSPARENT;
 		}
