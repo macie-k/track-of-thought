@@ -31,6 +31,8 @@ import javafx.stage.Stage;
 
 public class Window extends Application {
 	
+	private final static String VERSION = "1.0.0";
+	
 	public static Stage window;		// main stage
 	public static int points = 0;	// points counter
 	public static boolean levelCreator = true;	// temporary variable for level creation
@@ -214,6 +216,7 @@ public class Window extends Application {
 	public static void main (String[] args) throws FileNotFoundException {		
 		/* 
 		 	currently available arguments:
+		 		- version/v: returns program version and exits
 		 		- force-unlock: forces level unlock
 		 		- reset: resets progres
 		 		- nocolors: disables color logging
@@ -232,6 +235,10 @@ public class Window extends Application {
 				}
 
 				switch(arg) {
+					case "--version":
+					case "-v":
+						System.out.println("Current version: " + VERSION);
+						return;
 					case "--force-unlock":
 						skips = Utils.checkArgumentWithValue("--force-unlock", "int", args, counter);
 						if(skips != 0) {
