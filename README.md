@@ -42,9 +42,11 @@ You must divide your attention to guide them all simultaneously.
 - Download and launch `.exe` from [here](http://bit.ly/tot-releases)
 - Or launch `.jar` via cmd: `java -jar track-of-thought_x.y.z.jar` <br><br>
 - Available arguments:
+  - `--reset` - resets progress
   - `--log` - enables logging to file
   - `--create` - enables mode for creating custom levels
   - `--nocolors` - disables colored logging - useful for IDEs
+  - `--version`/`-v` - displays game's version
 
 <br>
 
