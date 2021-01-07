@@ -63,11 +63,11 @@ public class Utils {
 	public final static Color ORANGE = Color.web("#FFAA00");
 	
 	public final static List<Color> COLORS_BASE = Arrays.asList(new Color[] {
-			RED, GREEN, BLUE, CYAN, PINK, YELLOW
+			RED, GREEN, BLUE, CYAN, PINK, YELLOW, ORANGE
 	});
 	public final static List<String> COLORS_STR = Arrays.asList(new String[] {
-			"red", "green", "blue", "cyan", "yellow", "pink",
-			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o"
+			"red", "green", "blue", "cyan", "yellow", "pink", "orange",
+			"red + o", "green + o", "blue + o", "cyan + o", "yellow + o", "pink + o", "orange + o"
 	});
 	
 	

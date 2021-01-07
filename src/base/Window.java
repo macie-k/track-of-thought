@@ -35,7 +35,7 @@ public class Window extends Application {
 	
 	public static Stage window;		// main stage
 	public static int points = 0;	// points counter
-	public static boolean levelCreator = true;	// temporary variable for level creation
+	public static boolean levelCreator = false;	// temporary variable for level creation
 
 	private static AnimationTimer gameTimer;	// main game timer
 	

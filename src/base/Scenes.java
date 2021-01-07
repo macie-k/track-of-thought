@@ -180,7 +180,7 @@ public class Scenes {
 		try {
 			unlocked = Utils.getProgress();
 		} catch (Exception e) {
-			Log.error("Could not get progress: " + e.getMessage());
+			Log.error("Could not get progress: " + e);
 			Log.warning("Defaults progress to 3");
 		}
 		
@@ -200,12 +200,11 @@ public class Scenes {
 		
 		final String path = premade ? "/resources/data/levels/" : PATH_LEVELS_CUSTOM;
 		
-		int levelCounter = level.equals("3") ? 3 : 5;	// all levels except 3rd have 5 versions
+		int levelCounter = level.equals("3") ? 3 : 5;		// all levels except 3rd have 5 versions
 		if(Integer.valueOf(level) > 8) levelCounter = 2;	// temporary restriction for new levels
 		
 		final int random = new Random().nextInt(levelCounter)+1;
 		final String levelName = String.format("%s-%d", level, random);
-//		final String levelName = "8-5";
 		final InputStream stream = Scenes.class.getResourceAsStream(path + levelName + ".level");
 		
 		Log.success("Selected level: " + levelName);
@@ -309,7 +308,7 @@ public class Scenes {
 					clickableTracks.add(t);
 				}
 			} catch (Exception e) {
-				Log.error(e.getMessage());
+				Log.error("Could not create track: " + e);
 			}
 		}
 				
@@ -684,7 +683,7 @@ public class Scenes {
 					root.getChildren().add(t);
 				} catch (Exception e) {
 					success = false;											// overwrite success boolean
-					Log.warning("Could not add object: " + e.getMessage());		// log the error
+					Log.warning("Could not add object: " + e);		// log the error
 				}
 			} break;
 			
@@ -708,7 +707,7 @@ public class Scenes {
 					root.getChildren().add(s);
 				} catch (Exception e) {
 					success = false;
-					Log.warning("Could not add object: " + e.getMessage());
+					Log.warning("Could not add object: " + e);
 				}
 			} break;
 		}
@@ -763,7 +762,7 @@ public class Scenes {
 			saver.println(obj);								// print everything to file
 			saver.close();									// close PrintWriter
 		} catch (FileNotFoundException e) {
-			Log.error(e.getMessage());
+			Log.error("Could not save level: " + e);
 		}
 	}
 
