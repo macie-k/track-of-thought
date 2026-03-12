@@ -1,61 +1,61 @@
 {
-	"track": {
-		"1-type": [
-			"straight",
-			"curved"
-		],
-		"5-switch": [
-			false,
-			true
-		],
-		"2-start": [
-			"top",
-			"right",
-			"bottom",
-			"left"
-		],
-		"3-end1": [
-			"top",
-			"right",
-			"bottom",
-			"left"
-		],
-		"4-end2": [
-			"top",
-			"right",
-			"bottom",
-			"left"
-		]
-	},
-	"station": {
-		"1-type": [
-			"normal",
-			"start"			
-		],
-		"2-color": [
-			"red",
-			"green",
-			"blue",
-			"cyan",
-			"yellow",
-			"orange",
-			"pink",
-			"red + o",
-			"green + o",
-			"blue + o",
-			"cyan + o",
-			"yellow + o",
-			"orange + o",
-			"pink + o"
-		],
-		"3-exit": [
-			"top",
-			"right",
-			"bottom",
-			"left"
-		]
-	},
-	"balls": {
-		"amount": "{integer}"
-	}
+  "track": {
+    "1-type": [
+      "straight",
+      "curved"
+    ],
+    "5-switch": [
+      false,
+      true
+    ],
+    "2-start": [
+      "top",
+      "right",
+      "bottom",
+      "left"
+    ],
+    "3-end1": [
+      "top",
+      "right",
+      "bottom",
+      "left"
+    ],
+    "4-end2": [
+      "top",
+      "right",
+      "bottom",
+      "left"
+    ]
+  },
+  "station": {
+    "1-type": [
+      "normal",
+      "start"
+    ],
+    "2-color": [
+      "red",
+      "green",
+      "blue",
+      "cyan",
+      "yellow",
+      "orange",
+      "pink",
+      "red + o",
+      "green + o",
+      "blue + o",
+      "cyan + o",
+      "yellow + o",
+      "orange + o",
+      "pink + o"
+    ],
+    "3-exit": [
+      "top",
+      "right",
+      "bottom",
+      "left"
+    ]
+  },
+  "balls": {
+    "amount": "{integer}"
+  }
 }

@@ -1,29 +1,29 @@
 #pane {
-	-fx-background-color: #1F2227;
-	-fx-background-color: #2D2E37;
+    -fx-background-color: #1F2227;
+    -fx-background-color: #2D2E37;
 }
 
 #title {
-	-fx-font-size: 100;
-	-fx-fill: #C7B59D;
+    -fx-font-size: 100;
+    -fx-fill: #C7B59D;
 }
 
 .container {
-	-fx-stroke: #C7B59D;
-	-fx-stroke-width: 3;
+    -fx-stroke: #C7B59D;
+    -fx-stroke-width: 3;
 }
 
 .level-number {
-	-fx-font-size: 25;
-	-fx-fill: #C7B59D;
+    -fx-font-size: 25;
+    -fx-fill: #C7B59D;
 }
 
 .level-number-disabled {
-	-fx-fill: #939393;
+    -fx-fill: #939393;
 }
 
 .container-disabled {
-	-fx-stroke: #939393;
-	-fx-fill: #242424;
+    -fx-stroke: #939393;
+    -fx-fill: #242424;
 }
 

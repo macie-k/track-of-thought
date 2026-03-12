@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.diffplug.spotless' version '6.19.0'
 }
 
 group = 'com.macie-k'
@@ -23,16 +24,23 @@ application {
 
 javafx {
     version = '21.0.2'
-    modules = [ 'javafx.controls', 'javafx.graphics' ]
+    modules = ['javafx.controls', 'javafx.graphics']
+}
+
+spotless {
+    java {
+        googleJavaFormat('1.19.2').aosp()
+        removeUnusedImports()
+    }
 }
 
 dependencies {
-    implementation 'com.diogonunes:JColor:5.0.1'                    // JColor-5.0.1.jar :contentReference[oaicite:3]{index=3}
-    implementation 'org.apache.commons:commons-lang3:3.8.1'          // commons-lang3-3.8.1.jar :contentReference[oaicite:4]{index=4}
-    implementation 'commons-logging:commons-logging:1.2'             // commons-logging-1.2.jar :contentReference[oaicite:5]{index=5}
-    implementation 'org.apache.commons:commons-math3:3.6.1'          // commons-math3-3.6.1.jar :contentReference[oaicite:6]{index=6}
-    implementation 'org.hsqldb:hsqldb:2.5.0'                         // hsqldb-2.5.0.jar :contentReference[oaicite:7]{index=7}
-    implementation 'com.healthmarketscience.jackcess:jackcess:3.0.1' // jackcess-3.0.1.jar :contentReference[oaicite:8]{index=8}
-    implementation 'org.json:json:20200518'                          // json-20200518.jar :contentReference[oaicite:9]{index=9}
-    implementation 'net.sf.ucanaccess:ucanaccess:5.0.0'              // ucanaccess-5.0.0.jar :contentReference[oaicite:10]{index=10}
+    implementation 'com.diogonunes:JColor:5.0.1'
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
+    implementation 'commons-logging:commons-logging:1.2'
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+    implementation 'org.hsqldb:hsqldb:2.5.0'
+    implementation 'com.healthmarketscience.jackcess:jackcess:3.0.1'
+    implementation 'org.json:json:20200518'
+    implementation 'net.sf.ucanaccess:ucanaccess:5.0.0'
 }
