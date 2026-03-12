@@ -362,7 +362,7 @@ public class Utils {
 		final List<String> allColors = new ArrayList<>(COLORS_STR);
 			allColors.removeAll(toExclude);
 			
-		/* create list of only base colors */
+		/* create list of only main.java.base colors */
 		final List<String> baseColors = new ArrayList<>(allColors);
 			baseColors.removeIf(color -> color.contains("+"));
 			

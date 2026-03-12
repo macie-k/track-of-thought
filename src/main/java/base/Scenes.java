@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import base.Log;
 import base.obj.Ball;
 import base.obj.FullTrack;
 import base.obj.GridSquare;
