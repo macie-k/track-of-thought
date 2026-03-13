@@ -1,0 +1,32 @@
+name: Build Cross-Platform Installers
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  package:
+    strategy:
+      matrix:
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build native installer
+        run: ./gradlew clean jpackage
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.os }}
+          path: build/jpackage/**

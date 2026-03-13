@@ -1,9 +1,9 @@
-package base;
+package com.trackofthought;
 
-import base.obj.Ball;
-import base.obj.FullTrack;
-import base.obj.Station;
-import base.obj.Track;
+import com.trackofthought.obj.Ball;
+import com.trackofthought.obj.FullTrack;
+import com.trackofthought.obj.Station;
+import com.trackofthought.obj.Track;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -48,7 +48,7 @@ public class Window extends Application {
     public void start(Stage primaryStage) {
         window = primaryStage;
         window.setTitle("Track of thought");
-        window.getIcons().add(new Image("/resources/icon.png"));
+        window.getIcons().add(new Image("icons/icon.png"));
         window.setResizable(false);
 
         Setup.runSetup();

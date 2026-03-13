@@ -1,7 +1,7 @@
-package base;
+package com.trackofthought;
 
-import base.obj.GridSquare;
-import base.obj.Track;
+import com.trackofthought.obj.GridSquare;
+import com.trackofthought.obj.Track;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,11 +44,11 @@ public class Utils {
 
     public static final String PATH_ROOT =
         WINDOWS_ROOT_PATH != null
-            ? (WINDOWS_ROOT_PATH + "/track_of_thought/")
-            : (UNIX_ROOT_PATH + "/.local/share/track_of_thought/");
+        ? (WINDOWS_ROOT_PATH + "/track_of_thought/")
+        : (UNIX_ROOT_PATH + "/.local/share/track_of_thought/");
     public static final String PATH_LEVELS = PATH_ROOT + "levels/";
     public static final String PATH_LEVELS_CUSTOM = PATH_LEVELS + "custom/";
-    public static final String PATH_TEMPLATE_DATA = "/resources/data/data";
+    public static final String PATH_TEMPLATE_DATA = "/data/data";
     public static final String PATH_PUBLIC_DATA = PATH_ROOT + "data";
     public static final String[] PATHS_TO_LOAD = {PATH_ROOT, PATH_LEVELS, PATH_LEVELS_CUSTOM};
 
@@ -207,8 +207,8 @@ public class Utils {
 
         return (x
             + Base64.getEncoder()
-            .encodeToString(
-                String.valueOf(calculatedKey).getBytes())); // return key in base64
+                    .encodeToString(
+                        String.valueOf(calculatedKey).getBytes())); // return key in base64
     }
 
     /* sets data progress value */
@@ -365,7 +365,7 @@ public class Utils {
         final List<String> allColors = new ArrayList<>(COLORS_STR);
         allColors.removeAll(toExclude);
 
-        /* create list of only main.java.base colors */
+        /* create list of only main.java.com.base colors */
         final List<String> baseColors = new ArrayList<>(allColors);
         baseColors.removeIf(color -> color.contains("+"));
 
@@ -451,7 +451,7 @@ public class Utils {
         List<String> filenames = new ArrayList<>();
 
         try {
-            InputStream in = Scenes.class.getResourceAsStream("/resources/" + path);
+            InputStream in = Scenes.class.getResourceAsStream("resources/" + path);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
             String resource;

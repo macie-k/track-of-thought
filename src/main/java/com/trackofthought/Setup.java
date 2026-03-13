@@ -1,10 +1,10 @@
-package base;
+package com.trackofthought;
 
-import static base.Utils.PATHS_TO_LOAD;
-import static base.Utils.PATH_PUBLIC_DATA;
-import static base.Utils.createData;
-import static base.Utils.createFolder;
-import static base.Utils.isCorrectKey;
+import static com.trackofthought.Utils.PATHS_TO_LOAD;
+import static com.trackofthought.Utils.PATH_PUBLIC_DATA;
+import static com.trackofthought.Utils.createData;
+import static com.trackofthought.Utils.createFolder;
+import static com.trackofthought.Utils.isCorrectKey;
 
 import java.io.File;
 import javafx.scene.text.Font;
@@ -31,7 +31,7 @@ public class Setup {
         /* load each font */
         for (String font : fontNames) {
             try {
-                Font.loadFont(Setup.class.getResourceAsStream("/resources/data/fonts/" + font), 20);
+                Font.loadFont(Setup.class.getResourceAsStream("/data/fonts/" + font), 20);
             } catch (Exception e) {
                 Log.error(String.format("Unable to load font {%s}: {%s}", font, e.getMessage()));
             }

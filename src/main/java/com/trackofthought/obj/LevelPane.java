@@ -1,11 +1,11 @@
-package base.obj;
+package com.trackofthought.obj;
 
-import static base.Utils.COLOR_ACCENT;
-import static base.Utils.COLOR_LEVEL;
+import static com.trackofthought.Utils.COLOR_ACCENT;
+import static com.trackofthought.Utils.COLOR_LEVEL;
 
-import base.Scenes;
-import base.Utils;
-import base.Window;
+import com.trackofthought.Scenes;
+import com.trackofthought.Utils;
+import com.trackofthought.Window;
 import javafx.scene.Cursor;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
@@ -48,7 +48,7 @@ public class LevelPane extends StackPane {
         }
         getChildren().addAll(container, value);
     }
-    
+
     public void fadeHighlight(boolean highlight) {
         final int duration = 200;
         if (highlight) {

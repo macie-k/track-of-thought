@@ -1,16 +1,16 @@
-package base;
+package com.trackofthought;
 
-import static base.Utils.COLOR_ACCENT;
-import static base.Utils.COLOR_BACKGROUND;
-import static base.Utils.PATH_LEVELS_CUSTOM;
-import static base.Utils.fadeColors;
+import static com.trackofthought.Utils.COLOR_ACCENT;
+import static com.trackofthought.Utils.COLOR_BACKGROUND;
+import static com.trackofthought.Utils.PATH_LEVELS_CUSTOM;
+import static com.trackofthought.Utils.fadeColors;
 
-import base.obj.Ball;
-import base.obj.FullTrack;
-import base.obj.GridSquare;
-import base.obj.LevelPane;
-import base.obj.Station;
-import base.obj.Track;
+import com.trackofthought.obj.Ball;
+import com.trackofthought.obj.FullTrack;
+import com.trackofthought.obj.GridSquare;
+import com.trackofthought.obj.LevelPane;
+import com.trackofthought.obj.Station;
+import com.trackofthought.obj.Track;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -201,7 +201,7 @@ public class Scenes {
 
     public static FullTrack gameTrack(String level, boolean premade) {
 
-        final String path = premade ? "/resources/data/levels/" : PATH_LEVELS_CUSTOM;
+        final String path = premade ? "/data/levels/" : PATH_LEVELS_CUSTOM;
 
         int levelCounter = level.equals("3") ? 3 : 5; // all levels except 3rd have 5 versions
         if (Integer.parseInt(level) > 8) {
@@ -344,7 +344,7 @@ public class Scenes {
 
     /*
         - Objects' structure & properties are avaialable at: resources/structure.json
-        - In order for the premade level to be accessible, it needs to be placed in: bin/resources/levels
+        - In order for the premade level to be accessible, it needs to be placed in: binresources/levels
         - Color names that contain '+O' are colors with white border
             The suffix is omitted during a conversion @Utils.parseColorName() and boolean border value is passed to constructor
     */
@@ -355,7 +355,7 @@ public class Scenes {
         // available objects as menu "pages"
         final String[] menuObjects = {"track", "station"};
         // get general object from structure.json
-        final JSONObject jsonObjects = Utils.getJsonFromFile("/resources/utils/structure.json");
+        final JSONObject jsonObjects = Utils.getJsonFromFile("utils/structure.json");
         final List<GridSquare> grid = new ArrayList<>();
 
         createObjectStr = menuObjects[objectIndex];
@@ -854,7 +854,7 @@ public class Scenes {
         scene.getStylesheets()
              .addAll(
                  Window.class
-                     .getResource("/resources/data/styles/" + cssFile)
+                     .getResource("/data/styles/" + cssFile)
                      .toExternalForm());
         return scene;
     }

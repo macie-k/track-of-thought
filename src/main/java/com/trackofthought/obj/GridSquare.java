@@ -1,8 +1,8 @@
-package base.obj;
+package com.trackofthought.obj;
 
-import static base.Utils.getXYFromRowCol;
+import static com.trackofthought.Utils.getXYFromRowCol;
 
-import base.Log;
+import com.trackofthought.Log;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 

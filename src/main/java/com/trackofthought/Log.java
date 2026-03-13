@@ -1,4 +1,4 @@
-package base;
+package com.trackofthought;
 
 import com.diogonunes.jcolor.Ansi;
 import com.diogonunes.jcolor.AnsiFormat;

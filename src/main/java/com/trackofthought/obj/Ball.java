@@ -1,9 +1,9 @@
-package base.obj;
+package com.trackofthought.obj;
 
-import static base.Utils.getColRowFromXY;
+import static com.trackofthought.Utils.getColRowFromXY;
 
-import base.Log;
-import base.Utils;
+import com.trackofthought.Log;
+import com.trackofthought.Utils;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;

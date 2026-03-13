@@ -1,9 +1,9 @@
-package base.obj;
+package com.trackofthought.obj;
 
-import static base.Utils.getColRowFromXY;
-import static base.Utils.getXYFromRowCol;
+import static com.trackofthought.Utils.getColRowFromXY;
+import static com.trackofthought.Utils.getXYFromRowCol;
 
-import base.Log;
+import com.trackofthought.Log;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
