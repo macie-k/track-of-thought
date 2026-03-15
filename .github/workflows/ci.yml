@@ -29,6 +29,9 @@ jobs:
           java-version: 17
           cache: gradle
 
+      - name: Run smoke test
+        run: ./gradlew run --args="--smoke-test"
+
       - name: Build native installer
         run: ./gradlew clean jpackage
 

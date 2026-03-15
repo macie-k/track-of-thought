@@ -72,13 +72,6 @@ javafx {
     modules = ['javafx.controls', 'javafx.graphics', 'javafx.fxml']
 }
 
-spotless {
-    java {
-        googleJavaFormat('1.19.2').aosp()
-        removeUnusedImports()
-    }
-}
-
 dependencies {
     implementation 'com.diogonunes:JColor:5.0.1'
     implementation 'org.apache.commons:commons-lang3:3.18.0'

@@ -45,6 +45,8 @@ public class Window extends Application {
     private static boolean skip = false;
     private static double timeD = 1;
 
+    private static boolean isSmokeTest = false;
+
     @Override
     public void start(Stage primaryStage) {
         window = primaryStage;
@@ -60,6 +62,10 @@ public class Window extends Application {
 
         Setup.runSetup();
         window.show();
+
+        if (isSmokeTest) {
+            javafx.application.Platform.exit();
+        }
     }
 
     public static void game(FullTrack allNodes) {
@@ -280,6 +286,9 @@ public class Window extends Application {
                         new PrintStream(new FileOutputStream(new File("log.txt")));
                     System.setOut(outputLog);
                     System.setErr(outputLog);
+                    break;
+                case "--smoke-test":
+                    isSmokeTest = true;
                     break;
                 default:
                     Log.warning("Unknown argument: " + arg);
