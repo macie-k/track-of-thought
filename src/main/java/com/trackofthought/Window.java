@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.animation.AnimationTimer;
@@ -48,8 +49,14 @@ public class Window extends Application {
     public void start(Stage primaryStage) {
         window = primaryStage;
         window.setTitle("Track of thought");
-        window.getIcons().add(new Image("icons/icon.png"));
         window.setResizable(false);
+
+        URL iconUrl = Window.class.getResource("/icons/icon.png");
+        if (iconUrl == null) {
+            Log.error("Icon not found on classpath: /icons/icon.png");
+        } else {
+            window.getIcons().add(new Image(iconUrl.toExternalForm()));
+        }
 
         Setup.runSetup();
         window.show();
