@@ -355,7 +355,7 @@ public class Scenes {
         // available objects as menu "pages"
         final String[] menuObjects = {"track", "station"};
         // get general object from structure.json
-        final JSONObject jsonObjects = Utils.getJsonFromFile("utils/structure.json");
+        final JSONObject jsonObjects = Utils.getJsonFromFile("/utils/structure.json");
         final List<GridSquare> grid = new ArrayList<>();
 
         createObjectStr = menuObjects[objectIndex];
