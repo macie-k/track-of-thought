@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: com.diogonunes:JColor:5.0.1" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="com.diogonunes" artifactId="JColor" version="5.0.1" baseVersion="5.0.1" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/9.0.0/transforms/5043112818ceb7db3fe08864808f0478/transformed/JColor-5.0.1-module.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.diogonunes/JColor/5.0.1/520d180e9a6acabe2c72aebd79c81f5544db153a/JColor-5.0.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

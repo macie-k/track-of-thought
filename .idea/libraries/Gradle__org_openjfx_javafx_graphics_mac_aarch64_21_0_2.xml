@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: org.openjfx:javafx-graphics:mac-aarch64:21.0.2" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="org.openjfx" artifactId="javafx-graphics" version="21.0.2" baseVersion="21.0.2" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.openjfx/javafx-graphics/21.0.2/2c47a02ea46c45ee9f751badd528f91b498e3982/javafx-graphics-21.0.2-mac-aarch64.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.openjfx/javafx-graphics/21.0.2/5f346538f68b9ee6a452cc23730d9f8a3a6c5518/javafx-graphics-21.0.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

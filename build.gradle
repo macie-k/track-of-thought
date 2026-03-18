@@ -1,0 +1,83 @@
+import org.gradle.internal.os.OperatingSystem
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.diffplug.spotless' version '6.19.0'
+    id 'org.beryx.jlink' version '3.2.1'
+    id 'org.gradlex.extra-java-module-info' version '1.0'
+}
+
+group = 'com.macie-k'
+version = '1.1.0'
+
+repositories {
+    mavenCentral()
+}
+
+def os = OperatingSystem.current()
+def installer
+def iconPath
+
+if (os.isMacOsX()) {
+    installer = "dmg"
+    iconPath = file("src/main/resources/icons/icon.icns")
+} else if (os.isWindows()) {
+    installer = "msi"
+    iconPath = file("src/main/resources/icons/icon.ico")
+} else {
+    installer = "deb"
+    iconPath = file("src/main/resources/icons/icon.png")
+}
+
+jlink {
+    launcher {
+        name = 'Track Of Thought'
+    }
+    jpackage {
+        imageName = "Track Of Thought"
+        installerType = installer
+        icon = iconPath.absolutePath
+        appVersion = project.version
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    modularity.inferModulePath = true
+}
+
+application {
+    mainClass = 'com.trackofthought.Window'
+    mainModule = 'com.trackofthought'
+}
+
+extraJavaModuleInfo {
+    failOnMissingModuleInfo = false
+    module('org.apache.commons:commons-math3', 'org.apache.commons.math3') {
+        exports('org.apache.commons.math3')
+        exports('org.apache.commons.math3.distribution')
+        exports('org.apache.commons.math3.util')
+    }
+    module('com.diogonunes:JColor', 'com.diogonunes.jcolor') {
+        exports('com.diogonunes.jcolor')
+    }
+}
+
+javafx {
+    version = '21.0.2'
+    modules = ['javafx.controls', 'javafx.graphics', 'javafx.fxml']
+}
+
+dependencies {
+    implementation 'com.diogonunes:JColor:5.0.1'
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
+    implementation 'commons-logging:commons-logging:1.2'
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+    implementation 'com.healthmarketscience.jackcess:jackcess:3.0.1'
+    implementation 'org.json:json:20231013'
+    implementation 'net.sf.ucanaccess:ucanaccess:5.0.0'
+}

@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: net.sf.ucanaccess:ucanaccess:5.0.0" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="net.sf.ucanaccess" artifactId="ucanaccess" version="5.0.0" baseVersion="5.0.0" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.sf.ucanaccess/ucanaccess/5.0.0/1820be9832d74fb11a53da457ef23dc4a74e1761/ucanaccess-5.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.sf.ucanaccess/ucanaccess/5.0.0/23f767f42c20b464358bcc30fa1b5996cddd46f/ucanaccess-5.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
